@@ -1,4 +1,4 @@
-package bounce;
+package gravity;
 
 import java.util.Iterator;
 
@@ -57,7 +57,7 @@ class GameOverState extends BasicGameState {
 
 	@Override
 	public int getID() {
-		return BounceGame.GAMEOVERSTATE;
+		return GravGame.GAMEOVERSTATE;
 	}
 	
 }

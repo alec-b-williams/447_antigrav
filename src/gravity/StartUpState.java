@@ -1,4 +1,4 @@
-package bounce;
+package gravity;
 
 import java.util.Iterator;
 
@@ -51,13 +51,13 @@ class StartUpState extends BasicGameState {
 		GravGame gg = (GravGame)game;
 
 		if (input.isKeyDown(Input.KEY_SPACE))
-			bg.enterState(BounceGame.PLAYINGSTATE);
+			gg.enterState(GravGame.PLAYINGSTATE);
 
 	}
 
 	@Override
 	public int getID() {
-		return BounceGame.STARTUPSTATE;
+		return GravGame.STARTUPSTATE;
 	}
 	
 }
