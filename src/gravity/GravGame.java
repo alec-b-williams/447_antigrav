@@ -22,6 +22,8 @@ public class GravGame extends StateBasedGame {
 	public static final int STARTUPSTATE = 0;
 	public static final int PLAYINGSTATE = 1;
 	public static final int GAMEOVERSTATE = 2;
+
+	public boolean isServer;
 	
 	//public static final String BALL_BALLIMG_RSC = "bounce/resource/ball.png";
 
@@ -59,7 +61,7 @@ public class GravGame extends StateBasedGame {
 		// preload all the resources to avoid warnings & minimize latency...
 		//ResourceManager.loadImage(BALL_BALLIMG_RSC);
 	}
-	
+
 	public static void main(String[] args) {
 		AppGameContainer app;
 		try {

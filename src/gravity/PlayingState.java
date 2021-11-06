@@ -23,30 +23,43 @@ import org.newdawn.slick.state.StateBasedGame;
  * Transitions To GameOverState
  */
 class PlayingState extends BasicGameState {
-	int bounces;
-	
+	private GravGame game;
+	private Input input;
+	private Network network;
+
 	@Override
-	public void init(GameContainer container, StateBasedGame game)
+	public void init(GameContainer container, StateBasedGame stateBasedGame)
 			throws SlickException {
+		game = (GravGame) stateBasedGame;
+		input = container.getInput();
 	}
 
 	@Override
-	public void enter(GameContainer container, StateBasedGame game) {
+	public void enter(GameContainer container, StateBasedGame stateBasedGame) {
 		container.setSoundOn(true);
+		network = new Network(game.isServer, game, "");
+		network.start();
 	}
 
 	@Override
 	public void render(GameContainer container, StateBasedGame game,
 			Graphics g) throws SlickException {
-		GravGame gg = (GravGame)game;
+
 	}
 
 	@Override
-	public void update(GameContainer container, StateBasedGame game,
+	public void update(GameContainer container, StateBasedGame stateBasedGame,
 			int delta) throws SlickException {
+		if(input.isKeyPressed(Input.KEY_A)) {
+			if(game.isServer) {
+				network.pw.println("server says: A");
+				network.pw.flush();
+			} else {
+				network.pw.println("client says: A");
+				network.pw.flush();
+			}
+		}
 
-		Input input = container.getInput();
-		GravGame gg = (GravGame)game;
 	}
 
 	@Override
