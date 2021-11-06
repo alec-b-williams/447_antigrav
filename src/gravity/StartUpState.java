@@ -23,9 +23,12 @@ import org.newdawn.slick.state.StateBasedGame;
  */
 class StartUpState extends BasicGameState {
 
+	private Network net;
+
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
 			throws SlickException {
+
 	}
 	
 	@Override
@@ -50,9 +53,15 @@ class StartUpState extends BasicGameState {
 		Input input = container.getInput();
 		GravGame gg = (GravGame)game;
 
-		if (input.isKeyDown(Input.KEY_SPACE))
+		// testing server/client stuff
+		if (input.isKeyDown(Input.KEY_SPACE)) {
+			gg.isServer = true;
 			gg.enterState(GravGame.PLAYINGSTATE);
-
+		}
+		if (input.isKeyDown(Input.KEY_1)) {
+			gg.isServer = false;
+			gg.enterState(GravGame.PLAYINGSTATE);
+		}
 	}
 
 	@Override
