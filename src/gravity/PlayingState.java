@@ -37,6 +37,7 @@ class PlayingState extends BasicGameState {
 		network.start();
 
 		game.map = new TiledMap("gravity/resource/track1.tmx", "gravity/resource");
+		game.player = new Vehicle(GravGame._SCREENWIDTH/2.0f, GravGame._SCREENHEIGHT/2.0f);
 
 		game.cameraXPos = 0;
 		game.cameraYPos = 0;
@@ -49,6 +50,7 @@ class PlayingState extends BasicGameState {
 
 		g.scale(game.gameScale, game.gameScale);
 		game.map.render(500-(int)game.cameraXPos,(int)game.cameraYPos);
+		game.player.render(g);
 		g.scale(1, 1);
 	}
 
@@ -74,9 +76,9 @@ class PlayingState extends BasicGameState {
 		if (input.isKeyDown(Input.KEY_D))
 			game.cameraXPos += (delta/2.0f);
 
-		if (input.isKeyDown(Input.KEY_SUBTRACT))
+		if (input.isKeyDown(Input.KEY_LBRACKET))
 			game.gameScale -= (delta/2000.0f);
-		if (input.isKeyDown(Input.KEY_ADD))
+		if (input.isKeyDown(Input.KEY_RBRACKET))
 			game.gameScale += (delta/2000.0f);
 	}
 

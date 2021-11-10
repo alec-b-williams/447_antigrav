@@ -30,7 +30,7 @@ public class GravGame extends StateBasedGame {
 	public static final int _TILEWIDTH = 64;
 	public static final int _TILEHEIGHT = 32;
 	
-	//public static final String WALL_IMG_RSC = "gravity/resource/wall.png";
+	public static final String VEHICLE_ANIM_RSC = "gravity/resource/vehicleAnim.png";
 
 	public final int ScreenWidth;
 	public final int ScreenHeight;
@@ -39,6 +39,7 @@ public class GravGame extends StateBasedGame {
 	public float gameScale;
 	public boolean isServer;
 	public TiledMap map;
+	public Vehicle player;
 
 	/**
 	 * Create the BounceGame frame, saving the width and height for later use.
@@ -69,7 +70,7 @@ public class GravGame extends StateBasedGame {
 		//ResourceManager.loadSound(BANG_EXPLOSIONSND_RSC);	
 
 		// preload all the resources to avoid warnings & minimize latency...
-		//ResourceManager.loadImage(WALL_IMG_RSC);
+		ResourceManager.loadImage(VEHICLE_ANIM_RSC);
 	}
 
 	public static void main(String[] args) {
