@@ -20,22 +20,22 @@ import org.newdawn.slick.tiled.TiledMap;
  * Transitions To GameOverState
  */
 class PlayingState extends BasicGameState {
-	private GravGame game;
+	private GravGame gg;
 	private Input input;
 	private Network network;
 	private final static float speedScale = 250.0f;
 
 	@Override
-	public void init(GameContainer container, StateBasedGame stateBasedGame)
+	public void init(GameContainer container, StateBasedGame game)
 			throws SlickException {
-		game = (GravGame) stateBasedGame;
+		gg = (GravGame) game;
 		input = container.getInput();
 	}
 
 	@Override
-	public void enter(GameContainer container, StateBasedGame stateBasedGame) throws SlickException {
+	public void enter(GameContainer container, StateBasedGame game) {
 		container.setSoundOn(true);
-		network = new Network(game.isServer, game, "");
+		network = new Network(gg.isServer, gg, "");
 		network.start();
 
 		game.map = new TiledMap("gravity/resource/track1.tmx", "gravity/resource");
@@ -66,11 +66,10 @@ class PlayingState extends BasicGameState {
 	}
 
 	@Override
-	public void update(GameContainer container, StateBasedGame stateBasedGame,
+	public void update(GameContainer container, StateBasedGame game,
 			int delta) throws SlickException {
-
-		if (input.isKeyPressed(Input.KEY_A)) {
-			if (game.isServer) {
+		if(input.isKeyPressed(Input.KEY_A)) {
+			if(gg.isServer) {
 				network.pw.println("server says: A");
 			} else {
 				network.pw.println("client says: A");
@@ -93,6 +92,9 @@ class PlayingState extends BasicGameState {
 		if (input.isKeyDown(Input.KEY_D)) {
 			game.player.worldY -= (delta / speedScale);
 			game.player.worldX += (delta / speedScale);
+		}
+		if(!gg.isServer){
+			gg.kart.update(container, game, delta);
 		}
 
 		if (input.isKeyDown(Input.KEY_LBRACKET))

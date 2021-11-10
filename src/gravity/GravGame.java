@@ -41,6 +41,8 @@ public class GravGame extends StateBasedGame {
 	public TiledMap map;
 	public Vehicle player;
 
+	public Vehicle kart;
+
 	/**
 	 * Create the BounceGame frame, saving the width and height for later use.
 	 * 
@@ -66,8 +68,10 @@ public class GravGame extends StateBasedGame {
 		addState(new StartUpState());
 		addState(new GameOverState());
 		addState(new PlayingState());
+
+		kart = new Vehicle(400, 300);
 		
-		//ResourceManager.loadSound(BANG_EXPLOSIONSND_RSC);	
+		//ResourceManager.loadSound(BANG_EXPLOSIONSND_RSC);
 
 		// preload all the resources to avoid warnings & minimize latency...
 		ResourceManager.loadImage(VEHICLE_ANIM_RSC);
