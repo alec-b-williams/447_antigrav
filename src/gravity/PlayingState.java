@@ -1,6 +1,5 @@
 package gravity;
 
-import java.text.DecimalFormat;
 import java.util.Iterator;
 
 import jig.Vector;
@@ -23,7 +22,6 @@ class PlayingState extends BasicGameState {
 	private GravGame game;
 	private Input input;
 	private Network network;
-	private final static float speedScale = 250.0f;
 
 	@Override
 	public void init(GameContainer container, StateBasedGame stateBasedGame)
@@ -39,7 +37,7 @@ class PlayingState extends BasicGameState {
 		network.start();
 
 		game.map = new TiledMap("gravity/resource/track1.tmx", "gravity/resource");
-		game.player = new Vehicle(5.5f, 5.5f);
+		game.player = new Vehicle(GravGame._SCREENWIDTH/2.0f, GravGame._SCREENHEIGHT/2.0f);
 
 		game.cameraXPos = 0;
 		game.cameraYPos = 0;
@@ -50,18 +48,9 @@ class PlayingState extends BasicGameState {
 	public void render(GameContainer container, StateBasedGame stateBasedGame,
 			Graphics g) throws SlickException {
 
-		DecimalFormat df = new DecimalFormat("####.##");
-		g.drawString("Player Pos: " + df.format(game.player.worldX) + ", " + df.format(game.player.worldY), 10, 30);
-
 		g.scale(game.gameScale, game.gameScale);
-
-		game.map.render(((GravGame._SCREENWIDTH/2) - GravGame._TILEWIDTH/2)
-							+ (int)((game.player.worldX - game.player.worldY) * GravGame._TILEWIDTH/2.0f *-1),
-				((GravGame._SCREENHEIGHT/2))
-						- (int)((game.player.worldX + game.player.worldY) * GravGame._TILEHEIGHT/2.0f ) );
-
+		game.map.render(500-(int)game.cameraXPos,(int)game.cameraYPos);
 		game.player.render(g);
-
 		g.scale(1, 1);
 	}
 
@@ -78,22 +67,14 @@ class PlayingState extends BasicGameState {
 			network.pw.flush();
 		}
 
-		if (input.isKeyDown(Input.KEY_W)) {
-			game.player.worldY -= (delta / speedScale);
-			game.player.worldX -= (delta / speedScale);
-		}
-		if (input.isKeyDown(Input.KEY_S)) {
-			game.player.worldY += (delta / speedScale);
-			game.player.worldX += (delta / speedScale);
-		}
-		if (input.isKeyDown(Input.KEY_A)) {
-			game.player.worldY += (delta / speedScale);
-			game.player.worldX -= (delta / speedScale);
-		}
-		if (input.isKeyDown(Input.KEY_D)) {
-			game.player.worldY -= (delta / speedScale);
-			game.player.worldX += (delta / speedScale);
-		}
+		if (input.isKeyDown(Input.KEY_W))
+			game.cameraYPos += (delta/2.0f);
+		if (input.isKeyDown(Input.KEY_S))
+			game.cameraYPos -= (delta/2.0f);
+		if (input.isKeyDown(Input.KEY_A))
+			game.cameraXPos -= (delta/2.0f);
+		if (input.isKeyDown(Input.KEY_D))
+			game.cameraXPos += (delta/2.0f);
 
 		if (input.isKeyDown(Input.KEY_LBRACKET))
 			game.gameScale -= (delta/2000.0f);
