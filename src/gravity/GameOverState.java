@@ -24,10 +24,6 @@ import org.newdawn.slick.state.transition.HorizontalSplitTransition;
  */
 class GameOverState extends BasicGameState {
 	
-
-	private int timer;
-	private int lastKnownBounces; // the user's score, to be displayed, but not updated.
-	
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
 			throws SlickException {
@@ -35,12 +31,9 @@ class GameOverState extends BasicGameState {
 	
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) {
-		timer = 4000;
+
 	}
 
-	public void setUserScore(int bounces) {
-		lastKnownBounces = bounces;
-	}
 	
 	@Override
 	public void render(GameContainer container, StateBasedGame game,
