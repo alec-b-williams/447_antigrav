@@ -94,6 +94,9 @@ class PlayingState extends BasicGameState {
 			}
 			else if(gg.player.getSpeed().length() < 0.2){
 				gg.player.setSpeed(gg.player.getSpeed().scale(1.1f));
+				if(gg.player.getSpeed().length() > 0.2){
+					gg.player.setSpeed(Vector.getVector(gg.player.getSpeedAngle(), 0.2f));
+				}
 			}
 			gg.player.worldY += gg.player.getSpeed().getY();
 			gg.player.worldX += gg.player.getSpeed().getX();
@@ -107,7 +110,10 @@ class PlayingState extends BasicGameState {
 				gg.player.setSpeed(Vector.getVector(gg.player.getSpeedAngle(), 0.01f));
 			}
 			else if(gg.player.getSpeed().length() < 0.05){
-				gg.player.setSpeed(gg.player.getSpeed().scale(1.1f));
+				gg.player.setSpeed(gg.player.getSpeed().scale(1.05f));
+			}
+			if(gg.player.getSpeed().length() > 0.05){
+				gg.player.setSpeed(Vector.getVector(gg.player.getSpeedAngle(), 0.05f));
 			}
 			gg.player.worldY -= gg.player.getSpeed().getY();
 			gg.player.worldX -= gg.player.getSpeed().getX();
