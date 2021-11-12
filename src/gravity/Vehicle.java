@@ -15,6 +15,7 @@ public class Vehicle extends Entity {
     private Vector speed;
     private double speedAngle;
     private int turnCooldown;
+    private boolean backUp;
 
     public Vehicle(float x, float y) {
         super(GravGame._SCREENWIDTH/2.0f, GravGame._SCREENHEIGHT/2.0f);
@@ -29,10 +30,18 @@ public class Vehicle extends Entity {
         speed = new Vector(0, 0);
         speedAngle = 180;
         turnCooldown = 1000;
+        backUp = false;
     }
 
     public void update(GameContainer container, GravGame gg, int delta){
 
+    }
+    public boolean getBackUp(){
+        return this.backUp;
+    }
+
+    public void setBackUp(boolean value){
+        this.backUp = value;
     }
 
     public int getTurnCooldown(){
