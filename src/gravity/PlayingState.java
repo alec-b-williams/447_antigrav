@@ -119,24 +119,26 @@ class PlayingState extends BasicGameState {
 			gg.player.worldX -= gg.player.getSpeed().getX();
 		}
 		if (input.isKeyDown(Input.KEY_A)) {
-			if(gg.player.getTurnCooldown() < 1000){
+			/*if(gg.player.getTurnCooldown() < 1000){
 				gg.player.setTurnCooldown(delta);
 			}
 			if(gg.player.getTurnCooldown() >= 1000){
 				gg.player.setSpeedRotation(-45);
 				gg.player.sprite.setCurrentFrame(((gg.player.sprite.getFrame() - 1) + gg.player.sprite.getFrameCount()) % gg.player.sprite.getFrameCount());
 				gg.player.resetCooldown();
-			}
+			}*/
+			gg.player.turn(1, delta);
 		}
 		if (input.isKeyDown(Input.KEY_D)) {
-			if(gg.player.getTurnCooldown() < 1000){
+			/*if(gg.player.getTurnCooldown() < 1000){
 				gg.player.setTurnCooldown(delta);
 			}
 			if(gg.player.getTurnCooldown() >= 1000){
 				gg.player.setSpeedRotation(45);
 				gg.player.sprite.setCurrentFrame((gg.player.sprite.getFrame() + 1) % gg.player.sprite.getFrameCount());
 				gg.player.resetCooldown();
-			}
+			}*/
+			gg.player.turn(-1, delta);
 		}
 		if(gg.player.getTurnCooldown() < 1000 && !input.isKeyDown(Input.KEY_A) && !input.isKeyDown(Input.KEY_D)){
 			gg.player.setTurnCooldown(delta*2);

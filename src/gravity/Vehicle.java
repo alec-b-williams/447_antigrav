@@ -16,6 +16,9 @@ public class Vehicle extends Entity {
     private double speedAngle;
     private int turnCooldown;
     private boolean backUp;
+    //private float angle = 0;
+
+    private static final float degPerSecond = 180;
 
     public Vehicle(float x, float y) {
         super(GravGame._SCREENWIDTH/2.0f, GravGame._SCREENHEIGHT/2.0f);
@@ -29,7 +32,7 @@ public class Vehicle extends Entity {
         sprite.setCurrentFrame(5);
         speed = new Vector(0, 0);
         speedAngle = 180;
-        turnCooldown = 1000;
+        //turnCooldown = 1000;
         backUp = false;
     }
 
@@ -65,8 +68,21 @@ public class Vehicle extends Entity {
     }
 
     public void setSpeedRotation(double theta){
+
         this.speed = this.speed.rotate(theta);
         this.speedAngle = this.speed.getRotation();
+    }
+
+    public void turn(int dir, int delta) {
+        float newAngle = (float)(speedAngle + (degPerSecond * (delta/1000.0f) * dir));
+
+        this.speed = this.speed.rotate(speedAngle - newAngle);
+        this.speedAngle = this.speed.getRotation();
+
+        int num = (int)(newAngle) + 205;
+        int index = ((num / 45) + 5) % 8;
+        System.out.println("Angle: " + newAngle + ", index: " + index);
+        this.sprite.setCurrentFrame(index);
     }
 
     public void initSpeedAngle(double theta){
