@@ -33,34 +33,34 @@ class PlayingState extends BasicGameState {
 	}
 
 	@Override
-	public void enter(GameContainer container, StateBasedGame game) {
+	public void enter(GameContainer container, StateBasedGame game) throws SlickException {
 		container.setSoundOn(true);
 		network = new Network(gg.isServer, gg, "");
 		network.start();
 
-		game.map = new TiledMap("gravity/resource/track1.tmx", "gravity/resource");
-		game.player = new Vehicle(5.5f, 5.5f);
+		gg.map = new TiledMap("gravity/resource/track1.tmx", "gravity/resource");
+		gg.player = new Vehicle(5.5f, 5.5f);
 
-		game.cameraXPos = 0;
-		game.cameraYPos = 0;
-		game.gameScale = 1;
+		gg.cameraXPos = 0;
+		gg.cameraYPos = 0;
+		gg.gameScale = 1;
 	}
 
 	@Override
-	public void render(GameContainer container, StateBasedGame stateBasedGame,
+	public void render(GameContainer container, StateBasedGame game,
 			Graphics g) throws SlickException {
 
 		DecimalFormat df = new DecimalFormat("####.##");
-		g.drawString("Player Pos: " + df.format(game.player.worldX) + ", " + df.format(game.player.worldY), 10, 30);
+		g.drawString("Player Pos: " + df.format(gg.player.worldX) + ", " + df.format(gg.player.worldY), 10, 30);
 
-		g.scale(game.gameScale, game.gameScale);
+		g.scale(gg.gameScale, gg.gameScale);
 
-		game.map.render(((GravGame._SCREENWIDTH/2) - GravGame._TILEWIDTH/2)
-							+ (int)((game.player.worldX - game.player.worldY) * GravGame._TILEWIDTH/2.0f *-1),
+		gg.map.render(((GravGame._SCREENWIDTH/2) - GravGame._TILEWIDTH/2)
+							+ (int)((gg.player.worldX - gg.player.worldY) * GravGame._TILEWIDTH/2.0f *-1),
 				((GravGame._SCREENHEIGHT/2))
-						- (int)((game.player.worldX + game.player.worldY) * GravGame._TILEHEIGHT/2.0f ) );
+						- (int)((gg.player.worldX + gg.player.worldY) * GravGame._TILEHEIGHT/2.0f ) );
 
-		game.player.render(g);
+		gg.player.render(g);
 
 		g.scale(1, 1);
 	}
@@ -78,29 +78,51 @@ class PlayingState extends BasicGameState {
 		}
 
 		if (input.isKeyDown(Input.KEY_W)) {
-			game.player.worldY -= (delta / speedScale);
-			game.player.worldX -= (delta / speedScale);
+			if(gg.player.getSpeed().length() != 0) {
+				System.out.println("The Angle(W): " + gg.player.getSpeed().getRotation());
+				gg.player.worldY += gg.player.getSpeed().getY();
+				gg.player.worldX += gg.player.getSpeed().getX();
+			}
+			else
+			{
+
+			}
 		}
 		if (input.isKeyDown(Input.KEY_S)) {
-			game.player.worldY += (delta / speedScale);
-			game.player.worldX += (delta / speedScale);
+			gg.player.worldY -= gg.player.getSpeed().getY();
+			gg.player.worldX -= gg.player.getSpeed().getX();
 		}
 		if (input.isKeyDown(Input.KEY_A)) {
-			game.player.worldY += (delta / speedScale);
-			game.player.worldX -= (delta / speedScale);
+			//gg.player.setSpeedRotation();
+			gg.player.setCurrentAngle(-1*(90 * ((double) delta/1000)));
+			if(gg.player.getCurrentAngle() < gg.player.getThres1Angle()) {
+				gg.player.setSpeedRotation(-45);
+				gg.player.sprite.setCurrentFrame(((gg.player.sprite.getFrame() - 1) + gg.player.sprite.getFrameCount()) % gg.player.sprite.getFrameCount());
+				gg.player.setThres1(((gg.player.getThres1() - 1) + gg.player.thresLength()) % gg.player.thresLength());
+				gg.player.setThres2(((gg.player.getThres2() - 1) + gg.player.thresLength()) % gg.player.thresLength());
+				gg.player.matchSpeedAngle();
+			}
 		}
 		if (input.isKeyDown(Input.KEY_D)) {
-			game.player.worldY -= (delta / speedScale);
-			game.player.worldX += (delta / speedScale);
+//			gg.player.setSpeedRotation(45);
+//			gg.player.sprite.setCurrentFrame((gg.player.sprite.getFrame() + 1) % gg.player.sprite.getFrameCount());
+			gg.player.setCurrentAngle((90 * ( (double) delta/1000)));
+			if(gg.player.getCurrentAngle() > gg.player.getThres2Angle()) {
+				gg.player.setSpeedRotation(45);
+				gg.player.sprite.setCurrentFrame((gg.player.sprite.getFrame() + 1) % gg.player.sprite.getFrameCount());
+				gg.player.setThres1((gg.player.getThres1() + 1) % gg.player.thresLength());
+				gg.player.setThres2((gg.player.getThres2() + 1) % gg.player.thresLength());
+				gg.player.matchSpeedAngle();
+			}
 		}
 		if(!gg.isServer){
-			gg.kart.update(container, game, delta);
+			//gg.kart.update(container, game, delta);
 		}
 
 		if (input.isKeyDown(Input.KEY_LBRACKET))
-			game.gameScale -= (delta/2000.0f);
+			gg.gameScale -= (delta/2000.0f);
 		if (input.isKeyDown(Input.KEY_RBRACKET))
-			game.gameScale += (delta/2000.0f);
+			gg.gameScale += (delta/2000.0f);
 	}
 
 	@Override

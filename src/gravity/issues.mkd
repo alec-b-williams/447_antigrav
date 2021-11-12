@@ -1,10 +1,10 @@
 ## Resolved Issues ##
 - **[1]** Basic Networking Setup
+- **[2]** Implement rendering and camera system
 
 
 ## Open Issues ##
 Milestone 1
-- **[2]** Implement rendering and camera system
 - **[3]** Implement first-draft assets
 - **[4]** Basic player controls
 - **[5]**
