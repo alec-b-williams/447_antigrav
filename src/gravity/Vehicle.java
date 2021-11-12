@@ -44,7 +44,7 @@ public class Vehicle extends Entity {
     }
 
     public void resetCooldown(){
-        this.turnCooldown = 1000;
+        this.turnCooldown = 0;
     }
 
     public Vector getSpeed(){
@@ -58,6 +58,10 @@ public class Vehicle extends Entity {
     public void setSpeedRotation(double theta){
         this.speed = this.speed.rotate(theta);
         this.speedAngle = this.speed.getRotation();
+    }
+
+    public void initSpeedAngle(double theta){
+        this.speedAngle = theta;
     }
 
     public double getSpeedAngle(){

@@ -79,7 +79,7 @@ class PlayingState extends BasicGameState {
 		System.out.println("Length of Speed: " + gg.player.getSpeed().length());
 		if (input.isKeyDown(Input.KEY_W)) {
 			if(gg.player.getSpeed().length() == 0){
-				gg.player.setSpeed(Vector.getVector(gg.player.getSpeedAngle(), 0.1f));
+				gg.player.setSpeed(Vector.getVector(gg.player.getSpeedAngle(), 0.01f));
 			}
 			else if(gg.player.getSpeed().length() < 0.2){
 				gg.player.setSpeed(gg.player.getSpeed().scale(1.1f));
@@ -94,30 +94,27 @@ class PlayingState extends BasicGameState {
 			gg.player.worldX -= gg.player.getSpeed().getX();
 		}
 		if (input.isKeyDown(Input.KEY_A)) {
-			if(gg.player.getTurnCooldown() < 1000 && gg.player.getTurnCooldown() > 0){
-				gg.player.setTurnCooldown(-delta);
+			if(gg.player.getTurnCooldown() < 1000){
+				gg.player.setTurnCooldown(delta);
 			}
-			if(gg.player.getTurnCooldown() == 1000){
+			if(gg.player.getTurnCooldown() >= 1000){
 				gg.player.setSpeedRotation(-45);
 				gg.player.sprite.setCurrentFrame(((gg.player.sprite.getFrame() - 1) + gg.player.sprite.getFrameCount()) % gg.player.sprite.getFrameCount());
-				gg.player.setTurnCooldown(-delta);
+				gg.player.resetCooldown();
 			}
 		}
 		if (input.isKeyDown(Input.KEY_D)) {
-			if(gg.player.getTurnCooldown() < 1000 && gg.player.getTurnCooldown() > 0){
-				gg.player.setTurnCooldown(-delta);
+			if(gg.player.getTurnCooldown() < 1000){
+				gg.player.setTurnCooldown(delta);
 			}
-			if(gg.player.getTurnCooldown() == 1000){
+			if(gg.player.getTurnCooldown() >= 1000){
 				gg.player.setSpeedRotation(45);
 				gg.player.sprite.setCurrentFrame((gg.player.sprite.getFrame() + 1) % gg.player.sprite.getFrameCount());
-				gg.player.setTurnCooldown(-delta);
+				gg.player.resetCooldown();
 			}
 		}
-		if(gg.player.getTurnCooldown() < 1000 && gg.player.getTurnCooldown() > 0 && !input.isKeyDown(Input.KEY_A) && !input.isKeyDown(Input.KEY_D)){
+		if(gg.player.getTurnCooldown() < 1000 && !input.isKeyDown(Input.KEY_A) && !input.isKeyDown(Input.KEY_D)){
 			gg.player.setTurnCooldown(delta*2);
-		}
-		if(gg.player.getTurnCooldown() <= 0 || gg.player.getTurnCooldown() > 1000){
-			gg.player.resetCooldown();
 		}
 		if(!input.isKeyDown(Input.KEY_W) && !input.isKeyDown(Input.KEY_S)){
 			if(gg.player.getSpeed().length() > 0){
