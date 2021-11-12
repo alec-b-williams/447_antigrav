@@ -76,44 +76,58 @@ class PlayingState extends BasicGameState {
 			}
 			network.pw.flush();
 		}
-
+		System.out.println("Length of Speed: " + gg.player.getSpeed().length());
 		if (input.isKeyDown(Input.KEY_W)) {
-			if(gg.player.getSpeed().length() != 0) {
-				System.out.println("The Angle(W): " + gg.player.getSpeed().getRotation());
-				gg.player.worldY += gg.player.getSpeed().getY();
-				gg.player.worldX += gg.player.getSpeed().getX();
+			if(gg.player.getSpeed().length() == 0){
+				gg.player.setSpeed(Vector.getVector(gg.player.getSpeedAngle(), 0.1f));
 			}
-			else
-			{
+			else if(gg.player.getSpeed().length() < 0.2){
+				gg.player.setSpeed(gg.player.getSpeed().scale(1.1f));
+			}
+			System.out.println("The Angle(W): " + gg.player.getSpeed().getRotation());
+			gg.player.worldY += gg.player.getSpeed().getY();
+			gg.player.worldX += gg.player.getSpeed().getX();
 
-			}
 		}
 		if (input.isKeyDown(Input.KEY_S)) {
 			gg.player.worldY -= gg.player.getSpeed().getY();
 			gg.player.worldX -= gg.player.getSpeed().getX();
 		}
 		if (input.isKeyDown(Input.KEY_A)) {
-			//gg.player.setSpeedRotation();
-			gg.player.setCurrentAngle(-1*(90 * ((double) delta/1000)));
-			if(gg.player.getCurrentAngle() < gg.player.getThres1Angle()) {
+			if(gg.player.getTurnCooldown() < 1000 && gg.player.getTurnCooldown() > 0){
+				gg.player.setTurnCooldown(-delta);
+			}
+			if(gg.player.getTurnCooldown() == 1000){
 				gg.player.setSpeedRotation(-45);
 				gg.player.sprite.setCurrentFrame(((gg.player.sprite.getFrame() - 1) + gg.player.sprite.getFrameCount()) % gg.player.sprite.getFrameCount());
-				gg.player.setThres1(((gg.player.getThres1() - 1) + gg.player.thresLength()) % gg.player.thresLength());
-				gg.player.setThres2(((gg.player.getThres2() - 1) + gg.player.thresLength()) % gg.player.thresLength());
-				gg.player.matchSpeedAngle();
+				gg.player.setTurnCooldown(-delta);
 			}
 		}
 		if (input.isKeyDown(Input.KEY_D)) {
-//			gg.player.setSpeedRotation(45);
-//			gg.player.sprite.setCurrentFrame((gg.player.sprite.getFrame() + 1) % gg.player.sprite.getFrameCount());
-			gg.player.setCurrentAngle((90 * ( (double) delta/1000)));
-			if(gg.player.getCurrentAngle() > gg.player.getThres2Angle()) {
+			if(gg.player.getTurnCooldown() < 1000 && gg.player.getTurnCooldown() > 0){
+				gg.player.setTurnCooldown(-delta);
+			}
+			if(gg.player.getTurnCooldown() == 1000){
 				gg.player.setSpeedRotation(45);
 				gg.player.sprite.setCurrentFrame((gg.player.sprite.getFrame() + 1) % gg.player.sprite.getFrameCount());
-				gg.player.setThres1((gg.player.getThres1() + 1) % gg.player.thresLength());
-				gg.player.setThres2((gg.player.getThres2() + 1) % gg.player.thresLength());
-				gg.player.matchSpeedAngle();
+				gg.player.setTurnCooldown(-delta);
 			}
+		}
+		if(gg.player.getTurnCooldown() < 1000 && gg.player.getTurnCooldown() > 0 && !input.isKeyDown(Input.KEY_A) && !input.isKeyDown(Input.KEY_D)){
+			gg.player.setTurnCooldown(delta*2);
+		}
+		if(gg.player.getTurnCooldown() <= 0 || gg.player.getTurnCooldown() > 1000){
+			gg.player.resetCooldown();
+		}
+		if(!input.isKeyDown(Input.KEY_W) && !input.isKeyDown(Input.KEY_S)){
+			if(gg.player.getSpeed().length() > 0){
+				gg.player.setSpeed(gg.player.getSpeed().scale(.8f));
+			}
+			if(0.2 * 0.01 > gg.player.getSpeed().length()){
+				gg.player.setSpeed(new Vector(0,0));
+			}
+			gg.player.worldY += gg.player.getSpeed().getY();
+			gg.player.worldX += gg.player.getSpeed().getX();
 		}
 		if(!gg.isServer){
 			//gg.kart.update(container, game, delta);
