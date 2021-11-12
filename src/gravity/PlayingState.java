@@ -78,8 +78,16 @@ class PlayingState extends BasicGameState {
 		}
 		System.out.println("Length of Speed: " + gg.player.getSpeed().length());
 		if (input.isKeyDown(Input.KEY_W)) {
-			if(gg.player.getBackUp()){
-				gg.player.setBackUp(false);
+			if(gg.player.getBackUp() && gg.player.getSpeed().length() > 0){
+				if(gg.player.getSpeed().length() > 0){
+					gg.player.setSpeed(gg.player.getSpeed().scale(.6f));
+				}
+				if(0.2 * 0.01 > gg.player.getSpeed().length()){
+					gg.player.setSpeed(new Vector(0,0));
+					gg.player.setBackUp(false);
+				}
+				gg.player.worldY -= gg.player.getSpeed().getY();
+				gg.player.worldX -= gg.player.getSpeed().getX();
 			}
 			if(gg.player.getSpeed().length() == 0){
 				gg.player.setSpeed(Vector.getVector(gg.player.getSpeedAngle(), 0.01f));
@@ -87,7 +95,6 @@ class PlayingState extends BasicGameState {
 			else if(gg.player.getSpeed().length() < 0.2){
 				gg.player.setSpeed(gg.player.getSpeed().scale(1.1f));
 			}
-			System.out.println("The Angle(W): " + gg.player.getSpeed().getRotation());
 			gg.player.worldY += gg.player.getSpeed().getY();
 			gg.player.worldX += gg.player.getSpeed().getX();
 
@@ -99,10 +106,9 @@ class PlayingState extends BasicGameState {
 			if(gg.player.getSpeed().length() == 0){
 				gg.player.setSpeed(Vector.getVector(gg.player.getSpeedAngle(), 0.01f));
 			}
-			else if(gg.player.getSpeed().length() < 0.2){
+			else if(gg.player.getSpeed().length() < 0.05){
 				gg.player.setSpeed(gg.player.getSpeed().scale(1.1f));
 			}
-			System.out.println("The Angle(W): " + gg.player.getSpeed().getRotation());
 			gg.player.worldY -= gg.player.getSpeed().getY();
 			gg.player.worldX -= gg.player.getSpeed().getX();
 		}
