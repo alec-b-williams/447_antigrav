@@ -52,6 +52,7 @@ class PlayingState extends BasicGameState {
 
 		DecimalFormat df = new DecimalFormat("####.##");
 		g.drawString("Player Pos: " + df.format(gg.player.worldX) + ", " + df.format(gg.player.worldY), 10, 30);
+		g.drawString("Player Rotation: " + df.format((float)gg.player.speedAngle), 10, 50);
 
 		g.scale(gg.gameScale, gg.gameScale);
 
