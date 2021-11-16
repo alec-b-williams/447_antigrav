@@ -1,0 +1,14 @@
+## Resolved Issues ##
+- **[1]** Basic Networking Setup
+- **[2]** Implement rendering and camera system
+- **[3]** Implement first-draft assets
+- **[4]** Basic player controls
+
+
+## Open Issues ##
+Milestone 1
+- **[5]** Add network debug toggle
+- **[6]** Implement proper player vs environment collision
+- **[7]** Implement basic multi-entity networking
+- **[8]** Implement jumps
+- **[9]** Implement course obstacles/features
