@@ -39,7 +39,7 @@ class PlayingState extends BasicGameState {
 		network.start();
 
 		gg.map = new TiledMap("gravity/resource/track1.tmx", "gravity/resource");
-		gg.player = new Vehicle(5.5f, 5.5f);
+		gg.player = new Vehicle(5.5f, 5.5f, gg);
 
 		gg.cameraXPos = 0;
 		gg.cameraYPos = 0;
@@ -52,6 +52,7 @@ class PlayingState extends BasicGameState {
 
 		DecimalFormat df = new DecimalFormat("####.##");
 		g.drawString("Player Pos: " + df.format(gg.player.worldX) + ", " + df.format(gg.player.worldY), 10, 30);
+		g.drawString("Player Rotation: " + df.format((float)gg.player.speedAngle), 10, 50);
 
 		g.scale(gg.gameScale, gg.gameScale);
 
