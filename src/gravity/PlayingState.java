@@ -39,7 +39,7 @@ class PlayingState extends BasicGameState {
 		network.start();
 
 		gg.map = new TiledMap("gravity/resource/track1.tmx", "gravity/resource");
-		gg.player = new Vehicle(5.5f, 5.5f);
+		gg.player = new Vehicle(5.5f, 5.5f, gg);
 
 		gg.cameraXPos = 0;
 		gg.cameraYPos = 0;

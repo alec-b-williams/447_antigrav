@@ -69,7 +69,7 @@ public class GravGame extends StateBasedGame {
 		addState(new GameOverState());
 		addState(new PlayingState());
 
-		kart = new Vehicle(400, 300);
+		kart = new Vehicle(400, 300, this);
 		
 		//ResourceManager.loadSound(BANG_EXPLOSIONSND_RSC);
 
