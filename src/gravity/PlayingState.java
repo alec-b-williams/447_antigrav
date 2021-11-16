@@ -1,5 +1,6 @@
 package gravity;
 
+import java.text.DecimalFormat;
 import java.util.Iterator;
 
 import jig.Vector;
