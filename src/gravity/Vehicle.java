@@ -24,6 +24,7 @@ public class Vehicle extends Entity {
         worldX = x;
         worldY = y;
         gg = _gg;
+
         sprite = new Animation(ResourceManager.getSpriteSheet(GravGame.VEHICLE_ANIM_RSC, 64, 64),
                 0, 0, 7, 0, true, 160, false);
         this.addAnimation(sprite);

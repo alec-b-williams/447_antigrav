@@ -1,6 +1,5 @@
 package gravity;
 
-import java.text.DecimalFormat;
 import java.util.Iterator;
 
 import jig.Vector;
@@ -23,7 +22,6 @@ class PlayingState extends BasicGameState {
 	private GravGame gg;
 	private Input input;
 	private Network network;
-	private final static float speedScale = 250.0f;
 
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
@@ -38,6 +36,7 @@ class PlayingState extends BasicGameState {
 		network = new Network(gg.isServer, gg, "");
 		network.start();
 
+
 		gg.map = new TiledMap("gravity/resource/track1.tmx", "gravity/resource");
 		gg.player = new Vehicle(5.5f, 5.5f, gg);
 
@@ -49,6 +48,7 @@ class PlayingState extends BasicGameState {
 	@Override
 	public void render(GameContainer container, StateBasedGame game,
 			Graphics g) throws SlickException {
+
 
 		DecimalFormat df = new DecimalFormat("####.##");
 		g.drawString("Player Pos: " + df.format(gg.player.worldX) + ", " + df.format(gg.player.worldY), 10, 30);
@@ -62,7 +62,6 @@ class PlayingState extends BasicGameState {
 						- (int)((gg.player.worldX + gg.player.worldY) * GravGame._TILEHEIGHT/2.0f ) );
 
 		gg.player.render(g);
-
 		g.scale(1, 1);
 	}
 
@@ -77,6 +76,7 @@ class PlayingState extends BasicGameState {
 			}
 			network.pw.flush();
 		}
+
 		gg.player.update(container, delta);
 		if(!gg.isServer){
 			//gg.kart.update(container, game, delta);
