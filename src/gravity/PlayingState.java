@@ -34,9 +34,11 @@ class PlayingState extends BasicGameState {
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) throws SlickException {
 		container.setSoundOn(true);
-		network = new Network(gg.isServer, gg, "");
-		network.start();
 
+		if (gg.networkingEnabled) {
+			network = new Network(gg.isServer, gg, "");
+			network.start();
+		}
 
 		gg.map = new TiledMap("gravity/resource/track1.tmx", "gravity/resource");
 		gg.player = new Vehicle(5.5f, 5.5f, gg);
@@ -69,13 +71,15 @@ class PlayingState extends BasicGameState {
 	@Override
 	public void update(GameContainer container, StateBasedGame game,
 			int delta) throws SlickException {
-		if(input.isKeyPressed(Input.KEY_A)) {
-			if(gg.isServer) {
-				network.pw.println("server says: A");
-			} else {
-				network.pw.println("client says: A");
+		if (gg.networkingEnabled) {
+			if(input.isKeyPressed(Input.KEY_A)) {
+				if(gg.isServer) {
+					network.pw.println("server says: A");
+				} else {
+					network.pw.println("client says: A");
+				}
+				network.pw.flush();
 			}
-			network.pw.flush();
 		}
 
 		gg.player.update(container, delta);

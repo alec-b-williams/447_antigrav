@@ -33,7 +33,9 @@ class StartUpState extends BasicGameState {
 	
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) {
+
 		container.setSoundOn(false);
+		((GravGame)game).networkingEnabled = false;
 	}
 
 
@@ -55,11 +57,13 @@ class StartUpState extends BasicGameState {
 
 		// testing server/client stuff
 		if (input.isKeyDown(Input.KEY_SPACE)) {
-			gg.isServer = true;
+			if (gg.networkingEnabled)
+				gg.isServer = true;
 			gg.enterState(GravGame.PLAYINGSTATE);
 		}
 		if (input.isKeyDown(Input.KEY_1)) {
-			gg.isServer = false;
+			if (gg.networkingEnabled)
+				gg.isServer = false;
 			gg.enterState(GravGame.PLAYINGSTATE);
 		}
 	}

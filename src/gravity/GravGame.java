@@ -38,6 +38,7 @@ public class GravGame extends StateBasedGame {
 	public float cameraYPos;
 	public float gameScale;
 	public boolean isServer;
+	public boolean networkingEnabled;
 	public TiledMap map;
 	public Vehicle player;
 
