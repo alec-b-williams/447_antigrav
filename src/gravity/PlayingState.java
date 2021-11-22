@@ -1,5 +1,6 @@
 package gravity;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Iterator;
 
@@ -22,7 +23,6 @@ import org.newdawn.slick.tiled.TiledMap;
 class PlayingState extends BasicGameState {
 	private GravGame gg;
 	private Input input;
-	private Network network;
 
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
@@ -35,13 +35,8 @@ class PlayingState extends BasicGameState {
 	public void enter(GameContainer container, StateBasedGame game) throws SlickException {
 		container.setSoundOn(true);
 
-		if (gg.networkingEnabled) {
-			network = new Network(gg.isServer, gg, "");
-			network.start();
-		}
-
 		gg.map = new TiledMap("gravity/resource/track1.tmx", "gravity/resource");
-		gg.player = new Vehicle(5.5f, 5.5f, gg);
+		//gg.player = new Vehicle(5.5f, 5.5f, gg);
 
 		gg.cameraXPos = 0;
 		gg.cameraYPos = 0;
@@ -71,21 +66,23 @@ class PlayingState extends BasicGameState {
 	@Override
 	public void update(GameContainer container, StateBasedGame game,
 			int delta) throws SlickException {
-		if (gg.networkingEnabled) {
-			if(input.isKeyPressed(Input.KEY_A)) {
-				if(gg.isServer) {
-					network.pw.println("server says: A");
-				} else {
-					network.pw.println("client says: A");
-				}
-				network.pw.flush();
+		try {
+			if (input.isKeyDown(Input.KEY_W)) {
+				//gg.out.writeInt(gg.playerID);
+				System.out.println("W");
+				gg.out.writeUTF("W");
+				gg.out.writeFloat(gg.player.getSpeed().getX());
+				gg.out.writeFloat(gg.player.getSpeed().getY());
+				float newY = gg.in.readFloat();
+				float newX = gg.in.readFloat();
+				System.out.println("New X: " + newX);
+				gg.player.worldY = newY;
+				gg.player.worldX = newX;
 			}
+		} catch (IOException e){
+			System.err.println("IOException in write: " + e);
 		}
-
-		gg.player.update(container, delta);
-		if(!gg.isServer){
-			//gg.kart.update(container, game, delta);
-		}
+		//gg.player.update(container, delta);
 
 		if (input.isKeyDown(Input.KEY_LBRACKET))
 			gg.gameScale -= (delta/2000.0f);

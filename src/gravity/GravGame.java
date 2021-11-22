@@ -1,5 +1,9 @@
 package gravity;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
 import java.util.ArrayList;
 
 import jig.Entity;
@@ -37,12 +41,15 @@ public class GravGame extends StateBasedGame {
 	public float cameraXPos;
 	public float cameraYPos;
 	public float gameScale;
-	public boolean isServer;
-	public boolean networkingEnabled;
 	public TiledMap map;
 	public Vehicle player;
+	public Vehicle[] players;
 
-	public Vehicle kart;
+	public Socket socket;
+	public int playerID;
+
+	public DataInputStream in;
+	public DataOutputStream out;
 
 	/**
 	 * Create the BounceGame frame, saving the width and height for later use.
@@ -60,22 +67,41 @@ public class GravGame extends StateBasedGame {
 		ScreenWidth = width;
 
 		Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);
-				
 	}
-
 
 	@Override
 	public void initStatesList(GameContainer container) throws SlickException {
 		addState(new StartUpState());
 		addState(new GameOverState());
 		addState(new PlayingState());
-
-		kart = new Vehicle(400, 300, this);
 		
 		//ResourceManager.loadSound(BANG_EXPLOSIONSND_RSC);
 
 		// preload all the resources to avoid warnings & minimize latency...
 		ResourceManager.loadImage(VEHICLE_ANIM_RSC);
+	}
+
+	public void connectToServer(){
+		try{
+			socket = new Socket("localhost", 9158);
+			this.in = new DataInputStream(socket.getInputStream());
+			this.out = new DataOutputStream(socket.getOutputStream());
+			this.playerID = in.readInt();
+			players = new Vehicle[in.readInt()];
+			System.out.println("You are player: " + this.playerID);
+		} catch (IOException e){
+			System.out.println("IOException from connectToServer()");
+			e.printStackTrace();
+		}
+	}
+
+	public void waitForStartMsg(){
+		try{
+			String startMsg = in.readUTF();
+			System.out.println("Message from server: " + startMsg);
+		} catch (IOException e){
+			System.err.println("Wait Start IOException error: " + e);
+		}
 	}
 
 	public static void main(String[] args) {
@@ -89,5 +115,4 @@ public class GravGame extends StateBasedGame {
 			e.printStackTrace();
 		}
 	}
-	
 }
