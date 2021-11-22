@@ -67,15 +67,33 @@ class PlayingState extends BasicGameState {
 	public void update(GameContainer container, StateBasedGame game,
 			int delta) throws SlickException {
 		try {
-			if (input.isKeyDown(Input.KEY_W)) {
+			if(input.isKeyDown(Input.KEY_W)) {
 				//gg.out.writeInt(gg.playerID);
 				System.out.println("W");
 				gg.out.writeUTF("W");
-				gg.out.writeFloat(gg.player.getSpeed().getX());
-				gg.out.writeFloat(gg.player.getSpeed().getY());
 				float newY = gg.in.readFloat();
 				float newX = gg.in.readFloat();
 				System.out.println("New X: " + newX);
+				gg.player.worldY = newY;
+				gg.player.worldX = newX;
+			}
+			if(input.isKeyDown(Input.KEY_A)){
+				System.out.println("A");
+				gg.out.writeUTF("A");
+			}
+			if(input.isKeyDown(Input.KEY_S)){
+				System.out.println("S");
+				gg.out.writeUTF("S");
+			}
+			if(input.isKeyDown(Input.KEY_D)){
+				System.out.println("D");
+				gg.out.writeUTF("D");
+			}
+			if(noMovementPressed()){
+				System.out.println("G");
+				gg.out.writeUTF("G");
+				float newY = gg.in.readFloat();
+				float newX = gg.in.readFloat();
 				gg.player.worldY = newY;
 				gg.player.worldX = newX;
 			}
@@ -88,6 +106,13 @@ class PlayingState extends BasicGameState {
 			gg.gameScale -= (delta/2000.0f);
 		if (input.isKeyDown(Input.KEY_RBRACKET))
 			gg.gameScale += (delta/2000.0f);
+	}
+
+	public boolean noMovementPressed(){
+		if(!input.isKeyDown(Input.KEY_W) && !input.isKeyDown(Input.KEY_S))
+			return true;
+
+		return false;
 	}
 
 	@Override

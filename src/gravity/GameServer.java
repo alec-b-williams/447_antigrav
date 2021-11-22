@@ -13,7 +13,6 @@ public class GameServer {
     private int numPlayers;
     private int maxPlayers;
     private ServerVehicle player;
-    //private Vehicle players[];
     private Socket playerSocket;
     private ClientHandler handler;
 
@@ -74,13 +73,34 @@ public class GameServer {
                 while(true){
                     String command = dataIn.readUTF();
                     if(command.equals("W")){
-                        float x = dataIn.readFloat();
-                        System.out.println("X got here: " + x);
-                        float y = dataIn.readFloat();
-                        player.serverForward(x, y);
-                        dataOut.writeFloat(player.worldY);
-                        dataOut.writeFloat(player.worldX);
+                        if(player.backUp && player.getSpeed().length() > 0){
+                            player.finishMovement(-1, 0.6f, 0.2f * 0.01f);
+                        }
+                        player.linearMovement(1, 0.06f, 0.2f, 1.05f);
+                        //dataOut.writeFloat(player.worldY);
+                        //dataOut.writeFloat(player.worldX);
                     }
+                    if(command.equals("A")){
+
+                    }
+                    if(command.equals("S")){
+
+                    }
+                    if(command.equals("D")){
+
+                    }
+                    if(command.equals("G")){
+                        if(player.backUp && player.getSpeed().length() > 0){
+                            player.finishMovement(-1, 0.99f, 0.05f * 0.05f);
+                        }
+                        else if (!player.backUp && player.getSpeed().length() > 0){
+                            System.out.println("Glide oldX: " + player.worldX);
+                            player.finishMovement(1, 0.98f, 0.2f * 0.01f);
+                            System.out.println("Glide newX: " + player.worldX);
+                        }
+                    }
+                    dataOut.writeFloat(player.worldY);
+                    dataOut.writeFloat(player.worldX);
                 }
             } catch(IOException e){
                 System.err.println("ClientHandler IOException: " + e);
