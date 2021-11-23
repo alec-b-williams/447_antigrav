@@ -1,8 +1,6 @@
 package gravity;
 
-import gravity.resource.ServerVehicle;
 import jig.Entity;
-import org.newdawn.slick.Input;
 
 import java.io.*;
 import java.net.*;
