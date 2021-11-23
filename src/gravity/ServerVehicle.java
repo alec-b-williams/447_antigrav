@@ -1,4 +1,4 @@
-package gravity.resource;
+package gravity;
 
 import jig.Vector;
 
