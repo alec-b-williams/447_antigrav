@@ -75,18 +75,30 @@ public class GameServer {
                     if(command.equals("W")){
                         if(player.backUp && player.getSpeed().length() > 0){
                             player.finishMovement(-1, 0.6f, 0.2f * 0.01f);
-                        }
-                        player.linearMovement(1, 0.06f, 0.2f, 1.05f);
+                        } else
+                            player.linearMovement(1, 0.06f, 0.2f, 1.1f);
                         //dataOut.writeFloat(player.worldY);
                         //dataOut.writeFloat(player.worldX);
                     }
                     if(command.equals("A")){
-
+                        int delta = dataIn.readInt();
+                        int frame = player.turn(-1, delta);
+                        System.out.println("Frame: " + frame);
+                        dataOut.writeInt(frame);
+                        dataOut.flush();
                     }
                     if(command.equals("S")){
-
+                        if(!player.backUp && player.getSpeed().length() > 0){
+                            player.finishMovement(1, 0.6f, 0.2f * 0.01f);
+                        } else
+                            player.linearMovement(-1, 0.01f, 0.05f, 1.05f);
                     }
                     if(command.equals("D")){
+                        int delta = dataIn.readInt();
+                        int frame = player.turn(1, delta);
+                        System.out.println("Frame: " + frame);
+                        dataOut.writeInt(frame);
+                        dataOut.flush();
 
                     }
                     if(command.equals("G")){
@@ -99,8 +111,11 @@ public class GameServer {
                             System.out.println("Glide newX: " + player.worldX);
                         }
                     }
-                    dataOut.writeFloat(player.worldY);
-                    dataOut.writeFloat(player.worldX);
+                    if(!command.equals("A") && !command.equals("D")) {
+                        dataOut.writeFloat(player.worldY);
+                        dataOut.writeFloat(player.worldX);
+                        dataOut.flush();
+                    }
                 }
             } catch(IOException e){
                 System.err.println("ClientHandler IOException: " + e);

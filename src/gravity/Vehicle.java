@@ -64,14 +64,6 @@ public class Vehicle extends Entity {
 //        }
     }
 
-    public void setSpeed(Vector speed){
-        this.speed = speed;
-    }
-
-    public Vector getSpeed(){
-        return this.speed;
-    }
-
     public void turn(int dir, int delta) {
         float newAngle = (float)(speedAngle + (degPerSecond * (delta/1000.0f) * dir));
         float angleDiff = newAngle - (float)speedAngle;
@@ -83,10 +75,5 @@ public class Vehicle extends Entity {
         int index = ((num / 45) + 5) % 8;
         //System.out.println("Angle: " + newAngle + ", index: " + index);
         this.sprite.setCurrentFrame(index);
-    }
-
-    public void serverTest(float speedX, float speedY){
-        this.worldY += speedY;
-        this.worldX += speedX;
     }
 }

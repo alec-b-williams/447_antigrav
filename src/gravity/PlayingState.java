@@ -80,14 +80,26 @@ class PlayingState extends BasicGameState {
 			if(input.isKeyDown(Input.KEY_A)){
 				System.out.println("A");
 				gg.out.writeUTF("A");
+				gg.out.writeInt(delta);
+				int frame = gg.in.readInt();
+				System.out.println("Frame: " + frame);
+				gg.player.sprite.setCurrentFrame(frame);
 			}
 			if(input.isKeyDown(Input.KEY_S)){
 				System.out.println("S");
 				gg.out.writeUTF("S");
+				float newY = gg.in.readFloat();
+				float newX = gg.in.readFloat();
+				gg.player.worldY = newY;
+				gg.player.worldX = newX;
 			}
 			if(input.isKeyDown(Input.KEY_D)){
 				System.out.println("D");
 				gg.out.writeUTF("D");
+				gg.out.writeInt(delta);
+				int frame = gg.in.readInt();
+				System.out.println("Frame: " + frame);
+				gg.player.sprite.setCurrentFrame(frame);
 			}
 			if(noMovementPressed()){
 				System.out.println("G");
@@ -97,6 +109,7 @@ class PlayingState extends BasicGameState {
 				gg.player.worldY = newY;
 				gg.player.worldX = newX;
 			}
+			gg.out.flush();
 		} catch (IOException e){
 			System.err.println("IOException in write: " + e);
 		}

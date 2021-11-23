@@ -19,11 +19,6 @@ public class ServerVehicle {
         this.backUp = false;
     }
 
-    public void serverForward(float speedX, float speedY){
-        this.worldY += speedY;
-        this.worldX += speedX;
-    }
-
     public void linearMovement(int dir, float initLen, float speedLimit, float speedScale){
         if(this.speed.length() == 0){
             this.setSpeed(Vector.getVector(this.speedAngle, initLen));
@@ -51,6 +46,22 @@ public class ServerVehicle {
         //add collision
         worldX += dir * this.speed.getX();
         worldY += dir * this.speed.getY();
+    }
+
+    public int turn(int dir, int delta){
+        float newAngle = (float)(this.speedAngle + (degPerSecond * (delta/1000.0f) * dir));
+        System.out.println("New Angle: " + newAngle);
+        float angleDiff = newAngle - (float)this.speedAngle;
+        System.out.println("angleDiff: " + angleDiff);
+
+        this.speed = this.speed.rotate(angleDiff);
+        speedAngle = newAngle % 360;
+
+        int num =  (int)(newAngle) + 205;
+        System.out.println("num: " + num);
+        System.out.println("Frame: " + ((num / 45) + 5) % 8);
+        return ((num / 45) + 5) % 8;
+
     }
 
     public void setSpeed(Vector speed){
