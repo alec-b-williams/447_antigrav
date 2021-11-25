@@ -20,7 +20,7 @@ public class EntityData implements Serializable {
     }
 
     public EntityData(ServerVehicle vehicle, int id) {
-        this.entityType = "ServerVehicle";
+        this.entityType = "Player";
         this.id = id;
         this.xPosition = vehicle.worldX;
         this.yPosition = vehicle.worldY;

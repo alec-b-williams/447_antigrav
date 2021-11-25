@@ -2,12 +2,10 @@ package gravity;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
 
 import jig.Entity;
 import jig.ResourceManager;
 
-import jig.Vector;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
@@ -43,7 +41,7 @@ public class GravGame extends StateBasedGame {
 
 	public int playerID;
 	public int maxPlayers;
-	public Vehicle[] players;
+	public Entity[] gameObjects;
 
 	public Socket socket;
 	public ObjectInputStream in;
@@ -88,7 +86,7 @@ public class GravGame extends StateBasedGame {
 
 			playerID = in.readInt();
 			maxPlayers = in.readInt();
-			players = new Vehicle[maxPlayers];
+			gameObjects = new Entity[maxPlayers];
 			System.out.println("You are player: " + this.playerID);
 		} catch (IOException e){
 			System.out.println("IOException from connectToServer()");

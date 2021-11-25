@@ -1,13 +1,5 @@
 package gravity;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.Socket;
-import java.util.Iterator;
-
-import jig.ResourceManager;
-
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
@@ -39,7 +31,7 @@ class StartUpState extends BasicGameState {
 		container.setSoundOn(false);
 		gg.connectToServer();
 		gg.waitForStartMsg();
-		gg.players[gg.playerID - 1] = new Vehicle(5.5f, 5.5f);
+		gg.gameObjects[gg.playerID - 1] = new Vehicle(5.5f, 5.5f);
 	}
 
 
