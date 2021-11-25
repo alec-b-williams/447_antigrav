@@ -63,9 +63,20 @@ class PlayingState extends BasicGameState {
 				((GravGame._SCREENHEIGHT/2))
 						- (int)((gg.players[gg.playerID-1].worldX + gg.players[gg.playerID-1].worldY) * GravGame._TILEHEIGHT/2.0f ) );
 
-		for(Vehicle player : gg.players) {
-			player.render(g);
+		for (int i = 0; i < gg.players.length; i++) {
+			if (i != (gg.playerID-1)) {
+				Vehicle p = gg.players[gg.playerID-1];
+				Vehicle e = gg.players[i];
+
+				e.setX((GravGame._SCREENWIDTH/2.0f) +
+						(((e.worldX-e.worldY) - (p.worldX-p.worldY))) * GravGame._TILEWIDTH/2.0f);
+				e.setY((GravGame._SCREENHEIGHT/2.0f) +
+						(((e.worldX+e.worldY) - (p.worldX+p.worldY))) * GravGame._TILEHEIGHT/2.0f);
+
+			}
+			gg.players[i].render(g);
 		}
+
 		g.scale(1, 1);
 	}
 
