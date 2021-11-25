@@ -8,6 +8,7 @@ public class ServerVehicle {
     private Vector speed;
     public double speedAngle;
     public boolean backUp;
+    public int frame;
 
     private static final float degPerSecond = 180;
 
@@ -48,7 +49,7 @@ public class ServerVehicle {
         worldY += dir * this.speed.getY();
     }
 
-    public int turn(int dir, int delta){
+    public void turn(int dir, int delta){
         float newAngle = (float)(this.speedAngle + (degPerSecond * (delta/1000.0f) * dir));
         System.out.println("New Angle: " + newAngle);
         float angleDiff = newAngle - (float)this.speedAngle;
@@ -58,9 +59,9 @@ public class ServerVehicle {
         speedAngle = newAngle % 360;
 
         int num =  (int)(newAngle) + 205;
-        System.out.println("num: " + num);
-        System.out.println("Frame: " + ((num / 45) + 5) % 8);
-        return ((num / 45) + 5) % 8;
+        //System.out.println("num: " + num);
+        //System.out.println("Frame: " + ((num / 45) + 5) % 8);
+        frame = ((num / 45) + 5) % 8;
 
     }
 

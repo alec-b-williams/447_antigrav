@@ -1,8 +1,6 @@
 package gravity;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -42,14 +40,14 @@ public class GravGame extends StateBasedGame {
 	public float cameraYPos;
 	public float gameScale;
 	public TiledMap map;
-	public Vehicle player;
+
+	public int playerID;
+	public int maxPlayers;
 	public Vehicle[] players;
 
 	public Socket socket;
-	public int playerID;
-
-	public DataInputStream in;
-	public DataOutputStream out;
+	public ObjectInputStream in;
+	public ObjectOutputStream out;
 
 	/**
 	 * Create the BounceGame frame, saving the width and height for later use.
@@ -84,10 +82,13 @@ public class GravGame extends StateBasedGame {
 	public void connectToServer(){
 		try{
 			socket = new Socket("localhost", 9158);
-			this.in = new DataInputStream(socket.getInputStream());
-			this.out = new DataOutputStream(socket.getOutputStream());
-			this.playerID = in.readInt();
-			players = new Vehicle[in.readInt()];
+			out = new ObjectOutputStream(socket.getOutputStream());
+			out.flush();
+			in = new ObjectInputStream(socket.getInputStream());
+
+			playerID = in.readInt();
+			maxPlayers = in.readInt();
+			players = new Vehicle[maxPlayers];
 			System.out.println("You are player: " + this.playerID);
 		} catch (IOException e){
 			System.out.println("IOException from connectToServer()");

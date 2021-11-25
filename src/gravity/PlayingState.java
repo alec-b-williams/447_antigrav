@@ -36,11 +36,15 @@ class PlayingState extends BasicGameState {
 		container.setSoundOn(true);
 
 		gg.map = new TiledMap("gravity/resource/track1.tmx", "gravity/resource");
-		//gg.player = new Vehicle(5.5f, 5.5f, gg);
+		//gg.players[gg.playerID-1] = new Vehicle(5.5f, 5.5f, gg);
 
 		gg.cameraXPos = 0;
 		gg.cameraYPos = 0;
 		gg.gameScale = 1;
+
+		for(int i = 0; i < gg.maxPlayers; i++) {
+			gg.players[i] = new Vehicle(5.5f, 5.5f);
+		}
 	}
 
 	@Override
@@ -49,17 +53,19 @@ class PlayingState extends BasicGameState {
 
 
 		DecimalFormat df = new DecimalFormat("####.##");
-		g.drawString("Player Pos: " + df.format(gg.player.worldX) + ", " + df.format(gg.player.worldY), 10, 30);
-		g.drawString("Player Rotation: " + df.format((float)gg.player.speedAngle), 10, 50);
+		g.drawString("Player Pos: " + df.format(gg.players[gg.playerID-1].worldX) + ", " + df.format(gg.players[gg.playerID-1].worldY), 10, 30);
+		g.drawString("Player Rotation: " + df.format((float)gg.players[gg.playerID-1].speedAngle), 10, 50);
 
 		g.scale(gg.gameScale, gg.gameScale);
 
 		gg.map.render(((GravGame._SCREENWIDTH/2) - GravGame._TILEWIDTH/2)
-							+ (int)((gg.player.worldX - gg.player.worldY) * GravGame._TILEWIDTH/2.0f *-1),
+							+ (int)((gg.players[gg.playerID-1].worldX - gg.players[gg.playerID-1].worldY) * GravGame._TILEWIDTH/2.0f *-1),
 				((GravGame._SCREENHEIGHT/2))
-						- (int)((gg.player.worldX + gg.player.worldY) * GravGame._TILEHEIGHT/2.0f ) );
+						- (int)((gg.players[gg.playerID-1].worldX + gg.players[gg.playerID-1].worldY) * GravGame._TILEHEIGHT/2.0f ) );
 
-		gg.player.render(g);
+		for(Vehicle player : gg.players) {
+			player.render(g);
+		}
 		g.scale(1, 1);
 	}
 
@@ -68,53 +74,69 @@ class PlayingState extends BasicGameState {
 			int delta) throws SlickException {
 		try {
 			if(input.isKeyDown(Input.KEY_W)) {
-				//gg.out.writeInt(gg.playerID);
-				System.out.println("W");
 				gg.out.writeUTF("W");
-				float newY = gg.in.readFloat();
-				float newX = gg.in.readFloat();
-				System.out.println("New X: " + newX);
-				gg.player.worldY = newY;
-				gg.player.worldX = newX;
+				gg.out.writeInt(delta);
+				gg.out.flush();
+
+				int playerCount = gg.in.readInt();
+				for(int i = 0; i < playerCount; i++) {
+					EntityData playerData = (EntityData) gg.in.readObject();
+					gg.players[i].updateData(playerData);
+					System.out.println("player " + (i+1) + " position: " + gg.players[i].worldX + ", " + gg.players[i].worldY);
+				}
 			}
 			if(input.isKeyDown(Input.KEY_A)){
-				System.out.println("A");
 				gg.out.writeUTF("A");
 				gg.out.writeInt(delta);
-				int frame = gg.in.readInt();
-				System.out.println("Frame: " + frame);
-				gg.player.sprite.setCurrentFrame(frame);
+				gg.out.flush();
+
+				int playerCount = gg.in.readInt();
+				for(int i = 0; i < playerCount; i++) {
+					EntityData playerData = (EntityData) gg.in.readObject();
+					gg.players[i].updateData(playerData);
+					System.out.println("player " + (i+1) + " position: " + gg.players[i].worldX + ", " + gg.players[i].worldY);
+				}
 			}
 			if(input.isKeyDown(Input.KEY_S)){
-				System.out.println("S");
 				gg.out.writeUTF("S");
-				float newY = gg.in.readFloat();
-				float newX = gg.in.readFloat();
-				gg.player.worldY = newY;
-				gg.player.worldX = newX;
+				gg.out.writeInt(delta);
+				gg.out.flush();
+
+				int playerCount = gg.in.readInt();
+				for(int i = 0; i < playerCount; i++) {
+					EntityData playerData = (EntityData) gg.in.readObject();
+					gg.players[i].updateData(playerData);
+					System.out.println("player " + (i+1) + " position: " + gg.players[i].worldX + ", " + gg.players[i].worldY);
+				}
 			}
 			if(input.isKeyDown(Input.KEY_D)){
-				System.out.println("D");
 				gg.out.writeUTF("D");
 				gg.out.writeInt(delta);
-				int frame = gg.in.readInt();
-				System.out.println("Frame: " + frame);
-				gg.player.sprite.setCurrentFrame(frame);
+				gg.out.flush();
+
+				int playerCount = gg.in.readInt();
+				for(int i = 0; i < playerCount; i++) {
+					EntityData playerData = (EntityData) gg.in.readObject();
+					gg.players[i].updateData(playerData);
+					System.out.println("player " + (i+1) + " position: " + gg.players[i].worldX + ", " + gg.players[i].worldY);
+				}
 			}
 			if(noMovementPressed()){
-				System.out.println("G");
 				gg.out.writeUTF("G");
-				float newY = gg.in.readFloat();
-				float newX = gg.in.readFloat();
-				gg.player.worldY = newY;
-				gg.player.worldX = newX;
+				gg.out.writeInt(delta);
+				gg.out.flush();
+
+				int playerCount = gg.in.readInt();
+				for(int i = 0; i < playerCount; i++) {
+					EntityData playerData = (EntityData) gg.in.readObject();
+					gg.players[i].updateData(playerData);
+					System.out.println("player " + (i+1) + " position: " + gg.players[i].worldX + ", " + gg.players[i].worldY);
+				}
 			}
-			gg.out.flush();
-		} catch (IOException e){
+		} catch (IOException | ClassNotFoundException e){
 			System.err.println("IOException in write: " + e);
 		}
-		//gg.player.update(container, delta);
-
+		
 		if (input.isKeyDown(Input.KEY_LBRACKET))
 			gg.gameScale -= (delta/2000.0f);
 		if (input.isKeyDown(Input.KEY_RBRACKET))

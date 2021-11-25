@@ -23,4 +23,11 @@ public class Vehicle extends Entity {
         sprite.setCurrentFrame(5);
         speedAngle = 180;
     }
+
+    public void updateData(EntityData data) {
+        this.worldX = data.xPosition;
+        this.worldY = data.yPosition;
+        this.speedAngle = data.direction;
+        this.sprite.setCurrentFrame(data.animationFrame);
+    }
 }
