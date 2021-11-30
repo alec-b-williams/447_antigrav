@@ -1,11 +1,11 @@
 package gravity;
 
-import java.util.ArrayList;
+import java.io.*;
+import java.net.Socket;
 
 import jig.Entity;
 import jig.ResourceManager;
 
-import jig.Vector;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
@@ -37,11 +37,15 @@ public class GravGame extends StateBasedGame {
 	public float cameraXPos;
 	public float cameraYPos;
 	public float gameScale;
-	public boolean isServer;
 	public TiledMap map;
-	public Vehicle player;
 
-	public Vehicle kart;
+	public int playerID;
+	public int maxPlayers;
+	public Entity[] gameObjects;
+
+	public Socket socket;
+	public ObjectInputStream in;
+	public ObjectOutputStream out;
 
 	/**
 	 * Create the BounceGame frame, saving the width and height for later use.
@@ -59,22 +63,44 @@ public class GravGame extends StateBasedGame {
 		ScreenWidth = width;
 
 		Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);
-				
 	}
-
 
 	@Override
 	public void initStatesList(GameContainer container) throws SlickException {
 		addState(new StartUpState());
 		addState(new GameOverState());
 		addState(new PlayingState());
-
-		kart = new Vehicle(400, 300);
 		
 		//ResourceManager.loadSound(BANG_EXPLOSIONSND_RSC);
 
 		// preload all the resources to avoid warnings & minimize latency...
 		ResourceManager.loadImage(VEHICLE_ANIM_RSC);
+	}
+
+	public void connectToServer(){
+		try{
+			socket = new Socket("localhost", 9158);
+			out = new ObjectOutputStream(socket.getOutputStream());
+			out.flush();
+			in = new ObjectInputStream(socket.getInputStream());
+
+			playerID = in.readInt();
+			maxPlayers = in.readInt();
+			gameObjects = new Entity[maxPlayers];
+			System.out.println("You are player: " + this.playerID);
+		} catch (IOException e){
+			System.out.println("IOException from connectToServer()");
+			e.printStackTrace();
+		}
+	}
+
+	public void waitForStartMsg(){
+		try{
+			String startMsg = in.readUTF();
+			System.out.println("Message from server: " + startMsg);
+		} catch (IOException e){
+			System.err.println("Wait Start IOException error: " + e);
+		}
 	}
 
 	public static void main(String[] args) {
@@ -88,5 +114,4 @@ public class GravGame extends StateBasedGame {
 			e.printStackTrace();
 		}
 	}
-	
 }

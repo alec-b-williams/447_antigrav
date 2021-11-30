@@ -1,9 +1,7 @@
 package gravity;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.Iterator;
-
-import jig.Vector;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -22,8 +20,6 @@ import org.newdawn.slick.tiled.TiledMap;
 class PlayingState extends BasicGameState {
 	private GravGame gg;
 	private Input input;
-	private Network network;
-	private final static float speedScale = 250.0f;
 
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
@@ -35,32 +31,48 @@ class PlayingState extends BasicGameState {
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) throws SlickException {
 		container.setSoundOn(true);
-		network = new Network(gg.isServer, gg, "");
-		network.start();
 
 		gg.map = new TiledMap("gravity/resource/track1.tmx", "gravity/resource");
-		gg.player = new Vehicle(5.5f, 5.5f);
+		//gg.players[gg.playerID-1] = new Vehicle(5.5f, 5.5f, gg);
 
 		gg.cameraXPos = 0;
 		gg.cameraYPos = 0;
 		gg.gameScale = 1;
+
+		for(int i = 0; i < gg.maxPlayers; i++) {
+			gg.gameObjects[i] = new Vehicle(5.5f, 5.5f);
+		}
 	}
 
 	@Override
 	public void render(GameContainer container, StateBasedGame game,
 			Graphics g) throws SlickException {
 
+		Vehicle player = (Vehicle) gg.gameObjects[gg.playerID-1];
+
 		DecimalFormat df = new DecimalFormat("####.##");
-		g.drawString("Player Pos: " + df.format(gg.player.worldX) + ", " + df.format(gg.player.worldY), 10, 30);
+		g.drawString("Player Pos: " + df.format(player.worldX) + ", " + df.format(player.worldY), 10, 30);
+		g.drawString("Player Rotation: " + df.format((float)player.speedAngle), 10, 50);
 
 		g.scale(gg.gameScale, gg.gameScale);
 
 		gg.map.render(((GravGame._SCREENWIDTH/2) - GravGame._TILEWIDTH/2)
-							+ (int)((gg.player.worldX - gg.player.worldY) * GravGame._TILEWIDTH/2.0f *-1),
+							+ (int)((player.worldX - player.worldY) * GravGame._TILEWIDTH/2.0f *-1),
 				((GravGame._SCREENHEIGHT/2))
-						- (int)((gg.player.worldX + gg.player.worldY) * GravGame._TILEHEIGHT/2.0f ) );
+						- (int)((player.worldX + player.worldY) * GravGame._TILEHEIGHT/2.0f ) );
 
-		gg.player.render(g);
+		for (int i = 0; i < gg.gameObjects.length; i++) {
+			if (i != (gg.playerID-1)) {
+				Vehicle e = (Vehicle) gg.gameObjects[i];
+
+				e.setX((GravGame._SCREENWIDTH/2.0f) +
+						(((e.worldX-e.worldY) - (player.worldX-player.worldY))) * GravGame._TILEWIDTH/2.0f);
+				e.setY((GravGame._SCREENHEIGHT/2.0f) +
+						(((e.worldX+e.worldY) - (player.worldX+player.worldY))) * GravGame._TILEHEIGHT/2.0f);
+
+			}
+			gg.gameObjects[i].render(g);
+		}
 
 		g.scale(1, 1);
 	}
@@ -68,23 +80,87 @@ class PlayingState extends BasicGameState {
 	@Override
 	public void update(GameContainer container, StateBasedGame game,
 			int delta) throws SlickException {
-		if(input.isKeyPressed(Input.KEY_A)) {
-			if(gg.isServer) {
-				network.pw.println("server says: A");
-			} else {
-				network.pw.println("client says: A");
-			}
-			network.pw.flush();
-		}
-		gg.player.update(container, delta);
-		if(!gg.isServer){
-			//gg.kart.update(container, game, delta);
-		}
+		try {
+			if(input.isKeyDown(Input.KEY_W)) {
+				gg.out.writeUTF("W");
+				gg.out.writeInt(delta);
+				gg.out.flush();
 
+				int playerCount = gg.in.readInt();
+				for(int i = 0; i < playerCount; i++) {
+					EntityData entityData = (EntityData) gg.in.readObject();
+					if(entityData.entityType.equals("Player")) {
+						((Vehicle) gg.gameObjects[i]).updateData(entityData);
+					}
+				}
+			}
+			if(input.isKeyDown(Input.KEY_A)){
+				gg.out.writeUTF("A");
+				gg.out.writeInt(delta);
+				gg.out.flush();
+
+				int playerCount = gg.in.readInt();
+				for(int i = 0; i < playerCount; i++) {
+					EntityData entityData = (EntityData) gg.in.readObject();
+					if(entityData.entityType.equals("Player")) {
+						((Vehicle) gg.gameObjects[i]).updateData(entityData);
+					}
+				}
+			}
+			if(input.isKeyDown(Input.KEY_S)){
+				gg.out.writeUTF("S");
+				gg.out.writeInt(delta);
+				gg.out.flush();
+
+				int playerCount = gg.in.readInt();
+				for(int i = 0; i < playerCount; i++) {
+					EntityData entityData = (EntityData) gg.in.readObject();
+					if(entityData.entityType.equals("Player")) {
+						((Vehicle) gg.gameObjects[i]).updateData(entityData);
+					}
+				}
+			}
+			if(input.isKeyDown(Input.KEY_D)){
+				gg.out.writeUTF("D");
+				gg.out.writeInt(delta);
+				gg.out.flush();
+
+				int playerCount = gg.in.readInt();
+				for(int i = 0; i < playerCount; i++) {
+					EntityData entityData = (EntityData) gg.in.readObject();
+					if(entityData.entityType.equals("Player")) {
+						((Vehicle) gg.gameObjects[i]).updateData(entityData);
+					}
+				}
+			}
+			if(noMovementPressed()){
+				gg.out.writeUTF("G");
+				gg.out.writeInt(delta);
+				gg.out.flush();
+
+				int playerCount = gg.in.readInt();
+				for(int i = 0; i < playerCount; i++) {
+					EntityData entityData = (EntityData) gg.in.readObject();
+					if(entityData.entityType.equals("Player")) {
+						((Vehicle) gg.gameObjects[i]).updateData(entityData);
+					}
+				}
+			}
+		} catch (IOException | ClassNotFoundException e){
+			System.err.println("IOException in write: " + e);
+		}
+		
 		if (input.isKeyDown(Input.KEY_LBRACKET))
 			gg.gameScale -= (delta/2000.0f);
 		if (input.isKeyDown(Input.KEY_RBRACKET))
 			gg.gameScale += (delta/2000.0f);
+	}
+
+	public boolean noMovementPressed(){
+		if(!input.isKeyDown(Input.KEY_W) && !input.isKeyDown(Input.KEY_S))
+			return true;
+
+		return false;
 	}
 
 	@Override
