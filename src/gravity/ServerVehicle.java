@@ -1,6 +1,7 @@
 package gravity;
 
 import jig.Vector;
+import org.newdawn.slick.tiled.TiledMap;
 
 public class ServerVehicle {
     public float worldX;
@@ -20,7 +21,7 @@ public class ServerVehicle {
         this.backUp = false;
     }
 
-    public void linearMovement(int dir, float initLen, float speedLimit, float speedScale){
+    public void linearMovement(int dir, float initLen, float speedLimit, float speedScale, TiledMap map){
         if(this.speed.length() == 0){
             this.setSpeed(Vector.getVector(this.speedAngle, initLen));
         }
@@ -31,10 +32,17 @@ public class ServerVehicle {
             this.setSpeed(Vector.getVector(this.speedAngle, speedLimit));
         }
         //add collision
-        worldX += dir * this.speed.getX();
-        worldY += dir * this.speed.getY();
-        //float newX = worldX + dir * this.speed.getX();
-        //float newY = worldY + dir * this.speed.getY();
+        float newX = worldX + dir * this.speed.getX();
+        float newY = worldY + dir * this.speed.getY();
+
+        int tileID = map.getTileId((int) newX, (int) newY, 0);
+        if(map.getTileProperty(tileID, "traversable", "false").equals("true")) {
+            System.out.println("Hit!");
+        }
+        else {
+            worldX += dir * this.speed.getX();
+            worldY += dir * this.speed.getY();
+        }
     }
 
     public void finishMovement(int dir, float slowdownScale, float stopThreshold){

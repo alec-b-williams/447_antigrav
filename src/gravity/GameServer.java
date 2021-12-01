@@ -1,6 +1,8 @@
 package gravity;
 
 import jig.Entity;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.tiled.TiledMap;
 
 import java.io.*;
 import java.net.*;
@@ -13,14 +15,16 @@ public class GameServer {
     private int maxPlayers;
     private Socket[] playerSockets;
     private ClientHandler[] handlers;
+    private TiledMap currentMap;
 
     private ConcurrentHashMap<Integer, ServerVehicle> players = new ConcurrentHashMap<>();
 
-    public GameServer(){
+    public GameServer() throws SlickException {
         Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);
+        //currentMap = new TiledMap("gravity/resource/track1.tmx", "gravity/resource");
         System.out.println("Game Server spinning up!");
         numPlayers = 0;
-        maxPlayers = 2;
+        maxPlayers = 1;
         handlers = new ClientHandler[maxPlayers];
         playerSockets = new  Socket[maxPlayers];
 
@@ -90,7 +94,7 @@ public class GameServer {
                         if(player.backUp && player.getSpeed().length() > 0){
                             player.finishMovement(-1, 0.6f, 0.2f * 0.01f);
                         } else
-                            player.linearMovement(1, 0.06f, 0.2f, 1.1f);
+                            player.linearMovement(1, 0.06f, 0.2f, 1.1f, currentMap);
                     }
 
                     if(command.equals("A")){
@@ -101,7 +105,7 @@ public class GameServer {
                         if(!player.backUp && player.getSpeed().length() > 0){
                             player.finishMovement(1, 0.6f, 0.2f * 0.01f);
                         } else
-                            player.linearMovement(-1, 0.01f, 0.05f, 1.05f);
+                            player.linearMovement(-1, 0.01f, 0.05f, 1.05f, currentMap);
                     }
 
                     if(command.equals("D")){
@@ -145,8 +149,12 @@ public class GameServer {
         }
     }
 
-    public static void main(String[] args){
-        GameServer gs = new GameServer();
-        gs.acceptConnections();
+    public static void main(String[] args) {
+        try {
+            GameServer gs = new GameServer();
+            gs.acceptConnections();
+        } catch (SlickException e){
+            e.printStackTrace();
+        }
     }
 }
