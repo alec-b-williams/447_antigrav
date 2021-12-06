@@ -37,7 +37,7 @@ public class ServerVehicle {
 
         int tileID = map.getTileId((int) newX, (int) newY, 0);
         System.out.println("This is the tileID: " + tileID);
-        if(tileID == 0) {
+        if(tileID == 2) {
             System.out.println("Hit!");
         }
         else {
@@ -58,7 +58,7 @@ public class ServerVehicle {
         float newY = worldY + dir * this.speed.getY();
 
         int tileID = map.getTileId((int) newX, (int) newY, 0);
-        if(tileID == 0) {
+        if(tileID == 2) {
             System.out.println("Hit!");
         }
         else {
