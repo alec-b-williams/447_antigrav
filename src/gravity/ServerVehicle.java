@@ -56,12 +56,12 @@ public class ServerVehicle {
         System.out.println("angleDiff: " + angleDiff);
 
         this.speed = this.speed.rotate(angleDiff);
-        speedAngle = newAngle % 360;
+        speedAngle = Math.floorMod((int)newAngle, 360);
 
-        int num =  (int)(newAngle) + 205;
+        int num =  (int)(newAngle) + 110;
         //System.out.println("num: " + num);
         //System.out.println("Frame: " + ((num / 45) + 5) % 8);
-        frame = ((num / 45) + 5) % 8;
+        frame = Math.floorMod(((int)(num / 22.5) + 6), 16);
 
     }
 

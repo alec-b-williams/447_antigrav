@@ -9,15 +9,18 @@ public class Vehicle extends Entity {
     public float worldX;
     public float worldY;
     public double speedAngle;
+    public int playerNumber;
 
-    public Vehicle(float x, float y) {
+    public Vehicle(float x, float y, int _playerNumber) {
         super(GravGame._SCREENWIDTH/2.0f, GravGame._SCREENHEIGHT/2.0f);
 
         worldX = x;
         worldY = y;
 
-        sprite = new Animation(ResourceManager.getSpriteSheet(GravGame.VEHICLE_ANIM_RSC, 64, 64),
-                0, 0, 7, 0, true, 160, false);
+        playerNumber = _playerNumber;
+        sprite = new Animation(ResourceManager.getSpriteSheet(GravGame.vehicleImages[_playerNumber], 64, 64),
+                0, 0, 15, 0, true, 160, false);
+
         this.addAnimation(sprite);
         sprite.setLooping(false);
         sprite.setCurrentFrame(5);
