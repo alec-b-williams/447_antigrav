@@ -40,7 +40,7 @@ class PlayingState extends BasicGameState {
 		gg.gameScale = 1;
 
 		for(int i = 0; i < gg.maxPlayers; i++) {
-			gg.gameObjects[i] = new Vehicle(5.5f, 5.5f);
+			gg.gameObjects[i] = new Vehicle(5.5f, 5.5f, i);
 		}
 	}
 

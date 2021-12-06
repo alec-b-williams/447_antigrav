@@ -31,6 +31,7 @@ public class GravGame extends StateBasedGame {
 	public static final int _TILEHEIGHT = 32;
 	
 	public static final String VEHICLE_ANIM_RSC = "gravity/resource/vehicleAnim.png";
+	public static final String PLAYER_1_VEHICLE_ANIM = "gravity/resource/p1Anim.png";
 
 	public final int ScreenWidth;
 	public final int ScreenHeight;
@@ -75,6 +76,7 @@ public class GravGame extends StateBasedGame {
 
 		// preload all the resources to avoid warnings & minimize latency...
 		ResourceManager.loadImage(VEHICLE_ANIM_RSC);
+		ResourceManager.loadImage(PLAYER_1_VEHICLE_ANIM);
 	}
 
 	public void connectToServer(){
