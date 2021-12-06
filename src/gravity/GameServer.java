@@ -15,13 +15,14 @@ public class GameServer {
     private int maxPlayers;
     private Socket[] playerSockets;
     private ClientHandler[] handlers;
-    private TiledMap currentMap;
+    private volatile TiledMap currentMap;
 
     private ConcurrentHashMap<Integer, ServerVehicle> players = new ConcurrentHashMap<>();
 
     public GameServer() throws SlickException {
+
         Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);
-        //currentMap = new TiledMap("gravity/resource/track1.tmx", "gravity/resource");
+        currentMap = new TiledMap("gravity/resource/track1.tmx", false);
         System.out.println("Game Server spinning up!");
         numPlayers = 0;
         maxPlayers = 1;
