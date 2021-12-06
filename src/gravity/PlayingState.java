@@ -51,15 +51,13 @@ class PlayingState extends BasicGameState {
 
 		Vehicle player = (Vehicle) gg.gameObjects[gg.playerID-1];
 
-		DecimalFormat df = new DecimalFormat("####.##");
-		g.drawString("Player Pos: " + df.format(player.worldX) + ", " + df.format(player.worldY), 10, 30);
-		g.drawString("Player Rotation: " + df.format((float)player.speedAngle), 10, 50);
-
-		g.scale(gg.gameScale, gg.gameScale);
-
 		g.drawImage(ResourceManager.getImage(GravGame.levelBGs[0]),
 				(gg.BGoffsets[0].getX() * -1) - ((player.worldX - player.worldY) * 4),
 				(gg.BGoffsets[0].getY() * -1) - ((player.worldX + player.worldY)) * 4);
+
+		DecimalFormat df = new DecimalFormat("####.##");
+
+		g.scale(gg.gameScale, gg.gameScale);
 
 		gg.map.render(((GravGame._SCREENWIDTH/2) - GravGame._TILEWIDTH/2)
 							+ (int)((player.worldX - player.worldY) * GravGame._TILEWIDTH/2.0f *-1),
@@ -78,6 +76,9 @@ class PlayingState extends BasicGameState {
 			}
 			gg.gameObjects[i].render(g);
 		}
+
+		g.drawString("Player Pos: " + df.format(player.worldX) + ", " + df.format(player.worldY), 10, 30);
+		g.drawString("Player Rotation: " + df.format((float)player.speedAngle), 10, 50);
 
 		g.scale(1, 1);
 	}
