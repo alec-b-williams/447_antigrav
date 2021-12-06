@@ -93,7 +93,7 @@ public class GameServer {
 
                     if(command.equals("W")){
                         if(player.backUp && player.getSpeed().length() > 0){
-                            player.finishMovement(-1, 0.6f, 0.2f * 0.01f);
+                            player.finishMovement(-1, 0.6f, 0.2f * 0.01f, currentMap);
                         } else
                             player.linearMovement(1, 0.06f, 0.2f, 1.1f, currentMap);
                     }
@@ -104,7 +104,7 @@ public class GameServer {
 
                     if(command.equals("S")){
                         if(!player.backUp && player.getSpeed().length() > 0){
-                            player.finishMovement(1, 0.6f, 0.2f * 0.01f);
+                            player.finishMovement(1, 0.6f, 0.2f * 0.01f, currentMap);
                         } else
                             player.linearMovement(-1, 0.01f, 0.05f, 1.05f, currentMap);
                     }
@@ -115,10 +115,10 @@ public class GameServer {
 
                     if(command.equals("G")){
                         if(player.backUp && player.getSpeed().length() > 0){
-                            player.finishMovement(-1, 0.99f, 0.05f * 0.05f);
+                            player.finishMovement(-1, 0.99f, 0.05f * 0.05f, currentMap);
                         }
                         else if (!player.backUp && player.getSpeed().length() > 0){
-                            player.finishMovement(1, 0.98f, 0.2f * 0.01f);
+                            player.finishMovement(1, 0.98f, 0.2f * 0.01f, currentMap);
                         }
                     }
 

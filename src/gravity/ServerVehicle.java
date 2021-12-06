@@ -36,7 +36,8 @@ public class ServerVehicle {
         float newY = worldY + dir * this.speed.getY();
 
         int tileID = map.getTileId((int) newX, (int) newY, 0);
-        if(map.getTileProperty(tileID, "traversable", "false").equals("true")) {
+        System.out.println("This is the tileID: " + tileID);
+        if(tileID == 0) {
             System.out.println("Hit!");
         }
         else {
@@ -45,23 +46,32 @@ public class ServerVehicle {
         }
     }
 
-    public void finishMovement(int dir, float slowdownScale, float stopThreshold){
-        System.out.println("Old Length: " + this.speed.length());
+    public void finishMovement(int dir, float slowdownScale, float stopThreshold, TiledMap map){
+        //System.out.println("Old Length: " + this.speed.length());
         this.setSpeed(this.speed.scale(slowdownScale));
         if(this.speed.length() < stopThreshold){
             this.setSpeed(new Vector(0,0));
             this.backUp = !this.backUp;
         }
         //add collision
-        worldX += dir * this.speed.getX();
-        worldY += dir * this.speed.getY();
+        float newX = worldX + dir * this.speed.getX();
+        float newY = worldY + dir * this.speed.getY();
+
+        int tileID = map.getTileId((int) newX, (int) newY, 0);
+        if(tileID == 0) {
+            System.out.println("Hit!");
+        }
+        else {
+            worldX += dir * this.speed.getX();
+            worldY += dir * this.speed.getY();
+        }
     }
 
     public void turn(int dir, int delta){
         float newAngle = (float)(this.speedAngle + (degPerSecond * (delta/1000.0f) * dir));
-        System.out.println("New Angle: " + newAngle);
+        //System.out.println("New Angle: " + newAngle);
         float angleDiff = newAngle - (float)this.speedAngle;
-        System.out.println("angleDiff: " + angleDiff);
+        //System.out.println("angleDiff: " + angleDiff);
 
         this.speed = this.speed.rotate(angleDiff);
         speedAngle = newAngle % 360;
