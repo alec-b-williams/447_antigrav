@@ -3,6 +3,7 @@ package gravity;
 import java.io.IOException;
 import java.text.DecimalFormat;
 
+import jig.ResourceManager;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
@@ -55,6 +56,10 @@ class PlayingState extends BasicGameState {
 		g.drawString("Player Rotation: " + df.format((float)player.speedAngle), 10, 50);
 
 		g.scale(gg.gameScale, gg.gameScale);
+
+		g.drawImage(ResourceManager.getImage(GravGame.levelBGs[0]),
+				(gg.BGoffsets[0].getX() * -1) - ((player.worldX - player.worldY) * 4),
+				(gg.BGoffsets[0].getY() * -1) - ((player.worldX + player.worldY)) * 4);
 
 		gg.map.render(((GravGame._SCREENWIDTH/2) - GravGame._TILEWIDTH/2)
 							+ (int)((player.worldX - player.worldY) * GravGame._TILEWIDTH/2.0f *-1),
