@@ -32,6 +32,11 @@ public class GravGame extends StateBasedGame {
 	
 	public static final String VEHICLE_ANIM_RSC = "gravity/resource/vehicleAnim.png";
 	public static final String PLAYER_1_VEHICLE_ANIM = "gravity/resource/p1Anim.png";
+	public static final String PLAYER_2_VEHICLE_ANIM = "gravity/resource/p2Anim.png";
+	public static final String PLAYER_3_VEHICLE_ANIM = "gravity/resource/p3Anim.png";
+	public static final String PLAYER_4_VEHICLE_ANIM = "gravity/resource/p4Anim.png";
+	public static final String[] vehicleImages = {PLAYER_1_VEHICLE_ANIM, PLAYER_2_VEHICLE_ANIM,
+												  PLAYER_3_VEHICLE_ANIM, PLAYER_4_VEHICLE_ANIM};
 
 	public final int ScreenWidth;
 	public final int ScreenHeight;
@@ -77,6 +82,9 @@ public class GravGame extends StateBasedGame {
 		// preload all the resources to avoid warnings & minimize latency...
 		ResourceManager.loadImage(VEHICLE_ANIM_RSC);
 		ResourceManager.loadImage(PLAYER_1_VEHICLE_ANIM);
+		ResourceManager.loadImage(PLAYER_2_VEHICLE_ANIM);
+		ResourceManager.loadImage(PLAYER_3_VEHICLE_ANIM);
+		ResourceManager.loadImage(PLAYER_4_VEHICLE_ANIM);
 	}
 
 	public void connectToServer(){

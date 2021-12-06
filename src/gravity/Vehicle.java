@@ -18,10 +18,9 @@ public class Vehicle extends Entity {
         worldY = y;
 
         playerNumber = _playerNumber;
-        sprite = new Animation(ResourceManager.getSpriteSheet(GravGame.PLAYER_1_VEHICLE_ANIM, 64, 64),
+        sprite = new Animation(ResourceManager.getSpriteSheet(GravGame.vehicleImages[_playerNumber], 64, 64),
                 0, 0, 15, 0, true, 160, false);
-        //sprite = new Animation(ResourceManager.getSpriteSheet(GravGame.VEHICLE_ANIM_RSC, 64, 64),
-        //        0, 0, 7, 0, true, 160, false);
+
         this.addAnimation(sprite);
         sprite.setLooping(false);
         sprite.setCurrentFrame(5);
