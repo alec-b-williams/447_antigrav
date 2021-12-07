@@ -21,7 +21,7 @@ public class GameServer {
 
     public GameServer() throws SlickException {
 
-        Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);
+        Entity.setCoarseGrainedCollisionBoundary(Entity.CIRCLE);
         currentMap = new TiledMap("gravity/resource/track1.tmx", false);
         System.out.println("Game Server spinning up!");
         numPlayers = 0;
