@@ -26,10 +26,10 @@ public class Vehicle extends Entity {
         sprite.setCurrentFrame(5);
         speedAngle = 180;
 
-        Shape boundingCircle = new ConvexPolygon(24);
+        Shape boundingCircle = new ConvexPolygon(24, 8);
 
-        boundingCircle.transform(Transform.createScaleTransform(1.0f, 0.5f));
-
+        boundingCircle = boundingCircle.transform(Transform.createScaleTransform(1f, .5f));
+        boundingCircle = boundingCircle.transform(Transform.createTranslateTransform(0, 5f));
         this.addShape(boundingCircle);
     }
 
