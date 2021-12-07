@@ -4,6 +4,7 @@ import jig.*;
 import org.newdawn.slick.geom.Transform;
 import org.newdawn.slick.tiled.TiledMap;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class ServerVehicle extends Entity {
@@ -61,7 +62,7 @@ public class ServerVehicle extends Entity {
         float newY = worldY + dir * this.speed.getY();
 
         ArrayList<Entity> walls = new ArrayList<Entity>();
-        Vector finalCollision = new Vector(0,0);
+        ArrayList<Vector> collisions = new ArrayList<Vector>();
 
         //generate list of walls adjacent to new square
         for (int i = ((int)newX - 1); i <= ((int)newX + 1); i++) {
@@ -81,16 +82,15 @@ public class ServerVehicle extends Entity {
             Collision wallCollision = this.collides(wall);
 
             if (wallCollision != null && wallCollision.getMinPenetration() != null) {
-                finalCollision = (wallCollision.getMinPenetration());
-                System.out.println("Collision detected!");
-                System.out.println(this.speed.getX() + ", " + this.speed.getY());
-                System.out.println(finalCollision.getX() + ", " + finalCollision.getY() + ", " + finalCollision.getRotation());
+                collisions.add(wallCollision.getMinPenetration());
             }
         }
 
         //bounce vehicle
-        if (finalCollision.length() != 0) {
-            this.speed = this.speed.bounce((float)finalCollision.getRotation()+90);
+        for (Vector collision : collisions) {
+            if (collision.length() != 0) {
+                this.speed = this.speed.bounce((float)collision.getRotation()+90);
+            }
         }
 
         worldX += dir * this.speed.getX();
