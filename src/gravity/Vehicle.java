@@ -29,7 +29,7 @@ public class Vehicle extends Entity {
         Shape boundingCircle = new ConvexPolygon(24, 8);
 
         boundingCircle = boundingCircle.transform(Transform.createScaleTransform(1f, .5f));
-        boundingCircle = boundingCircle.transform(Transform.createTranslateTransform(0, 5f));
+        boundingCircle = boundingCircle.transform(Transform.createTranslateTransform(0, 16));
         this.addShape(boundingCircle);
     }
 
