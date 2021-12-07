@@ -1,8 +1,11 @@
 package gravity;
 
+import jig.ConvexPolygon;
 import jig.Entity;
 import jig.ResourceManager;
+import jig.Shape;
 import org.newdawn.slick.Animation;
+import org.newdawn.slick.geom.Transform;
 
 public class Vehicle extends Entity {
     Animation sprite;
@@ -22,6 +25,12 @@ public class Vehicle extends Entity {
         sprite.setLooping(false);
         sprite.setCurrentFrame(5);
         speedAngle = 180;
+
+        Shape boundingCircle = new ConvexPolygon(24);
+
+        boundingCircle.transform(Transform.createScaleTransform(1.0f, 0.5f));
+
+        this.addShape(boundingCircle);
     }
 
     public void updateData(EntityData data) {

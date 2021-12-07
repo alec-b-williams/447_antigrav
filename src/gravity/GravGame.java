@@ -6,6 +6,7 @@ import java.net.Socket;
 import jig.Entity;
 import jig.ResourceManager;
 
+import jig.Shape;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
@@ -62,7 +63,8 @@ public class GravGame extends StateBasedGame {
 		ScreenHeight = height;
 		ScreenWidth = width;
 
-		Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);
+		Entity.setCoarseGrainedCollisionBoundary(Entity.CIRCLE);
+		Entity.setDebug(true);
 	}
 
 	@Override
