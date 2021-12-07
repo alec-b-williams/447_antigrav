@@ -1,9 +1,13 @@
 package gravity;
 
+import jig.ConvexPolygon;
+import jig.Entity;
+import jig.Shape;
 import jig.Vector;
+import org.newdawn.slick.geom.Transform;
 import org.newdawn.slick.tiled.TiledMap;
 
-public class ServerVehicle {
+public class ServerVehicle extends Entity {
     public float worldX;
     public float worldY;
     private Vector speed;
@@ -13,12 +17,21 @@ public class ServerVehicle {
 
     private static final float degPerSecond = 180;
 
-    public ServerVehicle(float x, float y){
+    public ServerVehicle(float x, float y) {
+        super(x, y);
+
         this.worldX = x;
         this.worldY = y;
         this.speed = new Vector(0, 0);
         this.speedAngle = 180;
         this.backUp = false;
+
+        Shape boundingCircle = new ConvexPolygon(64);
+        boundingCircle.transform(new Transform());
+
+        this.addShape(boundingCircle);
+
+        setRotationFrame((float)speedAngle);
     }
 
     public void linearMovement(int dir, float initLen, float speedLimit, float speedScale, TiledMap map){
@@ -44,6 +57,8 @@ public class ServerVehicle {
             worldX += dir * this.speed.getX();
             worldY += dir * this.speed.getY();
         }
+
+        setRotationFrame((float)speedAngle);
     }
 
     public void finishMovement(int dir, float slowdownScale, float stopThreshold, TiledMap map){
@@ -65,6 +80,8 @@ public class ServerVehicle {
             worldX += dir * this.speed.getX();
             worldY += dir * this.speed.getY();
         }
+
+        setRotationFrame((float)speedAngle);
     }
 
     public void turn(int dir, int delta){
@@ -75,12 +92,7 @@ public class ServerVehicle {
 
         this.speed = this.speed.rotate(angleDiff);
         speedAngle = newAngle % 360;
-
-        int num =  (int)(newAngle) + 205;
-        //System.out.println("num: " + num);
-        //System.out.println("Frame: " + ((num / 45) + 5) % 8);
-        frame = ((num / 45) + 5) % 8;
-
+        setRotationFrame(newAngle);
     }
 
     public void setSpeed(Vector speed){
@@ -89,5 +101,10 @@ public class ServerVehicle {
 
     public Vector getSpeed(){
         return this.speed;
+    }
+
+    public void setRotationFrame(float angle) {
+        int num =  (int)(angle) + 205;
+        frame = ((num / 45) + 5) % 8;
     }
 }
