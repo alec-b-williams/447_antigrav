@@ -5,8 +5,9 @@ import java.net.Socket;
 
 import jig.Entity;
 import jig.ResourceManager;
-
 import jig.Shape;
+import jig.Vector;
+
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
@@ -32,6 +33,15 @@ public class GravGame extends StateBasedGame {
 	public static final int _TILEHEIGHT = 32;
 	
 	public static final String VEHICLE_ANIM_RSC = "gravity/resource/vehicleAnim.png";
+	public static final String PLAYER_1_VEHICLE_ANIM = "gravity/resource/p1Anim.png";
+	public static final String PLAYER_2_VEHICLE_ANIM = "gravity/resource/p2Anim.png";
+	public static final String PLAYER_3_VEHICLE_ANIM = "gravity/resource/p3Anim.png";
+	public static final String PLAYER_4_VEHICLE_ANIM = "gravity/resource/p4Anim.png";
+	public static final String[] vehicleImages = {PLAYER_1_VEHICLE_ANIM, PLAYER_2_VEHICLE_ANIM,
+												  PLAYER_3_VEHICLE_ANIM, PLAYER_4_VEHICLE_ANIM};
+	public static final String LEVEL_1_BG_IMG_RSC = "gravity/resource/level1_bg.jpg";
+	public static final String[] levelBGs = {LEVEL_1_BG_IMG_RSC};
+	public static final Vector[] BGoffsets = {new Vector(2500, 1000)};
 
 	public final int ScreenWidth;
 	public final int ScreenHeight;
@@ -77,6 +87,11 @@ public class GravGame extends StateBasedGame {
 
 		// preload all the resources to avoid warnings & minimize latency...
 		ResourceManager.loadImage(VEHICLE_ANIM_RSC);
+		ResourceManager.loadImage(PLAYER_1_VEHICLE_ANIM);
+		ResourceManager.loadImage(PLAYER_2_VEHICLE_ANIM);
+		ResourceManager.loadImage(PLAYER_3_VEHICLE_ANIM);
+		ResourceManager.loadImage(PLAYER_4_VEHICLE_ANIM);
+		ResourceManager.loadImage(LEVEL_1_BG_IMG_RSC);
 	}
 
 	public void connectToServer(){

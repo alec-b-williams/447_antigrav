@@ -3,6 +3,7 @@ package gravity;
 import java.io.IOException;
 import java.text.DecimalFormat;
 
+import jig.ResourceManager;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
@@ -40,7 +41,7 @@ class PlayingState extends BasicGameState {
 		gg.gameScale = 1;
 
 		for(int i = 0; i < gg.maxPlayers; i++) {
-			gg.gameObjects[i] = new Vehicle(5.5f, 5.5f);
+			gg.gameObjects[i] = new Vehicle(5.5f, 5.5f, i);
 		}
 	}
 
@@ -50,9 +51,11 @@ class PlayingState extends BasicGameState {
 
 		Vehicle player = (Vehicle) gg.gameObjects[gg.playerID-1];
 
+		g.drawImage(ResourceManager.getImage(GravGame.levelBGs[0]),
+				(gg.BGoffsets[0].getX() * -1) - ((player.worldX - player.worldY) * 4),
+				(gg.BGoffsets[0].getY() * -1) - ((player.worldX + player.worldY)) * 4);
+
 		DecimalFormat df = new DecimalFormat("####.##");
-		g.drawString("Player Pos: " + df.format(player.worldX) + ", " + df.format(player.worldY), 10, 30);
-		g.drawString("Player Rotation: " + df.format((float)player.speedAngle), 10, 50);
 
 		g.scale(gg.gameScale, gg.gameScale);
 
@@ -72,6 +75,9 @@ class PlayingState extends BasicGameState {
 			}
 			gg.gameObjects[i].render(g);
 		}
+
+		g.drawString("Player Pos: " + df.format(player.worldX) + ", " + df.format(player.worldY), 10, 30);
+		g.drawString("Player Rotation: " + df.format((float)player.speedAngle), 10, 50);
 
 		g.scale(1, 1);
 	}
