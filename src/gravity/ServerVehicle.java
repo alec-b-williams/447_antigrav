@@ -138,8 +138,8 @@ public class ServerVehicle extends Entity {
             Collision wallCollision = this.collides(wall);
 
             if (wallCollision != null && wallCollision.getMinPenetration() != null
-                    && this.speed.dot(new Vector(wall.getX()+.5f - worldX, wall.getY()+.5f - worldY)) > -0.25) {
-                collisions.add(wallCollision.getMinPenetration());
+                    && this.speed.dot(new Vector(wall.getX()+.5f - worldX, wall.getY()+.5f - worldY)) > -0.5) {
+                collisions.add(wallCollision.getMinPenetration().scale(0.5f));
             }
         }
 
