@@ -33,37 +33,39 @@ public class ServerVehicle extends Entity {
         setRotationFrame((float)speedAngle);
     }
 
-    public void linearMovement(int dir, float initLen, float speedLimit, float speedScale, TiledMap map){
+    public void linearMovement(int dir, float initLen, float speedLimit, TiledMap map){
         if(this.speed.length() == 0){
             this.setSpeed(Vector.getVector(this.speedAngle, initLen));
         }
         else {
             Vector oldSpeed = this.getSpeed();
-            int rot = 0;
-            if (dir == -1) rot = 180;
-            this.speed = oldSpeed.add(Vector.getVector(this.speedAngle + rot , .02f));
+            this.speed = oldSpeed.add(Vector.getVector(this.speedAngle + ((dir == -1) ? 180 : 0) , .02f));
         }
 
         if (this.speed.length() > 0.2f) {
             this.setSpeed(this.getSpeed().setLength(speedLimit));
         }
 
-        move(dir, map);
+        move(map);
     }
 
-    public void finishMovement(int dir, float slowdownScale, float stopThreshold, TiledMap map){
+    public void finishMovement(float slowdownScale, float stopThreshold, TiledMap map){
         this.setSpeed(this.speed.scale(slowdownScale));
         if(this.speed.length() < stopThreshold){
             this.setSpeed(new Vector(0,0));
             this.backUp = !this.backUp;
         }
 
-        move(dir, map);
+        move(map);
     }
 
-    public void move(int dir, TiledMap map) {
-        int newX = (int)(worldX + /*dir **/ (this.speed.getX() + .5));
-        int newY = (int)(worldY + /*dir **/ (this.speed.getY() + .5));
+    public void move(TiledMap map) {
+        this.setX(worldX + this.speed.getX());
+        this.setY(worldY + this.speed.getY());
+        int newX = (int)(this.getX() + .5);
+        int newY = (int)(this.getY() + .5);
+        //int newX = (int)(worldX + (this.speed.getX() + .5));
+        //int newY = (int)(worldY + (this.speed.getY() + .5));
 
         boolean bounced = false;
         ArrayList<Vector> collisions = getWallCollisions(newX, newY, map, true);
@@ -88,11 +90,11 @@ public class ServerVehicle extends Entity {
             }
         }
 
-        worldX += /*dir **/ this.speed.getX();
-        worldY += /*dir **/ this.speed.getY();
+        worldX += this.speed.getX();
+        worldY += this.speed.getY();
 
-        this.setX(worldX);
-        this.setY(worldY);
+        //this.setX(worldX);
+        //this.setY(worldY);
 
         setRotationFrame((float)speedAngle);
     }
@@ -148,8 +150,8 @@ public class ServerVehicle extends Entity {
 
     private Entity newWall(int i, int j) {
         Entity wall = new Entity(i, j);
-        wall.setCoarseGrainedRadius(1);
         wall.addShape(new ConvexPolygon(1, 1.0f));
+        wall.setCoarseGrainedRadius(1);
         return wall;
     }
 

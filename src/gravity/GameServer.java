@@ -91,35 +91,20 @@ public class GameServer {
                     String command = dataIn.readUTF();
                     int delta = dataIn.readInt();
 
-                    if(command.equals("W")){
-                        if(player.backUp && player.getSpeed().length() > 0){
-                            player.finishMovement(-1, 0.6f, 0.2f * 0.01f, currentMap);
-                        } else
-                            player.linearMovement(1, 0.06f, 0.2f, 1.1f, currentMap);
+                    if(command.equals("W")) {
+                        player.linearMovement(1, 0.06f, 0.2f, currentMap);
                     }
-
+                    if(command.equals("S")){
+                        player.linearMovement(-1, 0.01f, 0.05f, currentMap);
+                    }
                     if(command.equals("A")){
                         player.turn(-1, delta);
                     }
-
-                    if(command.equals("S")){
-                        if(!player.backUp && player.getSpeed().length() > 0){
-                            player.finishMovement(1, 0.6f, 0.2f * 0.01f, currentMap);
-                        } else
-                            player.linearMovement(-1, 0.01f, 0.05f, 1.05f, currentMap);
-                    }
-
                     if(command.equals("D")){
                         player.turn(1, delta);
                     }
-
                     if(command.equals("G")){
-                        if(player.backUp && player.getSpeed().length() > 0){
-                            player.finishMovement(-1, 0.99f, 0.05f * 0.05f, currentMap);
-                        }
-                        else if (!player.backUp && player.getSpeed().length() > 0){
-                            player.finishMovement(1, 0.98f, 0.2f * 0.01f, currentMap);
-                        }
+                        player.finishMovement( 0.98f, 0.2f * 0.01f, currentMap);
                     }
 
                     // update player value in concurrent hashmap
