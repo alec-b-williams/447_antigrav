@@ -39,7 +39,9 @@ public class ServerVehicle extends Entity {
         }
         else {
             Vector oldSpeed = this.getSpeed();
-            this.speed = oldSpeed.add(Vector.getVector(this.speedAngle, .02f));
+            int rot = 0;
+            if (dir == -1) rot = 180;
+            this.speed = oldSpeed.add(Vector.getVector(this.speedAngle + rot , .02f));
         }
 
         if (this.speed.length() > 0.2f) {
@@ -60,8 +62,8 @@ public class ServerVehicle extends Entity {
     }
 
     public void move(int dir, TiledMap map) {
-        int newX = (int)(worldX + dir * (this.speed.getX() + .5));
-        int newY = (int)(worldY + dir * (this.speed.getY() + .5));
+        int newX = (int)(worldX + /*dir **/ (this.speed.getX() + .5));
+        int newY = (int)(worldY + /*dir **/ (this.speed.getY() + .5));
 
         boolean bounced = false;
         ArrayList<Vector> collisions = getWallCollisions(newX, newY, map, true);
@@ -86,8 +88,8 @@ public class ServerVehicle extends Entity {
             }
         }
 
-        worldX += dir * this.speed.getX();
-        worldY += dir * this.speed.getY();
+        worldX += /*dir **/ this.speed.getX();
+        worldY += /*dir **/ this.speed.getY();
 
         this.setX(worldX);
         this.setY(worldY);
