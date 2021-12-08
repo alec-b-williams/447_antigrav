@@ -39,14 +39,10 @@ public class ServerVehicle extends Entity {
         }
         else {
             Vector oldSpeed = this.getSpeed();
-            Vector newSpeed = oldSpeed.add(Vector.getVector(this.speedAngle, .02f));
-            newSpeed = newSpeed.setLength(oldSpeed.length() * speedScale);
-
-            System.out.println("Old rotation: " + oldSpeed.getRotation() + ", New Rotation: " + newSpeed.getRotation());
-            this.speed = newSpeed;
+            this.speed = oldSpeed.add(Vector.getVector(this.speedAngle, .02f));
         }
 
-        if(this.speed.length() > 0.2f){
+        if (this.speed.length() > 0.2f) {
             this.setSpeed(this.getSpeed().setLength(speedLimit));
         }
 
@@ -64,8 +60,8 @@ public class ServerVehicle extends Entity {
     }
 
     public void move(int dir, TiledMap map) {
-        int newX = (int)(worldX + dir * this.speed.getX());
-        int newY = (int)(worldY + dir * this.speed.getY());
+        int newX = (int)(worldX + dir * (this.speed.getX() + .5));
+        int newY = (int)(worldY + dir * (this.speed.getY() + .5));
 
         boolean bounced = false;
         ArrayList<Vector> collisions = getWallCollisions(newX, newY, map, true);
@@ -73,6 +69,7 @@ public class ServerVehicle extends Entity {
         //bounce vehicle
         for (Vector collision : collisions) {
             if (collision.length() != 0) {
+                System.out.println("Collided with adjacent");
                 this.speed = this.speed.bounce((float)collision.getRotation()+90).scale(1f);
                 bounced = true;
             }
@@ -83,6 +80,7 @@ public class ServerVehicle extends Entity {
 
             for (Vector collision : collisions) {
                 if (collision.length() != 0) {
+                    System.out.println("Collided with corner");
                     this.speed = this.speed.bounce((float)collision.getRotation()+90).scale(1f);
                 }
             }
@@ -121,7 +119,6 @@ public class ServerVehicle extends Entity {
 
         if (adj) {
             if (isWall(x-1, y, map)) walls.add(newWall((x-1), y));
-            if (isWall(x, y, map)) walls.add(newWall((x), y));
             if (isWall(x+1, y, map)) walls.add(newWall((x+1), y));
             if (isWall(x, y-1, map)) walls.add(newWall((x), y-1));
             if (isWall(x, y+1, map)) walls.add(newWall((x), y+1));
@@ -138,7 +135,8 @@ public class ServerVehicle extends Entity {
         for (Entity wall : walls) {
             Collision wallCollision = this.collides(wall);
 
-            if (wallCollision != null && wallCollision.getMinPenetration() != null) {
+            if (wallCollision != null && wallCollision.getMinPenetration() != null
+                    && this.speed.dot(new Vector(wall.getX()+.5f - worldX, wall.getY()+.5f - worldY)) > -0.25) {
                 collisions.add(wallCollision.getMinPenetration());
             }
         }
