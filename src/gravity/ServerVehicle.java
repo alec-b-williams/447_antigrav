@@ -39,7 +39,7 @@ public class ServerVehicle extends Entity {
         }
         else {
             Vector oldSpeed = this.getSpeed();
-            Vector newSpeed = oldSpeed.add(Vector.getVector(this.speedAngle, .01f));
+            Vector newSpeed = oldSpeed.add(Vector.getVector(this.speedAngle, .02f));
             newSpeed = newSpeed.setLength(oldSpeed.length() * speedScale);
 
             System.out.println("Old rotation: " + oldSpeed.getRotation() + ", New Rotation: " + newSpeed.getRotation());
