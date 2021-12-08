@@ -26,7 +26,7 @@ public class ServerVehicle extends Entity {
         this.speedAngle = 180;
         this.backUp = false;
 
-        Shape boundingCircle = new ConvexPolygon(24.0f/32.0f);
+        Shape boundingCircle = new ConvexPolygon(12.0f/32.0f);
         this.addShape(boundingCircle);
         this.setCoarseGrainedRadius(1);
 
