@@ -37,11 +37,17 @@ public class ServerVehicle extends Entity {
         if(this.speed.length() == 0){
             this.setSpeed(Vector.getVector(this.speedAngle, initLen));
         }
-        else if(this.speed.length() < speedLimit) {
-            this.setSpeed(this.speed.scale(speedScale));
+        else {
+            Vector oldSpeed = this.getSpeed();
+            Vector newSpeed = oldSpeed.add(Vector.getVector(this.speedAngle, .01f));
+            newSpeed = newSpeed.setLength(oldSpeed.length() * speedScale);
+
+            System.out.println("Old rotation: " + oldSpeed.getRotation() + ", New Rotation: " + newSpeed.getRotation());
+            this.speed = newSpeed;
         }
+
         if(this.speed.length() > 0.2f){
-            this.setSpeed(Vector.getVector(this.speedAngle, speedLimit));
+            this.setSpeed(this.getSpeed().setLength(speedLimit));
         }
 
         move(dir, map);
@@ -58,38 +64,27 @@ public class ServerVehicle extends Entity {
     }
 
     public void move(int dir, TiledMap map) {
-        float newX = worldX + dir * this.speed.getX();
-        float newY = worldY + dir * this.speed.getY();
+        int newX = (int)(worldX + dir * this.speed.getX());
+        int newY = (int)(worldY + dir * this.speed.getY());
 
-        ArrayList<Entity> walls = new ArrayList<Entity>();
-        ArrayList<Vector> collisions = new ArrayList<Vector>();
-
-        //generate list of walls adjacent to new square
-        for (int i = ((int)newX - 1); i <= ((int)newX + 1); i++) {
-            for (int j = ((int)newY - 1); j <= ((int)newY + 1); j++) {
-                if ((i>=0 && j>=0) && map.getTileId(i, j, 0) == 2) {
-                    Entity wall = new Entity(i, j);
-                    wall.setCoarseGrainedRadius(1);
-                    wall.addShape(new ConvexPolygon(1, 1.0f));
-
-                    walls.add(wall);
-                }
-            }
-        }
-
-        //check walls for collision
-        for (Entity wall : walls) {
-            Collision wallCollision = this.collides(wall);
-
-            if (wallCollision != null && wallCollision.getMinPenetration() != null) {
-                collisions.add(wallCollision.getMinPenetration());
-            }
-        }
+        boolean bounced = false;
+        ArrayList<Vector> collisions = getWallCollisions(newX, newY, map, true);
 
         //bounce vehicle
         for (Vector collision : collisions) {
             if (collision.length() != 0) {
-                this.speed = this.speed.bounce((float)collision.getRotation()+90);
+                this.speed = this.speed.bounce((float)collision.getRotation()+90).scale(1f);
+                bounced = true;
+            }
+        }
+
+        if (!bounced) {
+            collisions = getWallCollisions(newX, newY, map, false);
+
+            for (Vector collision : collisions) {
+                if (collision.length() != 0) {
+                    this.speed = this.speed.bounce((float)collision.getRotation()+90).scale(1f);
+                }
             }
         }
 
@@ -104,9 +99,6 @@ public class ServerVehicle extends Entity {
 
     public void turn(int dir, int delta){
         float newAngle = (float)(this.speedAngle + (degPerSecond * (delta/1000.0f) * dir));
-        float angleDiff = newAngle - (float)this.speedAngle;
-
-        this.speed = this.speed.rotate(angleDiff);
         speedAngle = newAngle % 360;
         setRotationFrame(newAngle);
     }
@@ -122,5 +114,49 @@ public class ServerVehicle extends Entity {
     public void setRotationFrame(float angle) {
         int num =  (int)(angle) + 205;
         frame = ((num / 45) + 5) % 8;
+    }
+
+    private ArrayList<Vector> getWallCollisions(int x, int y, TiledMap map, boolean adj) {
+        ArrayList<Entity> walls = new ArrayList<>();
+
+        if (adj) {
+            if (isWall(x-1, y, map)) walls.add(newWall((x-1), y));
+            if (isWall(x, y, map)) walls.add(newWall((x), y));
+            if (isWall(x+1, y, map)) walls.add(newWall((x+1), y));
+            if (isWall(x, y-1, map)) walls.add(newWall((x), y-1));
+            if (isWall(x, y+1, map)) walls.add(newWall((x), y+1));
+        } else {
+            if (isWall(x-1, y-1, map)) walls.add(newWall(x-1, y-1));
+            if (isWall(x+1, y-1, map)) walls.add(newWall(x+1, y-1));
+            if (isWall(x-1, y+1, map)) walls.add(newWall(x-1, y+1));
+            if (isWall(x+1, y+1, map)) walls.add(newWall(x+1, y+1));
+        }
+
+        ArrayList<Vector> collisions = new ArrayList<>();
+
+        //check walls for collision
+        for (Entity wall : walls) {
+            Collision wallCollision = this.collides(wall);
+
+            if (wallCollision != null && wallCollision.getMinPenetration() != null) {
+                collisions.add(wallCollision.getMinPenetration());
+            }
+        }
+
+        return collisions;
+    }
+
+    private Entity newWall(int i, int j) {
+        Entity wall = new Entity(i, j);
+        wall.setCoarseGrainedRadius(1);
+        wall.addShape(new ConvexPolygon(1, 1.0f));
+        return wall;
+    }
+
+    private boolean isWall(int i, int j, TiledMap map) {
+        if (i < 0 || j < 0)
+            return false;
+
+        return (map.getTileId(i, j, 0) == 2);
     }
 }
