@@ -1,8 +1,11 @@
 package gravity;
 
+import jig.ConvexPolygon;
 import jig.Entity;
 import jig.ResourceManager;
+import jig.Shape;
 import org.newdawn.slick.Animation;
+import org.newdawn.slick.geom.Transform;
 
 public class Vehicle extends Entity {
     Animation sprite;

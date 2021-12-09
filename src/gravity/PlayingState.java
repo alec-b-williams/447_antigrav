@@ -72,7 +72,6 @@ class PlayingState extends BasicGameState {
 						(((e.worldX-e.worldY) - (player.worldX-player.worldY))) * GravGame._TILEWIDTH/2.0f);
 				e.setY((GravGame._SCREENHEIGHT/2.0f) +
 						(((e.worldX+e.worldY) - (player.worldX+player.worldY))) * GravGame._TILEHEIGHT/2.0f);
-
 			}
 			gg.gameObjects[i].render(g);
 		}
