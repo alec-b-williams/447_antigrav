@@ -14,6 +14,7 @@ public class Vehicle extends Entity {
     public float height;
     public double speedAngle;
     public int playerNumber;
+    public boolean isKill;
 
     public Vehicle(float x, float y, int _playerNumber) {
         super(GravGame._SCREENWIDTH/2.0f, GravGame._SCREENHEIGHT/2.0f);
@@ -29,6 +30,7 @@ public class Vehicle extends Entity {
         sprite.setLooping(false);
         sprite.setCurrentFrame(5);
         speedAngle = 180;
+        isKill = false;
     }
 
     public void updateData(EntityData data) {
@@ -37,6 +39,7 @@ public class Vehicle extends Entity {
         this.speedAngle = data.direction;
         this.height = data.height;
         this.setY((GravGame._SCREENHEIGHT/2.0f) - (height * 32));
+        this.isKill = data.isKill;
         this.sprite.setCurrentFrame(data.animationFrame);
     }
 }

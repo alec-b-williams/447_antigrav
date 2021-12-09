@@ -1,10 +1,8 @@
 package gravity;
 
 import jig.*;
-import org.newdawn.slick.geom.Transform;
 import org.newdawn.slick.tiled.TiledMap;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class ServerVehicle extends Entity {
@@ -14,8 +12,8 @@ public class ServerVehicle extends Entity {
     public double speedAngle;
     public float height;
     public float verticalMomentum;
-    public boolean backUp;
     public int frame;
+    public boolean isKill;
 
     private static final float degPerSecond = 180;
 
@@ -27,7 +25,7 @@ public class ServerVehicle extends Entity {
         this.speed = new Vector(0, 0);
         this.speedAngle = 180;
         this.height = 0;
-        this.backUp = false;
+        this.isKill = false;
 
         Shape boundingCircle = new ConvexPolygon(12.0f/32.0f);
         this.addShape(boundingCircle);
@@ -57,7 +55,6 @@ public class ServerVehicle extends Entity {
             this.setSpeed(this.speed.scale(slowdownScale));
             if(this.speed.length() < stopThreshold){
                 this.setSpeed(new Vector(0,0));
-                this.backUp = !this.backUp;
             }
         }
 
@@ -93,15 +90,20 @@ public class ServerVehicle extends Entity {
             }
         }
 
-        if (map.getTileId(newX, newY, 0) == 4) {
+        if (map.getTileId(newX, newY, 0) == GravGame.JUMP) {
             verticalMomentum = .2f;
         }
 
         verticalMomentum -= .0075f;
         height += verticalMomentum;
+
         if (height < 0) {
-            height = 0;
-            verticalMomentum = 0;
+            if (!isKill && map.getTileId(newX, newY, 0) == GravGame.VOID) {
+                isKill = true;
+            } else {
+                height = 0;
+                verticalMomentum = 0;
+            }
         }
 
         worldX += this.speed.getX();
@@ -170,6 +172,6 @@ public class ServerVehicle extends Entity {
         if (i < 0 || j < 0)
             return false;
 
-        return (map.getTileId(i, j, 0) == 2);
+        return (map.getTileId(i, j, 0) == GravGame.WALL);
     }
 }

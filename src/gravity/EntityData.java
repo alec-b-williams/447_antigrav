@@ -10,6 +10,7 @@ public class EntityData implements Serializable {
     public double direction;
     public float height;
     public int animationFrame;
+    public boolean isKill;
 
     public EntityData(String entityType, int id, float xPosition, float yPosition, double direction, float height, int animationFrame) {
         this.entityType = entityType;
@@ -29,6 +30,7 @@ public class EntityData implements Serializable {
         this.direction = vehicle.speedAngle;
         this.height = vehicle.height;
         this.animationFrame = vehicle.frame;
+        this.isKill = vehicle.isKill;
     }
 
 }

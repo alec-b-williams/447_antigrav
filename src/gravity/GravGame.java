@@ -27,6 +27,18 @@ public class GravGame extends StateBasedGame {
 	public static final int PLAYINGSTATE = 1;
 	public static final int GAMEOVERSTATE = 2;
 
+	public static final int VOID = 0;
+	public static final int TRACK = 1;
+	public static final int WALL = 2;
+	public static final int DISPENSER = 3;
+	public static final int JUMP = 4;
+	public static final int SLOW_A = 5;
+	public static final int SLOW_B = 6;
+	public static final int BOOST_N = 7;
+	public static final int BOOST_E = 8;
+	public static final int BOOST_S = 9;
+	public static final int BOOST_W = 10;
+
 	public static final int _SCREENWIDTH = 1280;
 	public static final int _SCREENHEIGHT = 1024;
 	public static final int _TILEWIDTH = 64;

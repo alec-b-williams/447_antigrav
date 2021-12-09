@@ -34,7 +34,6 @@ class PlayingState extends BasicGameState {
 		container.setSoundOn(true);
 
 		gg.map = new TiledMap("gravity/resource/track1.tmx", "gravity/resource");
-		//gg.players[gg.playerID-1] = new Vehicle(5.5f, 5.5f, gg);
 
 		gg.cameraXPos = 0;
 		gg.cameraYPos = 0;
@@ -64,23 +63,13 @@ class PlayingState extends BasicGameState {
 				((GravGame._SCREENHEIGHT/2))
 						- (int)((player.worldX + player.worldY) * GravGame._TILEHEIGHT/2.0f ) );
 
-		for (int i = 0; i < gg.gameObjects.length; i++) {
-			if (i != (gg.playerID-1)) {
-				Vehicle e = (Vehicle) gg.gameObjects[i];
+		renderEntities(player, g);
 
-				e.setX((GravGame._SCREENWIDTH/2.0f) +
-						(((e.worldX-e.worldY) - (player.worldX-player.worldY))) * GravGame._TILEWIDTH/2.0f);
-				e.setY((GravGame._SCREENHEIGHT/2.0f) +
-						(((e.worldX+e.worldY) - (player.worldX+player.worldY))) * GravGame._TILEHEIGHT/2.0f);
-			}
-			gg.gameObjects[i].render(g);
-		}
+		g.scale(1, 1);
 
 		g.drawString("Player Pos: " + df.format(player.worldX) + ", " + df.format(player.worldY), 10, 30);
 		g.drawString("Player Rotation: " + df.format((float)player.speedAngle), 10, 50);
 		g.drawString("Player Height: " + df.format((float)player.height), 10, 70);
-
-		g.scale(1, 1);
 	}
 
 	@Override
@@ -89,70 +78,25 @@ class PlayingState extends BasicGameState {
 		try {
 			if(input.isKeyDown(Input.KEY_W)) {
 				gg.out.writeUTF("W");
-				gg.out.writeInt(delta);
-				gg.out.flush();
-
-				int playerCount = gg.in.readInt();
-				for(int i = 0; i < playerCount; i++) {
-					EntityData entityData = (EntityData) gg.in.readObject();
-					if(entityData.entityType.equals("Player")) {
-						((Vehicle) gg.gameObjects[i]).updateData(entityData);
-					}
-				}
+				serverRW(delta);
 			}
 			if(input.isKeyDown(Input.KEY_A)){
 				gg.out.writeUTF("A");
-				gg.out.writeInt(delta);
-				gg.out.flush();
-
-				int playerCount = gg.in.readInt();
-				for(int i = 0; i < playerCount; i++) {
-					EntityData entityData = (EntityData) gg.in.readObject();
-					if(entityData.entityType.equals("Player")) {
-						((Vehicle) gg.gameObjects[i]).updateData(entityData);
-					}
-				}
+				serverRW(delta);
 			}
 			if(input.isKeyDown(Input.KEY_S)){
 				gg.out.writeUTF("S");
-				gg.out.writeInt(delta);
-				gg.out.flush();
-
-				int playerCount = gg.in.readInt();
-				for(int i = 0; i < playerCount; i++) {
-					EntityData entityData = (EntityData) gg.in.readObject();
-					if(entityData.entityType.equals("Player")) {
-						((Vehicle) gg.gameObjects[i]).updateData(entityData);
-					}
-				}
+				serverRW(delta);
 			}
 			if(input.isKeyDown(Input.KEY_D)){
 				gg.out.writeUTF("D");
-				gg.out.writeInt(delta);
-				gg.out.flush();
-
-				int playerCount = gg.in.readInt();
-				for(int i = 0; i < playerCount; i++) {
-					EntityData entityData = (EntityData) gg.in.readObject();
-					if(entityData.entityType.equals("Player")) {
-						((Vehicle) gg.gameObjects[i]).updateData(entityData);
-					}
-				}
+				serverRW(delta);
 			}
 			if(noMovementPressed()){
 				gg.out.writeUTF("G");
-				gg.out.writeInt(delta);
-				gg.out.flush();
-
-				int playerCount = gg.in.readInt();
-				for(int i = 0; i < playerCount; i++) {
-					EntityData entityData = (EntityData) gg.in.readObject();
-					if(entityData.entityType.equals("Player")) {
-						((Vehicle) gg.gameObjects[i]).updateData(entityData);
-					}
-				}
+				serverRW(delta);
 			}
-		} catch (IOException | ClassNotFoundException e){
+		} catch (IOException e){
 			System.err.println("IOException in write: " + e);
 		}
 		
@@ -172,6 +116,37 @@ class PlayingState extends BasicGameState {
 	@Override
 	public int getID() {
 		return GravGame.PLAYINGSTATE;
+	}
+
+	public void serverRW(int delta) {
+		try {
+			gg.out.writeInt(delta);
+			gg.out.flush();
+
+			int playerCount = gg.in.readInt();
+			for (int i = 0; i < playerCount; i++) {
+				EntityData entityData = (EntityData) gg.in.readObject();
+				if (entityData.entityType.equals("Player")) {
+					((Vehicle) gg.gameObjects[i]).updateData(entityData);
+				}
+			}
+		} catch (IOException | ClassNotFoundException e){
+			System.err.println("IOException in write: " + e);
+		}
+	}
+
+	public void renderEntities(Vehicle player, Graphics g) {
+		for (int i = 0; i < gg.gameObjects.length; i++) {
+			if (i != (gg.playerID-1)) {
+				Vehicle e = (Vehicle) gg.gameObjects[i];
+
+				e.setX((GravGame._SCREENWIDTH/2.0f) +
+						(((e.worldX-e.worldY) - (player.worldX-player.worldY))) * GravGame._TILEWIDTH/2.0f);
+				e.setY((GravGame._SCREENHEIGHT/2.0f) +
+						(((e.worldX+e.worldY) - (player.worldX+player.worldY))) * GravGame._TILEHEIGHT/2.0f);
+			}
+			gg.gameObjects[i].render(g);
+		}
 	}
 	
 }
