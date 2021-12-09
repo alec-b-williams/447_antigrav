@@ -153,10 +153,6 @@ public class ServerVehicle extends Entity {
 
             if (wallCollision != null && wallCollision.getMinPenetration() != null
                     && this.speed.unit().dot(new Vector(wall.getX() - this.getX(), wall.getY() - this.getY())) > 0) {
-                System.out.println("Player at " + (this.getX()+.5f) + ", " + (this.getY()+.5f) + "; colliding with wall at " + wall.getX() + ", " + wall.getY());
-                System.out.println("w->p vec: " + (wall.getX() - this.getX()) + ", " + (wall.getY() - this.getY())
-                        + "; p vec: " + this.speed.unit().getX() + ", " + this.speed.unit().getY()
-                        + "; dot: " + this.speed.unit().dot(new Vector(wall.getX() - this.getX(), wall.getY() - this.getY())));
                 collisions.add(wallCollision.getMinPenetration().scale(0.5f));
             }
         }
