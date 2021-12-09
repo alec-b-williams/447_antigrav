@@ -8,14 +8,16 @@ public class EntityData implements Serializable {
     public float xPosition;
     public float yPosition;
     public double direction;
+    public float height;
     public int animationFrame;
 
-    public EntityData(String entityType, int id, float xPosition, float yPosition, double direction, int animationFrame) {
+    public EntityData(String entityType, int id, float xPosition, float yPosition, double direction, float height, int animationFrame) {
         this.entityType = entityType;
         this.id = id;
         this.xPosition = xPosition;
         this.yPosition = yPosition;
         this.direction = direction;
+        this.height = height;
         this.animationFrame = animationFrame;
     }
 
@@ -25,6 +27,7 @@ public class EntityData implements Serializable {
         this.xPosition = vehicle.worldX;
         this.yPosition = vehicle.worldY;
         this.direction = vehicle.speedAngle;
+        this.height = vehicle.height;
         this.animationFrame = vehicle.frame;
     }
 

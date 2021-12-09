@@ -11,6 +11,7 @@ public class Vehicle extends Entity {
     Animation sprite;
     public float worldX;
     public float worldY;
+    public float height;
     public double speedAngle;
     public int playerNumber;
 
@@ -34,6 +35,8 @@ public class Vehicle extends Entity {
         this.worldX = data.xPosition;
         this.worldY = data.yPosition;
         this.speedAngle = data.direction;
+        this.height = data.height;
+        this.setY((GravGame._SCREENHEIGHT/2.0f) - (height * 32));
         this.sprite.setCurrentFrame(data.animationFrame);
     }
 }

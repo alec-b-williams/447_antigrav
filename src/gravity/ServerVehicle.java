@@ -12,6 +12,8 @@ public class ServerVehicle extends Entity {
     public float worldY;
     private Vector speed;
     public double speedAngle;
+    public float height;
+    public float verticalMomentum;
     public boolean backUp;
     public int frame;
 
@@ -24,6 +26,7 @@ public class ServerVehicle extends Entity {
         this.worldY = y;
         this.speed = new Vector(0, 0);
         this.speedAngle = 180;
+        this.height = 0;
         this.backUp = false;
 
         Shape boundingCircle = new ConvexPolygon(12.0f/32.0f);
@@ -50,10 +53,12 @@ public class ServerVehicle extends Entity {
     }
 
     public void finishMovement(float slowdownScale, float stopThreshold, TiledMap map){
-        this.setSpeed(this.speed.scale(slowdownScale));
-        if(this.speed.length() < stopThreshold){
-            this.setSpeed(new Vector(0,0));
-            this.backUp = !this.backUp;
+        if (height == 0) {
+            this.setSpeed(this.speed.scale(slowdownScale));
+            if(this.speed.length() < stopThreshold){
+                this.setSpeed(new Vector(0,0));
+                this.backUp = !this.backUp;
+            }
         }
 
         move(map);
@@ -64,8 +69,6 @@ public class ServerVehicle extends Entity {
         this.setY(worldY + this.speed.getY());
         int newX = (int)(this.getX() + .5);
         int newY = (int)(this.getY() + .5);
-        //int newX = (int)(worldX + (this.speed.getX() + .5));
-        //int newY = (int)(worldY + (this.speed.getY() + .5));
 
         boolean bounced = false;
         ArrayList<Vector> collisions = getWallCollisions(newX, newY, map, true);
@@ -90,11 +93,19 @@ public class ServerVehicle extends Entity {
             }
         }
 
+        if (map.getTileId(newX, newY, 0) == 4) {
+            verticalMomentum = .2f;
+        }
+
+        verticalMomentum -= .0075f;
+        height += verticalMomentum;
+        if (height < 0) {
+            height = 0;
+            verticalMomentum = 0;
+        }
+
         worldX += this.speed.getX();
         worldY += this.speed.getY();
-
-        //this.setX(worldX);
-        //this.setY(worldY);
 
         setRotationFrame((float)speedAngle);
     }
