@@ -14,6 +14,7 @@ public class ServerVehicle extends Entity {
     public float verticalMomentum;
     public int frame;
     public boolean isKill;
+    private Vector lastTile;
 
     private static final float degPerSecond = 180;
 
@@ -26,6 +27,7 @@ public class ServerVehicle extends Entity {
         this.speedAngle = 0;
         this.height = 0;
         this.isKill = false;
+        this.lastTile = new Vector(x, y);
 
         Shape boundingCircle = new ConvexPolygon(12.0f/32.0f);
         this.addShape(boundingCircle);
@@ -94,8 +96,12 @@ public class ServerVehicle extends Entity {
         height += verticalMomentum;
 
         if (height < 0) {
-            if (!isKill && safeTileID(newX, newY, map) == GravGame.VOID) {
+            if (!isKill && (safeTileID(newX, newY, map) == GravGame.VOID || newX < 0 || newY < 0)) {
                 isKill = true;
+            } else if (isKill) {
+                if (height < -8) {
+                    resetPlayer();
+                }
             } else {
                 height = 0;
                 verticalMomentum = 0;
@@ -176,5 +182,16 @@ public class ServerVehicle extends Entity {
             return -1;
         else
             return map.getTileId(x, y, 0);
+    }
+
+    public void resetPlayer() {
+        this.setX(lastTile.getX());
+        this.setY(lastTile.getY());
+        worldX = lastTile.getX();
+        worldY = lastTile.getY();
+        this.speed = new Vector(0,0);
+        this.height = 0;
+        this.verticalMomentum = 0;
+        isKill = false;
     }
 }

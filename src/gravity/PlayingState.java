@@ -58,18 +58,20 @@ class PlayingState extends BasicGameState {
 
 		g.scale(gg.gameScale, gg.gameScale);
 
+		renderEntities(player,g, true);
+
 		gg.map.render(((GravGame._SCREENWIDTH/2) - GravGame._TILEWIDTH/2)
 							+ (int)((player.worldX - player.worldY) * GravGame._TILEWIDTH/2.0f *-1),
 				((GravGame._SCREENHEIGHT/2))
 						- (int)((player.worldX + player.worldY) * GravGame._TILEHEIGHT/2.0f ) );
 
-		renderEntities(player, g);
+		renderEntities(player, g, false);
 
 		g.scale(1, 1);
 
 		g.drawString("Player Pos: " + df.format(player.worldX) + ", " + df.format(player.worldY), 10, 30);
 		g.drawString("Player Rotation: " + df.format((float)player.speedAngle), 10, 50);
-		g.drawString("Player Height: " + df.format((float)player.height), 10, 70);
+		g.drawString("Player Height: " + df.format(player.height), 10, 70);
 	}
 
 	@Override
@@ -135,7 +137,7 @@ class PlayingState extends BasicGameState {
 		}
 	}
 
-	public void renderEntities(Vehicle player, Graphics g) {
+	public void renderEntities(Vehicle player, Graphics g, boolean kill) {
 		for (int i = 0; i < gg.gameObjects.length; i++) {
 			if (i != (gg.playerID-1)) {
 				Vehicle e = (Vehicle) gg.gameObjects[i];
@@ -145,8 +147,15 @@ class PlayingState extends BasicGameState {
 				e.setY((GravGame._SCREENHEIGHT/2.0f) +
 						(((e.worldX+e.worldY) - (player.worldX+player.worldY))) * GravGame._TILEHEIGHT/2.0f);
 			}
-			gg.gameObjects[i].render(g);
+			if (kill) {
+				if (((Vehicle)gg.gameObjects[i]).isKill) {
+					gg.gameObjects[i].render(g);
+				}
+			} else {
+				if (!((Vehicle)gg.gameObjects[i]).isKill) {
+					gg.gameObjects[i].render(g);
+				}
+			}
 		}
 	}
-	
 }
