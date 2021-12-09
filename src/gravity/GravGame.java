@@ -44,7 +44,11 @@ public class GravGame extends StateBasedGame {
 	public static final int _TILEWIDTH = 64;
 	public static final int _TILEHEIGHT = 32;
 	
-	public static final String VEHICLE_ANIM_RSC = "gravity/resource/vehicleAnim.png";
+	public static final String ENERGY_IMG_RSC = "gravity/resource/energy.png";
+	public static final String ENERGY_CONTAINER_IMG_RSC = "gravity/resource/energy_container.png";
+	public static final String POWERUP_CONTAINER_IMG_RSC = "gravity/resource/powerup_container.png";
+	public static final String NUM_ANIM_RSC = "gravity/resource/numAnim.png";
+	public static final String LAPTIME_IMG_RSC = "gravity/resource/laptime.png";
 	public static final String PLAYER_1_VEHICLE_ANIM = "gravity/resource/p1Anim.png";
 	public static final String PLAYER_2_VEHICLE_ANIM = "gravity/resource/p2Anim.png";
 	public static final String PLAYER_3_VEHICLE_ANIM = "gravity/resource/p3Anim.png";
@@ -98,7 +102,11 @@ public class GravGame extends StateBasedGame {
 		//ResourceManager.loadSound(BANG_EXPLOSIONSND_RSC);
 
 		// preload all the resources to avoid warnings & minimize latency...
-		ResourceManager.loadImage(VEHICLE_ANIM_RSC);
+		ResourceManager.loadImage(ENERGY_IMG_RSC);
+		ResourceManager.loadImage(ENERGY_CONTAINER_IMG_RSC);
+		ResourceManager.loadImage(POWERUP_CONTAINER_IMG_RSC);
+		ResourceManager.loadImage(NUM_ANIM_RSC);
+		ResourceManager.loadImage(LAPTIME_IMG_RSC);
 		ResourceManager.loadImage(PLAYER_1_VEHICLE_ANIM);
 		ResourceManager.loadImage(PLAYER_2_VEHICLE_ANIM);
 		ResourceManager.loadImage(PLAYER_3_VEHICLE_ANIM);

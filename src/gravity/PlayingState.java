@@ -54,8 +54,6 @@ class PlayingState extends BasicGameState {
 				(gg.BGoffsets[0].getX() * -1) - ((player.worldX - player.worldY) * 4),
 				(gg.BGoffsets[0].getY() * -1) - ((player.worldX + player.worldY)) * 4);
 
-		DecimalFormat df = new DecimalFormat("####.##");
-
 		g.scale(gg.gameScale, gg.gameScale);
 
 		renderEntities(player,g, true);
@@ -66,12 +64,10 @@ class PlayingState extends BasicGameState {
 						- (int)((player.worldX + player.worldY) * GravGame._TILEHEIGHT/2.0f ) );
 
 		renderEntities(player, g, false);
-
+    
 		g.scale(1, 1);
 
-		g.drawString("Player Pos: " + df.format(player.worldX) + ", " + df.format(player.worldY), 10, 30);
-		g.drawString("Player Rotation: " + df.format((float)player.speedAngle), 10, 50);
-		g.drawString("Player Height: " + df.format(player.height), 10, 70);
+		drawUI(player, g);
 	}
 
 	@Override
@@ -157,5 +153,21 @@ class PlayingState extends BasicGameState {
 				}
 			}
 		}
+	}
+
+	private void drawUI(Vehicle player, Graphics g) {
+		DecimalFormat df = new DecimalFormat("####.##");
+
+		if (player.getDebug()){
+			g.drawString("Player Pos: " + df.format(player.worldX) + ", " + df.format(player.worldY), 10, 30);
+			g.drawString("Player Rotation: " + df.format((float)player.speedAngle), 10, 50);
+		}
+
+		//TODO: shrink this image based on player health
+		g.drawImage(ResourceManager.getImage(GravGame.ENERGY_IMG_RSC), 100, 16);
+		g.drawImage(ResourceManager.getImage(GravGame.ENERGY_CONTAINER_IMG_RSC), 94, 10);
+
+		g.drawImage(ResourceManager.getImage(GravGame.POWERUP_CONTAINER_IMG_RSC), (GravGame._SCREENWIDTH/2.0f) - 64, 10);
+		g.drawImage(ResourceManager.getImage(GravGame.LAPTIME_IMG_RSC), GravGame._SCREENWIDTH - 300, 10);
 	}
 }
