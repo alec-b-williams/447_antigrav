@@ -1,15 +1,20 @@
 package gravity;
 
+import jig.ConvexPolygon;
 import jig.Entity;
 import jig.ResourceManager;
+import jig.Shape;
 import org.newdawn.slick.Animation;
+import org.newdawn.slick.geom.Transform;
 
 public class Vehicle extends Entity {
     Animation sprite;
     public float worldX;
     public float worldY;
+    public float height;
     public double speedAngle;
     public int playerNumber;
+    public boolean isKill;
 
     public Vehicle(float x, float y, int _playerNumber) {
         super(GravGame._SCREENWIDTH/2.0f, GravGame._SCREENHEIGHT/2.0f);
@@ -25,12 +30,16 @@ public class Vehicle extends Entity {
         sprite.setLooping(false);
         sprite.setCurrentFrame(5);
         speedAngle = 180;
+        isKill = false;
     }
 
     public void updateData(EntityData data) {
         this.worldX = data.xPosition;
         this.worldY = data.yPosition;
         this.speedAngle = data.direction;
+        this.height = data.height;
+        this.setY((GravGame._SCREENHEIGHT/2.0f) - (height * 32));
+        this.isKill = data.isKill;
         this.sprite.setCurrentFrame(data.animationFrame);
     }
 }
