@@ -101,7 +101,7 @@ public class ServerVehicle extends Entity {
 
     public void turn(int dir, int delta){
         float newAngle = (float)(this.speedAngle + (degPerSecond * (delta/1000.0f) * dir));
-        speedAngle = newAngle % 360;
+        speedAngle = Math.floorMod((int)newAngle, 360);
         setRotationFrame(newAngle);
     }
 
@@ -114,8 +114,8 @@ public class ServerVehicle extends Entity {
     }
 
     public void setRotationFrame(float angle) {
-        int num =  (int)(angle) + 205;
-        frame = ((num / 45) + 5) % 8;
+        int num =  (int)(angle) + 110;
+        frame = Math.floorMod(((int)(num / 22.5) + 6), 16);
     }
 
     private ArrayList<Vector> getWallCollisions(int x, int y, TiledMap map, boolean adj) {
