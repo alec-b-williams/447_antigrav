@@ -30,7 +30,7 @@ public class GameServer {
         playerSockets = new  Socket[maxPlayers];
 
         for(int i = 0; i < maxPlayers; i++) {
-            players.put(i + 1, new ServerVehicle(5.5f, 5.5f));
+            players.put(i + 1, new ServerVehicle(5f, 5f));
         }
 
         try {
