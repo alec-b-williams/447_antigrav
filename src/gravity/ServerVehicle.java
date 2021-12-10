@@ -36,7 +36,7 @@ public class ServerVehicle extends Entity {
         this.worldX = x;
         this.worldY = y;
         this.speed = new Vector(0, 0);
-        this.speedAngle = 180;
+        this.speedAngle = 90;
         this.height = 0;
         this.isKill = false;
         this.lastTile = new Vector(x, y);
