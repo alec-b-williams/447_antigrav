@@ -10,7 +10,7 @@ public class ServerVehicle extends Entity {
     public static float reverseSpeedLimit = 0.05f;
     public static float slowdownScale = 0.98f;
     public static float stopThreshold = 0.02f;
-    public static float boostMult = 2.0f;
+    public static float boostMult = 1.5f;
     public static float slowMult = 0.5f;
 
     public float worldX;
@@ -24,6 +24,9 @@ public class ServerVehicle extends Entity {
     private Vector lastTile;
     public float deathCooldown;
     public float boostCooldown;
+    public int lap;
+    public float timer;
+    public boolean checkpoint;
 
     private static final float degPerSecond = 180;
 
@@ -39,6 +42,9 @@ public class ServerVehicle extends Entity {
         this.lastTile = new Vector(x, y);
         this.deathCooldown = 0;
         this.boostCooldown = 0;
+        this.lap = 1;
+        this.timer = 0;
+        this.checkpoint = false;
 
         Shape boundingCircle = new ConvexPolygon(12.0f/32.0f);
         this.addShape(boundingCircle);
@@ -77,16 +83,29 @@ public class ServerVehicle extends Entity {
         calcCollision(newX, newY, map);
         calcHeight(newX, newY, map);
 
-
         int tileID = safeTileID(newX, newY, map);
         boolean slow = isSlow(tileID);
         boolean boost = (boostCooldown > 0 || isBoost(tileID));
+
+        if (tileID == GravGame.CHECKPOINT) {
+            checkpoint = true;
+            lastTile = new Vector(newX, newY);
+            System.out.println("Checkpoint! lap " + (lap));
+        }
+
+        if (checkpoint && tileID == GravGame.FINISH) {
+            checkpoint = false;
+            lastTile = new Vector(newX, newY);
+            lap++;
+            System.out.println("Completed lap " + (lap-1) + "! Time: " + timer);
+        }
 
         worldX += this.speed.getX() * (slow ? slowMult : 1) * (boost ? boostMult : 1) * (deathCooldown > 0 ? 0 : 1);
         worldY += this.speed.getY() * (slow ? slowMult : 1) * (boost ? boostMult : 1) * (deathCooldown > 0 ? 0 : 1);
 
         boostCooldown -= delta;
         deathCooldown -= delta;
+        timer += delta;
         setRotationFrame((float)speedAngle);
     }
 
@@ -221,7 +240,7 @@ public class ServerVehicle extends Entity {
     private boolean isBoost(int tileID) {
         if (tileID == GravGame.BOOST_N || tileID == GravGame.BOOST_E
                 || tileID == GravGame.BOOST_S || tileID == GravGame.BOOST_W) {
-            boostCooldown = 1500;
+            boostCooldown = 1000;
             return true;
         } else return false;
     }
