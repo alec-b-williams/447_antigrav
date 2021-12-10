@@ -33,7 +33,7 @@ public class ServerVehicle extends Entity {
         this.worldX = x;
         this.worldY = y;
         this.speed = new Vector(0, 0);
-        this.speedAngle = 0;
+        this.speedAngle = 180;
         this.height = 0;
         this.isKill = false;
         this.lastTile = new Vector(x, y);
@@ -77,14 +77,13 @@ public class ServerVehicle extends Entity {
         calcCollision(newX, newY, map);
         calcHeight(newX, newY, map);
 
-        boolean slow = false;
+
         int tileID = safeTileID(newX, newY, map);
+        boolean slow = isSlow(tileID);
+        boolean boost = (boostCooldown > 0 || isBoost(tileID));
 
-        if (tileID == GravGame.SLOW_A || tileID == GravGame.SLOW_B)
-            slow = true;
-
-        worldX += this.speed.getX() * (slow ? slowMult : 1) * (boostCooldown > 0 ? boostMult : 1) * (deathCooldown > 0 ? 0 : 1);
-        worldY += this.speed.getY() * (slow ? slowMult : 1) * (boostCooldown > 0 ? boostMult : 1) * (deathCooldown > 0 ? 0 : 1);;
+        worldX += this.speed.getX() * (slow ? slowMult : 1) * (boost ? boostMult : 1) * (deathCooldown > 0 ? 0 : 1);
+        worldY += this.speed.getY() * (slow ? slowMult : 1) * (boost ? boostMult : 1) * (deathCooldown > 0 ? 0 : 1);
 
         boostCooldown -= delta;
         deathCooldown -= delta;
@@ -210,9 +209,21 @@ public class ServerVehicle extends Entity {
         setRotationFrame(newAngle);
     }
 
-    public void setRotationFrame(float angle) {
+    private void setRotationFrame(float angle) {
         int num =  (int)(angle) + 110;
         frame = Math.floorMod(((int)(num / 22.5) + 6), 16);
+    }
+
+    private boolean isSlow(int tileID) {
+        return tileID == GravGame.SLOW_A || tileID == GravGame.SLOW_B;
+    }
+
+    private boolean isBoost(int tileID) {
+        if (tileID == GravGame.BOOST_N || tileID == GravGame.BOOST_E
+                || tileID == GravGame.BOOST_S || tileID == GravGame.BOOST_W) {
+            boostCooldown = 1500;
+            return true;
+        } else return false;
     }
 
     public void setSpeed(Vector speed){
