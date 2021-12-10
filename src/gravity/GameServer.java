@@ -92,10 +92,10 @@ public class GameServer {
                     int delta = dataIn.readInt();
 
                     if(command.equals("W")) {
-                        player.linearMovement(1, 0.06f, 0.2f, currentMap);
+                        player.linearMovement(1, delta, currentMap);
                     }
                     if(command.equals("S")){
-                        player.linearMovement(-1, 0.01f, 0.05f, currentMap);
+                        player.linearMovement(-1, delta, currentMap);
                     }
                     if(command.equals("A")){
                         player.turn(-1, delta);
@@ -104,7 +104,7 @@ public class GameServer {
                         player.turn(1, delta);
                     }
                     if(command.equals("G")){
-                        player.finishMovement( 0.98f, 0.2f * 0.01f, currentMap);
+                        player.finishMovement(delta, currentMap);
                     }
 
                     // update player value in concurrent hashmap
