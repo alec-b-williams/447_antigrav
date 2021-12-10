@@ -38,6 +38,8 @@ public class GravGame extends StateBasedGame {
 	public static final int BOOST_E = 8;
 	public static final int BOOST_S = 9;
 	public static final int BOOST_W = 10;
+	public static final int FINISH = 11;
+	public static final int CHECKPOINT = 12;
 
 	public static final int _SCREENWIDTH = 1280;
 	public static final int _SCREENHEIGHT = 1024;

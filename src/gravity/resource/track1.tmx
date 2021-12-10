@@ -3,7 +3,7 @@
  <tileset firstgid="1" source="grav_tiles.tsx"/>
  <layer id="1" name="Tile Layer 1" width="100" height="100">
   <data encoding="base64" compression="gzip">
-   H4sIAAAAAAAACu3Zyw7CIBBA0fqI8f+/2HRn2gIDTK2LcxI22mDCDa3osvCv7gmDHOta3iaHJjkyWmy7MGa0xbPxviZj9PgvtR7RZ7geeTLW82gOPcZkrKU9kqfWI3rW6L3nUVbqEXnOR5vYN3EzPTTJl9mjNJ8ecdk9SnPqEdPTY/vaaymvq/PJmLN6RD6DvXVdHpuhx3Vm9kd0XUvN2ftVD/sj5uwenud9zuzR+h2Fvd4zdXRdW/PqcWy2x9HaOg+Oy+jxfY/ze8mcrB7reHfOxd4VPbSo67nf166N9NAipue7aenaVg8t+rT+l41cWxsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAmA9qrnAjQJwAAA==
+   H4sIAAAAAAAACu3Z0YrCMBBA0arLIuj/f+/SN2mbZCYdVx/OgbxoiTCXtlaXhW91LVjUWGd56azH4P3LokmVUYtoj9cuzIm0OOrxMzhekzl6fJdej+g9XI86FfM82kOPORWzdI7U6fWIPmtkr3m0tXpE7vPRJs6buDM9NKlX2aO1nx5x1T1ae+oRk+mxfe13ac/V88mcd/WIfAZ761xum6XH55w5P6JzbTVn7796OD9i3t3D/Twn2+O5Wb25jn5HYS/7TB2d62hfPY6d7XE0W8+D8yp6vF7j/F5yTlWPdd2Te7H3iR5a9GWu971jIz20iMl8N20dO+qhRc7of9nIsb0FAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzPkD/WNMwUCcAAA=
   </data>
  </layer>
 </map>
