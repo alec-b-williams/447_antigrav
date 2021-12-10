@@ -229,7 +229,7 @@ public class ServerVehicle extends Entity {
     }
 
     private void setRotationFrame(float angle) {
-        int num =  (int)(angle) + 110;
+        int num =  (int)(angle) + 100;
         frame = Math.floorMod(((int)(num / 22.5) + 6), 16);
     }
 
