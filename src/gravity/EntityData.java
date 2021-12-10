@@ -33,4 +33,10 @@ public class EntityData implements Serializable {
         this.isKill = vehicle.isKill;
     }
 
+    public EntityData(Powerup power, int id) {
+        this.entityType = "Powerup";
+        this.id = id;
+        this.xPosition = power.worldX;
+        this.yPosition = power.worldY;
+    }
 }

@@ -5,9 +5,7 @@ import org.newdawn.slick.tiled.TiledMap;
 
 import java.util.ArrayList;
 
-public class ServerVehicle extends Entity {
-    public float worldX;
-    public float worldY;
+public class ServerVehicle extends GameObject {
     private Vector speed;
     public double speedAngle;
     public float height;
@@ -20,9 +18,6 @@ public class ServerVehicle extends Entity {
 
     public ServerVehicle(float x, float y) {
         super(x, y);
-
-        this.worldX = x;
-        this.worldY = y;
         this.speed = new Vector(0, 0);
         this.speedAngle = 0;
         this.height = 0;

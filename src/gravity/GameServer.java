@@ -6,6 +6,7 @@ import org.newdawn.slick.tiled.TiledMap;
 
 import java.io.*;
 import java.net.*;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GameServer {
@@ -17,7 +18,8 @@ public class GameServer {
     private ClientHandler[] handlers;
     private volatile TiledMap currentMap;
 
-    private ConcurrentHashMap<Integer, ServerVehicle> players = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Integer, GameObject> entities = new ConcurrentHashMap<>();
+    private int entityId;
 
     public GameServer() throws SlickException {
 
@@ -25,13 +27,18 @@ public class GameServer {
         currentMap = new TiledMap("gravity/resource/track1.tmx", false);
         System.out.println("Game Server spinning up!");
         numPlayers = 0;
-        maxPlayers = 1;
+        maxPlayers = 2;
         handlers = new ClientHandler[maxPlayers];
         playerSockets = new  Socket[maxPlayers];
 
         for(int i = 0; i < maxPlayers; i++) {
-            players.put(i + 1, new ServerVehicle(5f, 5f));
+            entities.put(i + 1, new ServerVehicle(5f, 5f));
         }
+
+        entityId = maxPlayers+1;
+
+        Powerup powerup = new Powerup(7f, 7f);
+        entities.put(entityId++, powerup);
 
         try {
             this.server = new ServerSocket(9158);
@@ -85,7 +92,7 @@ public class GameServer {
 
         @Override
         public void run() {
-            ServerVehicle player = players.get(playerId);
+            ServerVehicle player = (ServerVehicle) entities.get(playerId);
             try{
                 while(true){
                     String command = dataIn.readUTF();
@@ -108,13 +115,21 @@ public class GameServer {
                     }
 
                     // update player value in concurrent hashmap
-                    players.put(playerId, player);
+                    entities.put(playerId, player);
                     // write number of players to client
-                    dataOut.writeInt(players.size());
+                    dataOut.writeInt(entities.size());
                     dataOut.flush();
                     // write all player data to client
-                    for(int i = 0; i < players.size(); i++) {
-                        dataOut.writeObject(new EntityData(players.get(i + 1), i + 1));
+                    Set<Integer> keys = entities.keySet();
+                    for(Integer key : keys) {
+                        EntityData data;
+                        GameObject object = entities.get(key);
+                        if(object instanceof  ServerVehicle) {
+                            data = new EntityData((ServerVehicle) object, key);
+                        } else if(object instanceof Powerup) {
+                            data = new EntityData((Powerup) object, key);
+                        } else continue;
+                        dataOut.writeObject(data);
                         dataOut.flush();
                     }
                 }

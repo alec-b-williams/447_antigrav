@@ -2,6 +2,7 @@ package gravity;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.HashMap;
 
 import jig.Entity;
 import jig.ResourceManager;
@@ -60,6 +61,7 @@ public class GravGame extends StateBasedGame {
 	public static final String LEVEL_1_BG_IMG_RSC = "gravity/resource/level1_bg.jpg";
 	public static final String[] levelBGs = {LEVEL_1_BG_IMG_RSC};
 	public static final Vector[] BGoffsets = {new Vector(1250, 500)};
+	public static final String POWERUP_IMG_RSC = "gravity/resource/powerup.png";
 
 	public final int ScreenWidth;
 	public final int ScreenHeight;
@@ -70,7 +72,7 @@ public class GravGame extends StateBasedGame {
 
 	public int playerID;
 	public int maxPlayers;
-	public Entity[] gameObjects;
+	public HashMap<Integer, GameObject> gameObjects;
 
 	public Socket socket;
 	public ObjectInputStream in;
@@ -104,6 +106,8 @@ public class GravGame extends StateBasedGame {
 		//ResourceManager.loadSound(BANG_EXPLOSIONSND_RSC);
 
 		// preload all the resources to avoid warnings & minimize latency...
+		ResourceManager.setFilterMethod(ResourceManager.FILTER_LINEAR);
+
 		ResourceManager.loadImage(ENERGY_IMG_RSC);
 		ResourceManager.loadImage(ENERGY_CONTAINER_IMG_RSC);
 		ResourceManager.loadImage(POWERUP_CONTAINER_IMG_RSC);
@@ -114,6 +118,7 @@ public class GravGame extends StateBasedGame {
 		ResourceManager.loadImage(PLAYER_3_VEHICLE_ANIM);
 		ResourceManager.loadImage(PLAYER_4_VEHICLE_ANIM);
 		ResourceManager.loadImage(LEVEL_1_BG_IMG_RSC);
+		ResourceManager.loadImage(POWERUP_IMG_RSC);
 	}
 
 	public void connectToServer(){
@@ -125,7 +130,7 @@ public class GravGame extends StateBasedGame {
 
 			playerID = in.readInt();
 			maxPlayers = in.readInt();
-			gameObjects = new Entity[maxPlayers];
+			gameObjects = new HashMap<>();
 			System.out.println("You are player: " + this.playerID);
 		} catch (IOException e){
 			System.out.println("IOException from connectToServer()");

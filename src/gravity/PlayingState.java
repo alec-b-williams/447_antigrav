@@ -2,7 +2,9 @@ package gravity;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.Set;
 
+import jig.Entity;
 import jig.ResourceManager;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -40,7 +42,7 @@ class PlayingState extends BasicGameState {
 		gg.gameScale = 1;
 
 		for(int i = 0; i < gg.maxPlayers; i++) {
-			gg.gameObjects[i] = new Vehicle(5.5f, 5.5f, i);
+			gg.gameObjects.put(i, new Vehicle(5.5f, 5.5f, i));
 		}
 	}
 
@@ -48,7 +50,7 @@ class PlayingState extends BasicGameState {
 	public void render(GameContainer container, StateBasedGame game,
 			Graphics g) throws SlickException {
 
-		Vehicle player = (Vehicle) gg.gameObjects[gg.playerID-1];
+		Vehicle player = (Vehicle) gg.gameObjects.get(gg.playerID-1);
 
 		g.drawImage(ResourceManager.getImage(GravGame.levelBGs[0]),
 				(gg.BGoffsets[0].getX() * -1) - ((player.worldX - player.worldY) * 4),
@@ -121,11 +123,24 @@ class PlayingState extends BasicGameState {
 			gg.out.writeInt(delta);
 			gg.out.flush();
 
-			int playerCount = gg.in.readInt();
-			for (int i = 0; i < playerCount; i++) {
+			int entityCount = gg.in.readInt();
+			for (int i = 0; i < entityCount; i++) {
 				EntityData entityData = (EntityData) gg.in.readObject();
 				if (entityData.entityType.equals("Player")) {
-					((Vehicle) gg.gameObjects[i]).updateData(entityData);
+					if(gg.gameObjects.containsKey(entityData.id - 1)) {
+						((Vehicle) gg.gameObjects.get(entityData.id - 1)).updateData(entityData);
+					} else {
+						gg.gameObjects.put(entityData.id, new Vehicle(entityData.xPosition,
+								entityData.yPosition, entityData.id));
+					}
+				} else if(entityData.entityType.equals("Powerup")) {
+					if(gg.gameObjects.containsKey(entityData.id - 1)) {
+						((Powerup) gg.gameObjects.get(entityData.id - 1)).updateData(entityData);
+					} else {
+						Powerup powerup = new Powerup(entityData.xPosition, entityData.yPosition);
+						powerup.addImage(ResourceManager.getImage(gg.POWERUP_IMG_RSC));
+						gg.gameObjects.put(entityData.id - 1, powerup);
+					}
 				}
 			}
 		} catch (IOException | ClassNotFoundException e){
@@ -134,24 +149,29 @@ class PlayingState extends BasicGameState {
 	}
 
 	public void renderEntities(Vehicle player, Graphics g, boolean kill) {
-		for (int i = 0; i < gg.gameObjects.length; i++) {
-			if (i != (gg.playerID-1)) {
-				Vehicle e = (Vehicle) gg.gameObjects[i];
+		Set<Integer> keys = gg.gameObjects.keySet();
+		for (Integer key: keys) {
+			GameObject object = gg.gameObjects.get(key);
+			if (key != (gg.playerID - 1)) {
 
-				e.setX((GravGame._SCREENWIDTH/2.0f) +
-						(((e.worldX-e.worldY) - (player.worldX-player.worldY))) * GravGame._TILEWIDTH/2.0f);
-				e.setY((GravGame._SCREENHEIGHT/2.0f) +
-						(((e.worldX+e.worldY) - (player.worldX+player.worldY))) * GravGame._TILEHEIGHT/2.0f);
+				object.setX((GravGame._SCREENWIDTH / 2.0f) +
+						(((object.worldX - object.worldY) - (player.worldX - player.worldY))) * GravGame._TILEWIDTH / 2.0f);
+				object.setY((GravGame._SCREENHEIGHT / 2.0f) +
+						(((object.worldX + object.worldY) - (player.worldX + player.worldY))) * GravGame._TILEHEIGHT / 2.0f);
 			}
-			if (kill) {
-				if (((Vehicle)gg.gameObjects[i]).isKill) {
-					gg.gameObjects[i].render(g);
-				}
-			} else {
-				if (!((Vehicle)gg.gameObjects[i]).isKill) {
-					gg.gameObjects[i].render(g);
-				}
-			}
+			object.render(g);
+			//if (object instanceof Vehicle){
+			//	if (kill) {
+			//		if (((Vehicle) gg.gameObjects.get(key)).isKill) {
+			//			object.render(g);
+			//		}
+			//	} else {
+			//		if (!((Vehicle) gg.gameObjects.get(key)).isKill) {
+			//			object.render(g);
+			//		}
+			//	}
+			//}
+
 		}
 	}
 

@@ -31,7 +31,7 @@ class StartUpState extends BasicGameState {
 		container.setSoundOn(false);
 		gg.connectToServer();
 		gg.waitForStartMsg();
-		gg.gameObjects[gg.playerID - 1] = new Vehicle(5.5f, 5.5f, gg.playerID-1);
+		gg.gameObjects.put(gg.playerID - 1, new Vehicle(5.5f, 5.5f, gg.playerID-1));
 	}
 
 
