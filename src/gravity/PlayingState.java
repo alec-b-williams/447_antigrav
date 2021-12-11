@@ -50,7 +50,7 @@ class PlayingState extends BasicGameState {
 	public void render(GameContainer container, StateBasedGame game,
 			Graphics g) throws SlickException {
 
-		Vehicle player = (Vehicle) gg.gameObjects.get(gg.playerID-1);
+		Vehicle player = (Vehicle) gg.gameObjects.get(gg.playerID - 1);
 
 		g.drawImage(ResourceManager.getImage(GravGame.levelBGs[0]),
 				(gg.BGoffsets[0].getX() * -1) - ((player.worldX - player.worldY) * 4),
@@ -73,31 +73,35 @@ class PlayingState extends BasicGameState {
 	}
 
 	@Override
-	public void update(GameContainer container, StateBasedGame game,
-			int delta) throws SlickException {
+	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
 		try {
-			if(input.isKeyDown(Input.KEY_W)) {
+			if (input.isKeyDown(Input.KEY_W)) {
 				gg.out.writeUTF("W");
-				serverRW(delta);
+				gg.out.writeInt(delta);
+				gg.out.flush();
 			}
-			if(input.isKeyDown(Input.KEY_A)){
+			if (input.isKeyDown(Input.KEY_A)) {
 				gg.out.writeUTF("A");
-				serverRW(delta);
+				gg.out.writeInt(delta);
+				gg.out.flush();
 			}
-			if(input.isKeyDown(Input.KEY_S)){
+			if (input.isKeyDown(Input.KEY_S)) {
 				gg.out.writeUTF("S");
-				serverRW(delta);
+				gg.out.writeInt(delta);
+				gg.out.flush();
 			}
-			if(input.isKeyDown(Input.KEY_D)){
+			if (input.isKeyDown(Input.KEY_D)) {
 				gg.out.writeUTF("D");
-				serverRW(delta);
+				gg.out.writeInt(delta);
+				gg.out.flush();
 			}
-			if(noMovementPressed()){
+			if (noMovementPressed()) {
 				gg.out.writeUTF("G");
-				serverRW(delta);
+				gg.out.writeInt(delta);
+				gg.out.flush();
 			}
-		} catch (IOException e){
-			System.err.println("IOException in write: " + e);
+		} catch(IOException e) {
+			e. printStackTrace();
 		}
 		
 		if (input.isKeyDown(Input.KEY_LBRACKET))
@@ -107,45 +111,12 @@ class PlayingState extends BasicGameState {
 	}
 
 	public boolean noMovementPressed(){
-		if(!input.isKeyDown(Input.KEY_W) && !input.isKeyDown(Input.KEY_S))
-			return true;
-
-		return false;
+		return !input.isKeyDown(Input.KEY_W) && !input.isKeyDown(Input.KEY_S);
 	}
 
 	@Override
 	public int getID() {
 		return GravGame.PLAYINGSTATE;
-	}
-
-	public void serverRW(int delta) {
-		try {
-			gg.out.writeInt(delta);
-			gg.out.flush();
-
-			int entityCount = gg.in.readInt();
-			for (int i = 0; i < entityCount; i++) {
-				EntityData entityData = (EntityData) gg.in.readObject();
-				if (entityData.entityType.equals("Player")) {
-					if(gg.gameObjects.containsKey(entityData.id - 1)) {
-						((Vehicle) gg.gameObjects.get(entityData.id - 1)).updateData(entityData);
-					} else {
-						gg.gameObjects.put(entityData.id, new Vehicle(entityData.xPosition,
-								entityData.yPosition, entityData.id));
-					}
-				} else if(entityData.entityType.equals("Powerup")) {
-					if(gg.gameObjects.containsKey(entityData.id - 1)) {
-						((Powerup) gg.gameObjects.get(entityData.id - 1)).updateData(entityData);
-					} else {
-						Powerup powerup = new Powerup(entityData.xPosition, entityData.yPosition);
-						powerup.addImage(ResourceManager.getImage(gg.POWERUP_IMG_RSC));
-						gg.gameObjects.put(entityData.id - 1, powerup);
-					}
-				}
-			}
-		} catch (IOException | ClassNotFoundException e){
-			System.err.println("IOException in write: " + e);
-		}
 	}
 
 	public void renderEntities(Vehicle player, Graphics g, boolean kill) {
@@ -159,19 +130,11 @@ class PlayingState extends BasicGameState {
 				object.setY((GravGame._SCREENHEIGHT / 2.0f) +
 						(((object.worldX + object.worldY) - (player.worldX + player.worldY))) * GravGame._TILEHEIGHT / 2.0f);
 			}
-			object.render(g);
-			//if (object instanceof Vehicle){
-			//	if (kill) {
-			//		if (((Vehicle) gg.gameObjects.get(key)).isKill) {
-			//			object.render(g);
-			//		}
-			//	} else {
-			//		if (!((Vehicle) gg.gameObjects.get(key)).isKill) {
-			//			object.render(g);
-			//		}
-			//	}
-			//}
-
+			if (object instanceof Vehicle && kill && ((Vehicle) gg.gameObjects.get(key)).isKill) {
+				object.render(g);
+			} else {
+				object.render(g);
+			}
 		}
 	}
 

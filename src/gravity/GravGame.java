@@ -2,7 +2,13 @@ package gravity;
 
 import java.io.*;
 import java.net.Socket;
+import java.security.PublicKey;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import jig.Entity;
 import jig.ResourceManager;
@@ -70,13 +76,13 @@ public class GravGame extends StateBasedGame {
 	public float gameScale;
 	public TiledMap map;
 
-	public int playerID;
-	public int maxPlayers;
-	public HashMap<Integer, GameObject> gameObjects;
-
 	public Socket socket;
 	public ObjectInputStream in;
 	public ObjectOutputStream out;
+
+	public int playerID;
+	public int maxPlayers;
+	public ConcurrentHashMap<Integer, GameObject> gameObjects = new ConcurrentHashMap<>();
 
 	/**
 	 * Create the BounceGame frame, saving the width and height for later use.
@@ -121,7 +127,7 @@ public class GravGame extends StateBasedGame {
 		ResourceManager.loadImage(POWERUP_IMG_RSC);
 	}
 
-	public void connectToServer(){
+	public void startServerHandler() {
 		try{
 			socket = new Socket("localhost", 9158);
 			out = new ObjectOutputStream(socket.getOutputStream());
@@ -130,20 +136,67 @@ public class GravGame extends StateBasedGame {
 
 			playerID = in.readInt();
 			maxPlayers = in.readInt();
-			gameObjects = new HashMap<>();
-			System.out.println("You are player: " + this.playerID);
+			System.out.println("You are player: " + playerID);
+
+			String startMsg = in.readUTF();
+			System.out.println("Message from server: " + startMsg);
+
+			ServerHandler sh = new ServerHandler(socket, out, in);
+			Thread shThread = new Thread(sh);
+			shThread.start();
 		} catch (IOException e){
 			System.out.println("IOException from connectToServer()");
 			e.printStackTrace();
 		}
 	}
 
-	public void waitForStartMsg(){
-		try{
-			String startMsg = in.readUTF();
-			System.out.println("Message from server: " + startMsg);
-		} catch (IOException e){
-			System.err.println("Wait Start IOException error: " + e);
+	public class ServerHandler implements Runnable {
+
+		public Socket socket;
+		public ObjectOutputStream out;
+		public ObjectInputStream in;
+
+		public ServerHandler(Socket socket, ObjectOutputStream out, ObjectInputStream in) {
+			this.socket = socket;
+			this.out = out;
+			this.in = in;
+		}
+
+		@Override
+		public void run() {
+			try {
+				while(true) {
+					String command = in.readUTF();
+					switch (command) {
+						case "I" -> handleInputs();
+					}
+				}
+			} catch (IOException | ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+
+		public void handleInputs() throws IOException, ClassNotFoundException {
+            int entityCount = in.readInt();
+            for (int i = 0; i < entityCount; i++) {
+                EntityData entityData = (EntityData) in.readObject();
+                if (entityData.entityType.equals("Player")) {
+                    if (gameObjects.containsKey(entityData.id - 1)) {
+                        ((Vehicle) gameObjects.get(entityData.id - 1)).updateData(entityData);
+                    } else {
+                        gameObjects.put(entityData.id - 1, new Vehicle(entityData.xPosition,
+                                entityData.yPosition, entityData.id - 1));
+                    }
+                } else if (entityData.entityType.equals("Powerup")) {
+                    if (gameObjects.containsKey(entityData.id - 1)) {
+                        ((Powerup) gameObjects.get(entityData.id - 1)).updateData(entityData);
+                    } else {
+                        Powerup powerup = new Powerup(entityData.xPosition, entityData.yPosition);
+                        powerup.addImage(ResourceManager.getImage(POWERUP_IMG_RSC));
+                        gameObjects.put(entityData.id - 1, powerup);
+                    }
+                }
+            }
 		}
 	}
 
