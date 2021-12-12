@@ -6,10 +6,7 @@ import java.util.Set;
 
 import jig.Entity;
 import jig.ResourceManager;
-import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Input;
-import org.newdawn.slick.SlickException;
+import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.tiled.TiledMap;
@@ -23,6 +20,14 @@ import org.newdawn.slick.tiled.TiledMap;
 class PlayingState extends BasicGameState {
 	private GravGame gg;
 	private Input input;
+	private Animation currLap = newNum();
+	private Animation lapLimit = newNum();
+	private Animation minuteTens = newNum();
+	private Animation minuteOnes = newNum();
+	private Animation secondTens = newNum();
+	private Animation secondOnes = newNum();
+	private Animation milliTens = newNum();
+	private Animation milliOnes = newNum();
 
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
@@ -40,6 +45,8 @@ class PlayingState extends BasicGameState {
 		gg.cameraXPos = 0;
 		gg.cameraYPos = 0;
 		gg.gameScale = 1;
+
+		lapLimit.setCurrentFrame(3);
 	}
 
 	@Override
@@ -149,5 +156,33 @@ class PlayingState extends BasicGameState {
 
 		g.drawImage(ResourceManager.getImage(GravGame.POWERUP_CONTAINER_IMG_RSC), (GravGame._SCREENWIDTH/2.0f) - 64, 10);
 		g.drawImage(ResourceManager.getImage(GravGame.LAPTIME_IMG_RSC), GravGame._SCREENWIDTH - 300, 10);
+
+		currLap.setCurrentFrame((player.lap) % 10);
+
+		g.drawAnimation(currLap, GravGame._SCREENWIDTH - 230, 13);
+		g.drawAnimation(lapLimit, GravGame._SCREENWIDTH - 195, 13);
+
+		float time = player.timer;
+		int minutes = (int)((time / 1000) / 60);
+		int seconds = (int)((time / 1000) % 60);
+
+		minuteTens.setCurrentFrame((minutes/10) % 10);
+		minuteOnes.setCurrentFrame(minutes % 10);
+		secondTens.setCurrentFrame((seconds/10) % 10);
+		secondOnes.setCurrentFrame(seconds % 10);
+		milliTens.setCurrentFrame(((int)time / 100) % 10);
+		milliOnes.setCurrentFrame(((int)time/10) % 10);
+
+		g.drawAnimation(minuteTens, GravGame._SCREENWIDTH - 230, 38);
+		g.drawAnimation(minuteOnes, GravGame._SCREENWIDTH - 210, 38);
+		g.drawAnimation(secondTens, GravGame._SCREENWIDTH - 170, 38);
+		g.drawAnimation(secondOnes, GravGame._SCREENWIDTH - 150, 38);
+		g.drawAnimation(milliTens, GravGame._SCREENWIDTH - 110, 38);
+		g.drawAnimation(milliOnes, GravGame._SCREENWIDTH - 90, 38);
+	}
+
+	private Animation newNum() {
+		return new Animation(ResourceManager.getSpriteSheet(GravGame.NUM_ANIM_RSC, 16, 18),
+				0, 0, 9, 0, true, 160, false);
 	}
 }

@@ -12,6 +12,8 @@ public class Vehicle extends GameObject {
     public double speedAngle;
     public int playerNumber;
     public boolean isKill;
+    public float timer;
+    public int lap;
 
     public Vehicle(float x, float y, int _playerNumber) {
         super(x, y);
@@ -35,5 +37,7 @@ public class Vehicle extends GameObject {
         this.setY((GravGame._SCREENHEIGHT/2.0f) - (height * 32));
         this.isKill = data.isKill;
         this.sprite.setCurrentFrame(data.animationFrame);
+        this.timer = data.timer;
+        this.lap = data.lap;
     }
 }
