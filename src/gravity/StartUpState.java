@@ -48,7 +48,7 @@ class StartUpState extends BasicGameState {
 
 		if (input.isKeyDown(Input.KEY_1)) {
 			gg.startServerHandler();
-			gg.gameObjects.put(gg.playerID - 1, new Vehicle(5.5f, 5.5f, gg.playerID-1));
+			gg.gameObjects.put(gg.playerID, new Vehicle(5.5f, 5.5f, gg.playerID));
 			gg.enterState(GravGame.PLAYINGSTATE);
 		}
 	}

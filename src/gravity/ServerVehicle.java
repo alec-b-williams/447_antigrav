@@ -4,6 +4,8 @@ import jig.*;
 import org.newdawn.slick.tiled.TiledMap;
 
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerVehicle extends GameObject {
     private Vector speed;
@@ -13,6 +15,7 @@ public class ServerVehicle extends GameObject {
     public int frame;
     public boolean isKill;
     private Vector lastTile;
+    public Powerup powerupHeld;
 
     private static final float degPerSecond = 180;
 
@@ -29,6 +32,8 @@ public class ServerVehicle extends GameObject {
         this.setCoarseGrainedRadius(1);
 
         setRotationFrame((float)speedAngle);
+
+        powerupHeld = null;
     }
 
     public void linearMovement(int dir, float initLen, float speedLimit, TiledMap map){
@@ -159,6 +164,19 @@ public class ServerVehicle extends GameObject {
         }
 
         return collisions;
+    }
+
+    /**
+     * Returns the id of the first Powerup the player is colliding with, or -1
+     * if the player isn't colliding with any Powerups.
+     */
+    public int gotPowerup(ConcurrentHashMap<Integer, GameObject> gameObjects) {
+        Set<Integer> keys = gameObjects.keySet();
+        for(Integer key: keys) {
+            boolean isPowerup = gameObjects.get(key) instanceof Powerup;
+            if(isPowerup && this.collides(gameObjects.get(key)) != null) return key;
+        }
+        return -1;
     }
 
     private Entity newWall(int i, int j) {

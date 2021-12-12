@@ -6,6 +6,7 @@ import org.newdawn.slick.tiled.TiledMap;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -14,8 +15,8 @@ public class GameServer {
     private ServerSocket server;
     private int numPlayers;
     private int maxPlayers;
-    private Socket[] playerSockets;
-    private ClientHandler[] handlers;
+    private ArrayList<Socket> playerSockets;
+    private ArrayList<ClientHandler> handlers;
     private volatile TiledMap currentMap;
 
     private ConcurrentHashMap<Integer, GameObject> gameObjects = new ConcurrentHashMap<>();
@@ -28,17 +29,13 @@ public class GameServer {
         System.out.println("Game Server spinning up!");
         numPlayers = 0;
         maxPlayers = 1;
-        handlers = new ClientHandler[maxPlayers];
-        playerSockets = new  Socket[maxPlayers];
+        handlers = new ArrayList<>();
+        playerSockets = new ArrayList<>();
 
-        for(int i = 0; i < maxPlayers; i++) {
-            gameObjects.put(i + 1, new ServerVehicle(5f, 5f));
-        }
+        entityId = maxPlayers + 1;
 
-        entityId = maxPlayers+1;
-
-        Powerup powerup = new Powerup(7f, 7f);
-        gameObjects.put(entityId++, powerup);
+        Powerup powerup = new Powerup(7f, 5f, entityId++);
+        gameObjects.put(powerup.id, powerup);
 
         try {
             this.server = new ServerSocket(9158);
@@ -58,19 +55,20 @@ public class GameServer {
                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 
                 this.numPlayers++;
+                gameObjects.put(numPlayers, new ServerVehicle(5f, 5f));
                 out.writeInt(numPlayers);
                 out.writeInt(maxPlayers);
                 System.out.println("Player #" + numPlayers + " has connected");
 
-                handlers[numPlayers - 1] = new ClientHandler(this.numPlayers, in, out);
-                playerSockets[numPlayers - 1] = socket;
+                handlers.add(new ClientHandler(this.numPlayers, in, out));
+                playerSockets.add(socket);
             }
             System.out.println("Max Players Reached");
-            for(int i = 0; i < maxPlayers; i++ ) {
-                handlers[i].sendStartMsg();
+            for(ClientHandler handler: handlers) {
+                handler.sendStartMsg();
             }
-            for(int i = 0; i < maxPlayers; i++ ) {
-                Thread playerThread = new Thread(handlers[i]);
+            for(ClientHandler handler: handlers) {
+                Thread playerThread = new Thread(handler);
                 playerThread.start();
             }
         } catch (IOException e){
@@ -90,6 +88,7 @@ public class GameServer {
             this.dataIn = in;
             this.dataOut = out;
             this.player = (ServerVehicle) gameObjects.get(playerId);
+
         }
 
         @Override
@@ -100,6 +99,7 @@ public class GameServer {
                     switch(command) {
                         case "W", "S", "A", "D", "G" -> {
                             handleInputs(command);
+                            handlePowerups();
                         }
                     }
                 }
@@ -140,6 +140,21 @@ public class GameServer {
                     data = new EntityData((Powerup) object, key);
                 } else continue;
                 dataOut.writeObject(data);
+                dataOut.flush();
+            }
+        }
+
+        public void handlePowerups() throws IOException {
+
+            int powerupId = player.gotPowerup(gameObjects);
+            if(powerupId != -1) {
+                System.out.println("In handlePowerups, powerupId = " + powerupId);
+                dataOut.writeUTF("R");
+                dataOut.flush();
+                player.powerupHeld = (Powerup) gameObjects.get(powerupId);
+                System.out.println("Player holding powerup: " + player.powerupHeld);
+                gameObjects.remove(powerupId);
+                dataOut.writeInt(powerupId);
                 dataOut.flush();
             }
         }

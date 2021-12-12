@@ -2,17 +2,10 @@ package gravity;
 
 import java.io.*;
 import java.net.Socket;
-import java.security.PublicKey;
-import java.util.HashMap;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 import jig.Entity;
 import jig.ResourceManager;
-import jig.Shape;
 import jig.Vector;
 
 import org.newdawn.slick.AppGameContainer;
@@ -67,7 +60,7 @@ public class GravGame extends StateBasedGame {
 	public static final String LEVEL_1_BG_IMG_RSC = "gravity/resource/level1_bg.jpg";
 	public static final String[] levelBGs = {LEVEL_1_BG_IMG_RSC};
 	public static final Vector[] BGoffsets = {new Vector(1250, 500)};
-	public static final String POWERUP_IMG_RSC = "gravity/resource/powerup.png";
+	public static final String POWERUP_IMG_RSC = "gravity/resource/powerup_box.png";
 
 	public final int ScreenWidth;
 	public final int ScreenHeight;
@@ -167,8 +160,10 @@ public class GravGame extends StateBasedGame {
 			try {
 				while(true) {
 					String command = in.readUTF();
+					if(command.equals("R")) System.out.println("Command read: " + command);
 					switch (command) {
 						case "I" -> handleInputs();
+						case "R" -> removeGameObject();
 					}
 				}
 			} catch (IOException | ClassNotFoundException e) {
@@ -181,22 +176,27 @@ public class GravGame extends StateBasedGame {
             for (int i = 0; i < entityCount; i++) {
                 EntityData entityData = (EntityData) in.readObject();
                 if (entityData.entityType.equals("Player")) {
-                    if (gameObjects.containsKey(entityData.id - 1)) {
-                        ((Vehicle) gameObjects.get(entityData.id - 1)).updateData(entityData);
+                    if (gameObjects.containsKey(entityData.id)) {
+                        ((Vehicle) gameObjects.get(entityData.id)).updateData(entityData);
                     } else {
-                        gameObjects.put(entityData.id - 1, new Vehicle(entityData.xPosition,
-                                entityData.yPosition, entityData.id - 1));
+                        gameObjects.put(entityData.id, new Vehicle(entityData.xPosition,
+                                entityData.yPosition, entityData.id));
                     }
                 } else if (entityData.entityType.equals("Powerup")) {
-                    if (gameObjects.containsKey(entityData.id - 1)) {
-                        ((Powerup) gameObjects.get(entityData.id - 1)).updateData(entityData);
+                    if (gameObjects.containsKey(entityData.id)) {
+                        ((Powerup) gameObjects.get(entityData.id)).updateData(entityData);
                     } else {
-                        Powerup powerup = new Powerup(entityData.xPosition, entityData.yPosition);
+                        Powerup powerup = new Powerup(entityData.xPosition, entityData.yPosition, entityData.id);
                         powerup.addImage(ResourceManager.getImage(POWERUP_IMG_RSC));
-                        gameObjects.put(entityData.id - 1, powerup);
+                        gameObjects.put(entityData.id, powerup);
                     }
                 }
             }
+		}
+
+		public void removeGameObject() throws IOException {
+			int objectId = in.readInt();
+			gameObjects.remove(objectId);
 		}
 	}
 

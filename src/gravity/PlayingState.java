@@ -40,17 +40,13 @@ class PlayingState extends BasicGameState {
 		gg.cameraXPos = 0;
 		gg.cameraYPos = 0;
 		gg.gameScale = 1;
-
-		for(int i = 0; i < gg.maxPlayers; i++) {
-			gg.gameObjects.put(i, new Vehicle(5.5f, 5.5f, i));
-		}
 	}
 
 	@Override
 	public void render(GameContainer container, StateBasedGame game,
 			Graphics g) throws SlickException {
 
-		Vehicle player = (Vehicle) gg.gameObjects.get(gg.playerID - 1);
+		Vehicle player = (Vehicle) gg.gameObjects.get(gg.playerID);
 
 		g.drawImage(ResourceManager.getImage(GravGame.levelBGs[0]),
 				(gg.BGoffsets[0].getX() * -1) - ((player.worldX - player.worldY) * 4),
@@ -123,7 +119,8 @@ class PlayingState extends BasicGameState {
 		Set<Integer> keys = gg.gameObjects.keySet();
 		for (Integer key: keys) {
 			GameObject object = gg.gameObjects.get(key);
-			if (key != (gg.playerID - 1)) {
+			if(object == null) continue;
+			if (key != (gg.playerID)) {
 
 				object.setX((GravGame._SCREENWIDTH / 2.0f) +
 						(((object.worldX - object.worldY) - (player.worldX - player.worldY))) * GravGame._TILEWIDTH / 2.0f);
