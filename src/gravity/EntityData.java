@@ -36,4 +36,11 @@ public class EntityData implements Serializable {
         this.lap = vehicle.lap;
         this.timer = vehicle.timer;
     }
+
+    public EntityData(Powerup power, int id) {
+        this.entityType = "Powerup";
+        this.id = id;
+        this.xPosition = power.worldX;
+        this.yPosition = power.worldY;
+    }
 }

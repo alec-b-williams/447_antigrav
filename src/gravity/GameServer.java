@@ -6,6 +6,8 @@ import org.newdawn.slick.tiled.TiledMap;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GameServer {
@@ -13,11 +15,12 @@ public class GameServer {
     private ServerSocket server;
     private int numPlayers;
     private int maxPlayers;
-    private Socket[] playerSockets;
-    private ClientHandler[] handlers;
+    private ArrayList<Socket> playerSockets;
+    private ArrayList<ClientHandler> handlers;
     private volatile TiledMap currentMap;
 
-    private ConcurrentHashMap<Integer, ServerVehicle> players = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Integer, GameObject> gameObjects = new ConcurrentHashMap<>();
+    private int entityId;
 
     public GameServer() throws SlickException {
 
@@ -25,13 +28,14 @@ public class GameServer {
         currentMap = new TiledMap("gravity/resource/track1.tmx", false);
         System.out.println("Game Server spinning up!");
         numPlayers = 0;
-        maxPlayers = 1;
-        handlers = new ClientHandler[maxPlayers];
-        playerSockets = new  Socket[maxPlayers];
+        maxPlayers = 2;
+        handlers = new ArrayList<>();
+        playerSockets = new ArrayList<>();
 
-        for(int i = 0; i < maxPlayers; i++) {
-            players.put(i + 1, new ServerVehicle(5f, 5f));
-        }
+        entityId = maxPlayers + 1;
+
+        Powerup powerup = new Powerup(7f, 5f, entityId++);
+        gameObjects.put(powerup.id, powerup);
 
         try {
             this.server = new ServerSocket(9158);
@@ -51,19 +55,20 @@ public class GameServer {
                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 
                 this.numPlayers++;
+                gameObjects.put(numPlayers, new ServerVehicle(5f, 5f));
                 out.writeInt(numPlayers);
                 out.writeInt(maxPlayers);
                 System.out.println("Player #" + numPlayers + " has connected");
 
-                handlers[numPlayers - 1] = new ClientHandler(this.numPlayers, in, out);
-                playerSockets[numPlayers - 1] = socket;
+                handlers.add(new ClientHandler(this.numPlayers, in, out));
+                playerSockets.add(socket);
             }
             System.out.println("Max Players Reached");
-            for(int i = 0; i < maxPlayers; i++ ) {
-                handlers[i].sendStartMsg();
+            for(ClientHandler handler: handlers) {
+                handler.sendStartMsg();
             }
-            for(int i = 0; i < maxPlayers; i++ ) {
-                Thread playerThread = new Thread(handlers[i]);
+            for(ClientHandler handler: handlers) {
+                Thread playerThread = new Thread(handler);
                 playerThread.start();
             }
         } catch (IOException e){
@@ -76,46 +81,26 @@ public class GameServer {
         private int playerId;
         private ObjectInputStream dataIn;
         private ObjectOutputStream dataOut;
+        private ServerVehicle player;
 
         public ClientHandler(int playerId, ObjectInputStream in, ObjectOutputStream out){
             this.playerId = playerId;
             this.dataIn = in;
             this.dataOut = out;
+            this.player = (ServerVehicle) gameObjects.get(playerId);
+
         }
 
         @Override
         public void run() {
-            ServerVehicle player = players.get(playerId);
             try{
                 while(true){
                     String command = dataIn.readUTF();
-                    int delta = dataIn.readInt();
-
-                    if(command.equals("W")) {
-                        player.linearMovement(1, delta, currentMap);
-                    }
-                    if(command.equals("S")){
-                        player.linearMovement(-1, delta, currentMap);
-                    }
-                    if(command.equals("A")){
-                        player.turn(-1, delta);
-                    }
-                    if(command.equals("D")){
-                        player.turn(1, delta);
-                    }
-                    if(command.equals("G")){
-                        player.finishMovement(delta, currentMap);
-                    }
-
-                    // update player value in concurrent hashmap
-                    players.put(playerId, player);
-                    // write number of players to client
-                    dataOut.writeInt(players.size());
-                    dataOut.flush();
-                    // write all player data to client
-                    for(int i = 0; i < players.size(); i++) {
-                        dataOut.writeObject(new EntityData(players.get(i + 1), i + 1));
-                        dataOut.flush();
+                    switch(command) {
+                        case "W", "S", "A", "D", "G" -> {
+                            handleInputs(command);
+                            handlePowerups();
+                        }
                     }
                 }
             } catch(IOException e){

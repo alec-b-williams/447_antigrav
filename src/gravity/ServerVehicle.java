@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerVehicle extends GameObject {
-
     public static float forwardSpeedLimit = 0.2f;
     public static float reverseSpeedLimit = 0.05f;
     public static float slowdownScale = 0.98f;
@@ -31,7 +30,6 @@ public class ServerVehicle extends GameObject {
     public float timer;
     public boolean checkpoint;
     public Powerup powerupHeld;
-
 
     private static final float degPerSecond = 180;
 
@@ -56,6 +54,8 @@ public class ServerVehicle extends GameObject {
         this.setCoarseGrainedRadius(1);
 
         setRotationFrame((float)speedAngle);
+
+        powerupHeld = null;
     }
 
     public void linearMovement(int dir, int delta, TiledMap map){
@@ -115,7 +115,6 @@ public class ServerVehicle extends GameObject {
     }
 
     private void calcCollision(int newX, int newY, TiledMap map) {
-        
         if (height == 0) {
             boolean bounced = false;
             ArrayList<Vector> collisions = getWallCollisions(newX, newY, map, true);
@@ -173,6 +172,19 @@ public class ServerVehicle extends GameObject {
         }
 
         return collisions;
+    }
+
+    /**
+     * Returns the id of the first Powerup the player is colliding with, or -1
+     * if the player isn't colliding with any Powerups.
+     */
+    public int gotPowerup(ConcurrentHashMap<Integer, GameObject> gameObjects) {
+        Set<Integer> keys = gameObjects.keySet();
+        for(Integer key: keys) {
+            boolean isPowerup = gameObjects.get(key) instanceof Powerup;
+            if(isPowerup && this.collides(gameObjects.get(key)) != null) return key;
+        }
+        return -1;
     }
 
     private Entity newWall(int i, int j) {
