@@ -2,12 +2,15 @@ package gravity;
 
 import java.io.*;
 import java.net.Socket;
+
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+
 import jig.Entity;
 import jig.ResourceManager;
+import jig.Shape;
 import jig.Vector;
 
 import org.newdawn.slick.AppGameContainer;
@@ -62,7 +65,6 @@ public class GravGame extends StateBasedGame {
 	public static final String LEVEL_1_BG_IMG_RSC = "gravity/resource/level1_bg.jpg";
 	public static final String[] levelBGs = {LEVEL_1_BG_IMG_RSC};
 	public static final Vector[] BGoffsets = {new Vector(1250, 500)};
-	public static final String POWERUP_IMG_RSC = "gravity/resource/powerup_box.png";
 
 	public final int ScreenWidth;
 	public final int ScreenHeight;
@@ -71,13 +73,13 @@ public class GravGame extends StateBasedGame {
 	public float gameScale;
 	public TiledMap map;
 
+	public int playerID;
+	public int maxPlayers;
+	public Entity[] gameObjects;
+
 	public Socket socket;
 	public ObjectInputStream in;
 	public ObjectOutputStream out;
-
-	public int playerID;
-	public int maxPlayers;
-	public ConcurrentHashMap<Integer, GameObject> gameObjects = new ConcurrentHashMap<>();
 
 	/**
 	 * Create the BounceGame frame, saving the width and height for later use.
@@ -107,7 +109,6 @@ public class GravGame extends StateBasedGame {
 		//ResourceManager.loadSound(BANG_EXPLOSIONSND_RSC);
 
 		// preload all the resources to avoid warnings & minimize latency...
-		// ResourceManager.setFilterMethod(ResourceManager.FILTER_LINEAR);
 
 		ResourceManager.loadImage(ENERGY_IMG_RSC);
 		ResourceManager.loadImage(ENERGY_CONTAINER_IMG_RSC);
@@ -119,10 +120,9 @@ public class GravGame extends StateBasedGame {
 		ResourceManager.loadImage(PLAYER_3_VEHICLE_ANIM);
 		ResourceManager.loadImage(PLAYER_4_VEHICLE_ANIM);
 		ResourceManager.loadImage(LEVEL_1_BG_IMG_RSC);
-		ResourceManager.loadImage(POWERUP_IMG_RSC);
 	}
 
-	public void startServerHandler() {
+	public void connectToServer(){
 		try{
 			socket = new Socket("localhost", 9158);
 			out = new ObjectOutputStream(socket.getOutputStream());
@@ -131,19 +131,14 @@ public class GravGame extends StateBasedGame {
 
 			playerID = in.readInt();
 			maxPlayers = in.readInt();
-			System.out.println("You are player: " + playerID);
-
-			String startMsg = in.readUTF();
-			System.out.println("Message from server: " + startMsg);
-
-			ServerHandler sh = new ServerHandler(socket, out, in);
-			Thread shThread = new Thread(sh);
-			shThread.start();
+			gameObjects = new Entity[maxPlayers];
+			System.out.println("You are player: " + this.playerID);
 		} catch (IOException e){
 			System.out.println("IOException from connectToServer()");
 			e.printStackTrace();
 		}
 	}
+
 
 	public class ServerHandler implements Runnable {
 
