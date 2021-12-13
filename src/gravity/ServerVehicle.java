@@ -4,12 +4,8 @@ import jig.*;
 import org.newdawn.slick.tiled.TiledMap;
 
 import java.util.ArrayList;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
-
-public class ServerVehicle extends GameObject {
-
+public class ServerVehicle extends Entity {
     public static float forwardSpeedLimit = 0.2f;
     public static float reverseSpeedLimit = 0.05f;
     public static float slowdownScale = 0.98f;
@@ -17,6 +13,8 @@ public class ServerVehicle extends GameObject {
     public static float boostMult = 1.5f;
     public static float slowMult = 0.5f;
 
+    public float worldX;
+    public float worldY;
     private Vector speed;
     public double speedAngle;
     public float height;
@@ -24,20 +22,19 @@ public class ServerVehicle extends GameObject {
     public int frame;
     public boolean isKill;
     private Vector lastTile;
-
-    public Powerup powerupHeld;
-
     public float deathCooldown;
     public float boostCooldown;
     public int lap;
     public float timer;
     public boolean checkpoint;
 
-
     private static final float degPerSecond = 180;
 
     public ServerVehicle(float x, float y) {
         super(x, y);
+
+        this.worldX = x;
+        this.worldY = y;
         this.speed = new Vector(0, 0);
         this.speedAngle = 90;
         this.height = 0;
@@ -54,8 +51,6 @@ public class ServerVehicle extends GameObject {
         this.setCoarseGrainedRadius(1);
 
         setRotationFrame((float)speedAngle);
-
-        powerupHeld = null;
     }
 
     public void linearMovement(int dir, int delta, TiledMap map){
@@ -172,19 +167,6 @@ public class ServerVehicle extends GameObject {
         }
 
         return collisions;
-    }
-
-    /**
-     * Returns the id of the first Powerup the player is colliding with, or -1
-     * if the player isn't colliding with any Powerups.
-     */
-    public int gotPowerup(ConcurrentHashMap<Integer, GameObject> gameObjects) {
-        Set<Integer> keys = gameObjects.keySet();
-        for(Integer key: keys) {
-            boolean isPowerup = gameObjects.get(key) instanceof Powerup;
-            if(isPowerup && this.collides(gameObjects.get(key)) != null) return key;
-        }
-        return -1;
     }
 
     private Entity newWall(int i, int j) {

@@ -7,8 +7,11 @@ import jig.Shape;
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.geom.Transform;
 
-public class Vehicle extends GameObject {
+public class Vehicle extends Entity {
     Animation sprite;
+    public float worldX;
+    public float worldY;
+    public float height;
     public double speedAngle;
     public int playerNumber;
     public boolean isKill;
@@ -16,7 +19,10 @@ public class Vehicle extends GameObject {
     public int lap;
 
     public Vehicle(float x, float y, int _playerNumber) {
-        super(x, y);
+        super(GravGame._SCREENWIDTH/2.0f, GravGame._SCREENHEIGHT/2.0f);
+
+        worldX = x;
+        worldY = y;
 
         playerNumber = _playerNumber;
         sprite = new Animation(ResourceManager.getSpriteSheet(GravGame.vehicleImages[_playerNumber], 64, 64),

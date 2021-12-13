@@ -29,6 +29,9 @@ class StartUpState extends BasicGameState {
 	public void enter(GameContainer container, StateBasedGame game) {
 		gg = (GravGame) game;
 		container.setSoundOn(false);
+		gg.connectToServer();
+		gg.waitForStartMsg();
+		gg.gameObjects[gg.playerID - 1] = new Vehicle(5.5f, 5.5f, gg.playerID-1);
 	}
 
 
@@ -47,8 +50,6 @@ class StartUpState extends BasicGameState {
 		Input input = container.getInput();
 
 		if (input.isKeyDown(Input.KEY_1)) {
-			gg.startServerHandler();
-			gg.gameObjects.put(gg.playerID, new Vehicle(5.5f, 5.5f, gg.playerID));
 			gg.enterState(GravGame.PLAYINGSTATE);
 		}
 	}
