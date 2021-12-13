@@ -1,13 +1,11 @@
 package gravity;
 
-import java.io.*;
-import java.net.Socket;
+import java.util.ArrayList;
 
 import jig.Entity;
 import jig.ResourceManager;
-import jig.Shape;
-import jig.Vector;
 
+import jig.Vector;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
@@ -27,54 +25,23 @@ public class GravGame extends StateBasedGame {
 	public static final int PLAYINGSTATE = 1;
 	public static final int GAMEOVERSTATE = 2;
 
-	public static final int VOID = 0;
-	public static final int TRACK = 1;
-	public static final int WALL = 2;
-	public static final int DISPENSER = 3;
-	public static final int JUMP = 4;
-	public static final int SLOW_A = 5;
-	public static final int SLOW_B = 6;
-	public static final int BOOST_N = 7;
-	public static final int BOOST_E = 8;
-	public static final int BOOST_S = 9;
-	public static final int BOOST_W = 10;
-	public static final int FINISH = 11;
-	public static final int CHECKPOINT = 12;
-
 	public static final int _SCREENWIDTH = 1280;
 	public static final int _SCREENHEIGHT = 1024;
 	public static final int _TILEWIDTH = 64;
 	public static final int _TILEHEIGHT = 32;
 	
-	public static final String ENERGY_IMG_RSC = "gravity/resource/energy.png";
-	public static final String ENERGY_CONTAINER_IMG_RSC = "gravity/resource/energy_container.png";
-	public static final String POWERUP_CONTAINER_IMG_RSC = "gravity/resource/powerup_container.png";
-	public static final String NUM_ANIM_RSC = "gravity/resource/numAnim.png";
-	public static final String LAPTIME_IMG_RSC = "gravity/resource/laptime.png";
-	public static final String PLAYER_1_VEHICLE_ANIM = "gravity/resource/p1Anim.png";
-	public static final String PLAYER_2_VEHICLE_ANIM = "gravity/resource/p2Anim.png";
-	public static final String PLAYER_3_VEHICLE_ANIM = "gravity/resource/p3Anim.png";
-	public static final String PLAYER_4_VEHICLE_ANIM = "gravity/resource/p4Anim.png";
-	public static final String[] vehicleImages = {PLAYER_1_VEHICLE_ANIM, PLAYER_2_VEHICLE_ANIM,
-												  PLAYER_3_VEHICLE_ANIM, PLAYER_4_VEHICLE_ANIM};
-	public static final String LEVEL_1_BG_IMG_RSC = "gravity/resource/level1_bg.jpg";
-	public static final String[] levelBGs = {LEVEL_1_BG_IMG_RSC};
-	public static final Vector[] BGoffsets = {new Vector(1250, 500)};
+	public static final String VEHICLE_ANIM_RSC = "gravity/resource/vehicleAnim.png";
 
 	public final int ScreenWidth;
 	public final int ScreenHeight;
 	public float cameraXPos;
 	public float cameraYPos;
 	public float gameScale;
+	public boolean isServer;
 	public TiledMap map;
+	public Vehicle player;
 
-	public int playerID;
-	public int maxPlayers;
-	public Entity[] gameObjects;
-
-	public Socket socket;
-	public ObjectInputStream in;
-	public ObjectOutputStream out;
+	public Vehicle kart;
 
 	/**
 	 * Create the BounceGame frame, saving the width and height for later use.
@@ -91,55 +58,23 @@ public class GravGame extends StateBasedGame {
 		ScreenHeight = height;
 		ScreenWidth = width;
 
-		Entity.setCoarseGrainedCollisionBoundary(Entity.CIRCLE);
-		Entity.setDebug(true);
+		Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);
+				
 	}
+
 
 	@Override
 	public void initStatesList(GameContainer container) throws SlickException {
 		addState(new StartUpState());
 		addState(new GameOverState());
 		addState(new PlayingState());
+
+		kart = new Vehicle(400, 300, this);
 		
 		//ResourceManager.loadSound(BANG_EXPLOSIONSND_RSC);
 
 		// preload all the resources to avoid warnings & minimize latency...
-		ResourceManager.loadImage(ENERGY_IMG_RSC);
-		ResourceManager.loadImage(ENERGY_CONTAINER_IMG_RSC);
-		ResourceManager.loadImage(POWERUP_CONTAINER_IMG_RSC);
-		ResourceManager.loadImage(NUM_ANIM_RSC);
-		ResourceManager.loadImage(LAPTIME_IMG_RSC);
-		ResourceManager.loadImage(PLAYER_1_VEHICLE_ANIM);
-		ResourceManager.loadImage(PLAYER_2_VEHICLE_ANIM);
-		ResourceManager.loadImage(PLAYER_3_VEHICLE_ANIM);
-		ResourceManager.loadImage(PLAYER_4_VEHICLE_ANIM);
-		ResourceManager.loadImage(LEVEL_1_BG_IMG_RSC);
-	}
-
-	public void connectToServer(){
-		try{
-			socket = new Socket("localhost", 9158);
-			out = new ObjectOutputStream(socket.getOutputStream());
-			out.flush();
-			in = new ObjectInputStream(socket.getInputStream());
-
-			playerID = in.readInt();
-			maxPlayers = in.readInt();
-			gameObjects = new Entity[maxPlayers];
-			System.out.println("You are player: " + this.playerID);
-		} catch (IOException e){
-			System.out.println("IOException from connectToServer()");
-			e.printStackTrace();
-		}
-	}
-
-	public void waitForStartMsg(){
-		try{
-			String startMsg = in.readUTF();
-			System.out.println("Message from server: " + startMsg);
-		} catch (IOException e){
-			System.err.println("Wait Start IOException error: " + e);
-		}
+		ResourceManager.loadImage(VEHICLE_ANIM_RSC);
 	}
 
 	public static void main(String[] args) {
@@ -153,4 +88,5 @@ public class GravGame extends StateBasedGame {
 			e.printStackTrace();
 		}
 	}
+	
 }
