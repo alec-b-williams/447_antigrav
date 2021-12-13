@@ -85,6 +85,37 @@ public class ServerVehicle extends GameObject {
         int newX = (int)(this.getX() + .5);
         int newY = (int)(this.getY() + .5);
 
+        calcCollision(newX, newY, map);
+        calcHeight(newX, newY, map);
+
+        int tileID = safeTileID(newX, newY, map);
+        boolean slow = isSlow(tileID);
+        boolean boost = (boostCooldown > 0 || isBoost(tileID));
+
+        if (tileID == GravGame.CHECKPOINT) {
+            checkpoint = true;
+            lastTile = new Vector(newX, newY);
+            System.out.println("Checkpoint! lap " + (lap));
+        }
+
+        if (checkpoint && tileID == GravGame.FINISH) {
+            checkpoint = false;
+            lastTile = new Vector(newX, newY);
+            lap++;
+            System.out.println("Completed lap " + (lap-1) + "! Time: " + timer);
+        }
+
+        worldX += this.speed.getX() * (slow ? slowMult : 1) * (boost ? boostMult : 1) * (deathCooldown > 0 ? 0 : 1);
+        worldY += this.speed.getY() * (slow ? slowMult : 1) * (boost ? boostMult : 1) * (deathCooldown > 0 ? 0 : 1);
+
+        boostCooldown -= delta;
+        deathCooldown -= delta;
+        timer += delta;
+        setRotationFrame((float)speedAngle);
+    }
+
+    private void calcCollision(int newX, int newY, TiledMap map) {
+        
         if (height == 0) {
             boolean bounced = false;
             ArrayList<Vector> collisions = getWallCollisions(newX, newY, map, true);
@@ -109,34 +140,7 @@ public class ServerVehicle extends GameObject {
                 }
             }
         }
-
-
-        if (height == 0 && safeTileID(newX, newY, map) == GravGame.JUMP) {
-            verticalMomentum = .2f;
-        }
-
-        verticalMomentum -= .0075f;
-        height += verticalMomentum;
-
-        if (height < 0) {
-            if (!isKill && (safeTileID(newX, newY, map) == GravGame.VOID || newX < 0 || newY < 0)) {
-                isKill = true;
-            } else if (isKill) {
-                if (height < -8) {
-                    resetPlayer();
-                }
-            } else {
-                height = 0;
-                verticalMomentum = 0;
-            }
-        }
-
-        worldX += this.speed.getX();
-        worldY += this.speed.getY();
-
-        setRotationFrame((float)speedAngle);
     }
-
 
     private ArrayList<Vector> getWallCollisions(int x, int y, TiledMap map, boolean adj) {
         ArrayList<Entity> walls = new ArrayList<>();
