@@ -1,9 +1,5 @@
 package gravity;
 
-import java.util.Iterator;
-
-import jig.ResourceManager;
-
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
@@ -23,26 +19,27 @@ import org.newdawn.slick.state.StateBasedGame;
  */
 class StartUpState extends BasicGameState {
 
-	private Network net;
-
+	GravGame gg;
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
 			throws SlickException {
-
 	}
 	
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) {
+		gg = (GravGame) game;
 		container.setSoundOn(false);
+		gg.connectToServer();
+		gg.waitForStartMsg();
+		gg.gameObjects[gg.playerID - 1] = new Vehicle(5.5f, 5.5f, gg.playerID-1);
 	}
 
 
 	@Override
 	public void render(GameContainer container, StateBasedGame game,
 			Graphics g) throws SlickException {
-		GravGame gg = (GravGame)game;
 		
-		g.drawString("Press Space to Start", 10, 30);
+		g.drawString("Press 1 to enter", 10, 30);
 		
 	}
 
@@ -51,15 +48,8 @@ class StartUpState extends BasicGameState {
 			int delta) throws SlickException {
 
 		Input input = container.getInput();
-		GravGame gg = (GravGame)game;
 
-		// testing server/client stuff
-		if (input.isKeyDown(Input.KEY_SPACE)) {
-			gg.isServer = true;
-			gg.enterState(GravGame.PLAYINGSTATE);
-		}
 		if (input.isKeyDown(Input.KEY_1)) {
-			gg.isServer = false;
 			gg.enterState(GravGame.PLAYINGSTATE);
 		}
 	}
