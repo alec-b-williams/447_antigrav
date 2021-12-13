@@ -4,8 +4,11 @@ import jig.*;
 import org.newdawn.slick.tiled.TiledMap;
 
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class ServerVehicle extends Entity {
+public class ServerVehicle extends GameObject {
+
     public static float forwardSpeedLimit = 0.2f;
     public static float reverseSpeedLimit = 0.05f;
     public static float slowdownScale = 0.98f;
@@ -27,6 +30,8 @@ public class ServerVehicle extends Entity {
     public int lap;
     public float timer;
     public boolean checkpoint;
+    public Powerup powerupHeld;
+
 
     private static final float degPerSecond = 180;
 
@@ -110,6 +115,7 @@ public class ServerVehicle extends Entity {
     }
 
     private void calcCollision(int newX, int newY, TiledMap map) {
+        
         if (height == 0) {
             boolean bounced = false;
             ArrayList<Vector> collisions = getWallCollisions(newX, newY, map, true);
