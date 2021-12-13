@@ -112,11 +112,11 @@ public class GameServer {
             int delta = dataIn.readInt();
 
             switch (input) {
-                case "W" -> player.linearMovement(1, 0.06f, 0.2f, currentMap);
-                case "S" -> player.linearMovement(-1, 0.01f, 0.05f, currentMap);
+                case "W" -> player.linearMovement(1, delta, currentMap);
+                case "S" -> player.linearMovement(-1, delta, currentMap);
                 case "A" -> player.turn(-1, delta);
                 case "D" -> player.turn(1, delta);
-                case "G" -> player.finishMovement( 0.98f, 0.2f * 0.01f, currentMap);
+                case "G" -> player.finishMovement(delta, currentMap);
             }
             updateGameObjects();
         }
@@ -126,6 +126,7 @@ public class GameServer {
             dataOut.flush();
             // update player value in concurrent hashmap
             gameObjects.put(playerId, player);
+            handlePowerups();
             // write number of players to client
             dataOut.writeInt(gameObjects.size());
             dataOut.flush();
@@ -145,17 +146,10 @@ public class GameServer {
         }
 
         public void handlePowerups() throws IOException {
-
             int powerupId = player.gotPowerup(gameObjects);
             if(powerupId != -1) {
-                System.out.println("In handlePowerups, powerupId = " + powerupId);
-                dataOut.writeUTF("R");
-                dataOut.flush();
                 player.powerupHeld = (Powerup) gameObjects.get(powerupId);
-                System.out.println("Player holding powerup: " + player.powerupHeld);
                 gameObjects.remove(powerupId);
-                dataOut.writeInt(powerupId);
-                dataOut.flush();
             }
         }
 

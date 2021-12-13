@@ -2,6 +2,8 @@ package gravity;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import jig.Entity;
@@ -105,7 +107,7 @@ public class GravGame extends StateBasedGame {
 		//ResourceManager.loadSound(BANG_EXPLOSIONSND_RSC);
 
 		// preload all the resources to avoid warnings & minimize latency...
-		ResourceManager.setFilterMethod(ResourceManager.FILTER_LINEAR);
+		// ResourceManager.setFilterMethod(ResourceManager.FILTER_LINEAR);
 
 		ResourceManager.loadImage(ENERGY_IMG_RSC);
 		ResourceManager.loadImage(ENERGY_CONTAINER_IMG_RSC);
@@ -160,10 +162,9 @@ public class GravGame extends StateBasedGame {
 			try {
 				while(true) {
 					String command = in.readUTF();
-					if(command.equals("R")) System.out.println("Command read: " + command);
 					switch (command) {
-						case "I" -> handleInputs();
-						case "R" -> removeGameObject();
+						case "I" -> updateGameObjects();
+						//case "R" -> removeGameObject();
 					}
 				}
 			} catch (IOException | ClassNotFoundException e) {
@@ -171,10 +172,12 @@ public class GravGame extends StateBasedGame {
 			}
 		}
 
-		public void handleInputs() throws IOException, ClassNotFoundException {
+		public void updateGameObjects() throws IOException, ClassNotFoundException {
             int entityCount = in.readInt();
+			ArrayList<Integer> serverKeys = new ArrayList<>();
             for (int i = 0; i < entityCount; i++) {
                 EntityData entityData = (EntityData) in.readObject();
+				serverKeys.add(entityData.id);
                 if (entityData.entityType.equals("Player")) {
                     if (gameObjects.containsKey(entityData.id)) {
                         ((Vehicle) gameObjects.get(entityData.id)).updateData(entityData);
@@ -192,11 +195,10 @@ public class GravGame extends StateBasedGame {
                     }
                 }
             }
-		}
-
-		public void removeGameObject() throws IOException {
-			int objectId = in.readInt();
-			gameObjects.remove(objectId);
+			Set<Integer> keys = gameObjects.keySet();
+			for(Integer key: keys) {
+				if(!serverKeys.contains(key)) gameObjects.remove(key);
+			}
 		}
 	}
 
