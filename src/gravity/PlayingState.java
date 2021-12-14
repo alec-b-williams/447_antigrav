@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Set;
 
-import jig.Entity;
 import jig.ResourceManager;
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
@@ -153,7 +152,6 @@ class PlayingState extends BasicGameState {
 		if (player.getDebug()){
 			g.drawString("Player Pos: " + df.format(player.worldX) + ", " + df.format(player.worldY), 10, 30);
 			g.drawString("Player Rotation: " + df.format((float)player.speedAngle), 10, 50);
-			g.drawString("Player Powerup: " + player.powerupTypeHeld, 10, 230); //TODO display this as an icon
 		}
 
 		//TODO: shrink this image based on player health
@@ -161,6 +159,16 @@ class PlayingState extends BasicGameState {
 		g.drawImage(ResourceManager.getImage(GravGame.ENERGY_CONTAINER_IMG_RSC), 94, 10);
 
 		g.drawImage(ResourceManager.getImage(GravGame.POWERUP_CONTAINER_IMG_RSC), (GravGame._SCREENWIDTH/2.0f) - 64, 10);
+		if(player.powerupTypeHeld == Powerup.BOOST){
+			g.drawImage(ResourceManager.getImage(GravGame.BOOST_IMG_RSC), (GravGame._SCREENWIDTH/2.0f) - 32, 42);
+		}
+		else if(player.powerupTypeHeld == Powerup.SPIKE_TRAP){
+			g.drawImage(ResourceManager.getImage(GravGame.SPIKETRAP_IMG_RSC), (GravGame._SCREENWIDTH/2.0f) - 32, 42);
+		}
+		else if(player.powerupTypeHeld == Powerup.ROCKET) {
+			g.drawImage(ResourceManager.getImage(GravGame.ROCKET_IMG_RSC), (GravGame._SCREENWIDTH/2.0f) - 32, 42);
+		}
+
 		g.drawImage(ResourceManager.getImage(GravGame.LAPTIME_IMG_RSC), GravGame._SCREENWIDTH - 300, 10);
 
 		currLap.setCurrentFrame((player.lap) % 10);

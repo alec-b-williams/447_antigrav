@@ -12,6 +12,7 @@ public class Rocket extends GameObject {
     public int id;
     public int placedById;
     public Vector speed;
+    public int bounces;
 
     public Rocket(float x, float y, int id) {
         super(x, y);
@@ -20,6 +21,7 @@ public class Rocket extends GameObject {
         this.id = id;
         this.addShape(new ConvexPolygon(1, 1.0f));
         this.setCoarseGrainedRadius(1);
+        this.bounces = 3;
     }
 
     public void updateData(EntityData data) {
@@ -43,6 +45,8 @@ public class Rocket extends GameObject {
         if (height == 0) {
             boolean bounced = false;
             ArrayList<Vector> collisions = getWallCollisions(newX, newY, map, true);
+
+            if(collisions.size() > 0) bounces -= 1;
 
             //bounce vehicle
             for (Vector collision : collisions) {

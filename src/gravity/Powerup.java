@@ -10,7 +10,7 @@ public class Powerup extends GameObject {
     public int type;
     public static final int numTypes = 3;
     public static final int NONE = -1;
-    public static final int NOS = 0;
+    public static final int BOOST = 0;
     public static final int SPIKE_TRAP = 1;
     public static final int ROCKET = 2;
 

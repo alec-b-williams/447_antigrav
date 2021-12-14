@@ -41,7 +41,7 @@ public class GameServer {
 
         System.out.println("Game Server spinning up!");
         numPlayers = 0;
-        maxPlayers = 2;
+        maxPlayers = 1;
         handlers = new ArrayList<>();
         playerSockets = new ArrayList<>();
 
@@ -122,10 +122,9 @@ public class GameServer {
             try{
                 while(true){
                     String command = dataIn.readUTF();
-                    switch(command) {
-                        case "W", "S", "A", "D", "G", " " -> {
-                            handleInputs(command);
-                        }
+                    if ("W".equals(command) || "S".equals(command) || "A".equals(command) ||
+                            "D".equals(command) || "G".equals(command) || " ".equals(command)) {
+                        handleInputs(command);
                     }
                 }
             } catch(IOException e){
@@ -136,14 +135,13 @@ public class GameServer {
         public void handleInputs(String input) throws IOException {
             int delta = dataIn.readInt();
 
-            switch (input) {
-                case "W" -> player.linearMovement(1, delta, currentMap);
-                case "S" -> player.linearMovement(-1, delta, currentMap);
-                case "A" -> player.turn(-1, delta);
-                case "D" -> player.turn(1, delta);
-                case "G" -> player.finishMovement(delta, currentMap);
-                case " " -> usePowerUp();
-            }
+            if ("W".equals(input)) player.linearMovement(1, delta, currentMap);
+            else if ("S".equals(input)) player.linearMovement(-1, delta, currentMap);
+            else if ("A".equals(input)) player.turn(-1, delta);
+            else if ("D".equals(input)) player.turn(1, delta);
+            else if ("G".equals(input)) player.finishMovement(delta, currentMap);
+            else if (" ".equals(input)) usePowerUp();
+
             updateRockets(delta);
             updateGameObjects();
             updateDispensers(delta);
@@ -183,6 +181,7 @@ public class GameServer {
                 GameObject object = gameObjects.get(key);
                 if(object instanceof Rocket) {
                     ((Rocket) object).move(delta, currentMap);
+                    if(((Rocket) object).bounces <= 0) gameObjects.remove(key);
                 }
             }
         }
@@ -239,7 +238,7 @@ public class GameServer {
 
         public void usePowerUp() {
             switch (player.powerupTypeHeld) {
-                case Powerup.NOS -> player.boostCooldown = 1000;
+                case Powerup.BOOST -> player.boostCooldown = 1000;
                 case Powerup.SPIKE_TRAP -> {
                     SpikeTrap spikeTrap = new SpikeTrap(player.worldX, player.worldY, entityId);
                     spikeTrap.placedById = playerId;

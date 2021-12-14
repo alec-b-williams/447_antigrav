@@ -64,6 +64,7 @@ public class GravGame extends StateBasedGame {
 	public static final String[] levelBGs = {LEVEL_1_BG_IMG_RSC};
 	public static final Vector[] BGoffsets = {new Vector(1250, 500)};
 	public static final String POWERUP_IMG_RSC = "gravity/resource/powerup_box.png";
+	public static final String BOOST_IMG_RSC = "gravity/resource/boost.png";
 	public static final String SPIKETRAP_IMG_RSC = "gravity/resource/spikeTrap.png";
 	public static final String ROCKET_IMG_RSC = "gravity/resource/rocket.png";
 
@@ -123,6 +124,7 @@ public class GravGame extends StateBasedGame {
 		ResourceManager.loadImage(PLAYER_4_VEHICLE_ANIM);
 		ResourceManager.loadImage(LEVEL_1_BG_IMG_RSC);
 		ResourceManager.loadImage(POWERUP_IMG_RSC);
+		ResourceManager.loadImage(BOOST_IMG_RSC);
 		ResourceManager.loadImage(SPIKETRAP_IMG_RSC);
 		ResourceManager.loadImage(ROCKET_IMG_RSC);
 	}
@@ -167,8 +169,8 @@ public class GravGame extends StateBasedGame {
 			try {
 				while(true) {
 					String command = in.readUTF();
-					switch (command) {
-						case "I" -> updateGameObjects();
+					if ("I".equals(command)) {
+						updateGameObjects();
 						//case "R" -> removeGameObject();
 					}
 				}
@@ -183,42 +185,37 @@ public class GravGame extends StateBasedGame {
             for (int i = 0; i < entityCount; i++) {
                 EntityData entityData = (EntityData) in.readObject();
 				serverKeys.add(entityData.id);
-				switch (entityData.entityType) {
-					case "Player":
-						if (gameObjects.containsKey(entityData.id)) {
-							((Vehicle) gameObjects.get(entityData.id)).updateData(entityData);
-						} else {
-							gameObjects.put(entityData.id, new Vehicle(entityData.xPosition,
-									entityData.yPosition, entityData.id));
-						}
-						break;
-					case "Powerup":
-						if (gameObjects.containsKey(entityData.id)) {
-							((Powerup) gameObjects.get(entityData.id)).updateData(entityData);
-						} else {
-							Powerup powerup = new Powerup(entityData.xPosition, entityData.yPosition, entityData.id, 0);
-							powerup.addImage(ResourceManager.getImage(POWERUP_IMG_RSC));
-							gameObjects.put(entityData.id, powerup);
-						}
-						break;
-					case "SpikeTrap":
-						if (gameObjects.containsKey(entityData.id)) {
-							((SpikeTrap) gameObjects.get(entityData.id)).updateData(entityData);
-						} else {
-							SpikeTrap spikeTrap = new SpikeTrap(entityData.xPosition, entityData.yPosition, entityData.id);
-							spikeTrap.addImage(ResourceManager.getImage(SPIKETRAP_IMG_RSC));
-							gameObjects.put(entityData.id, spikeTrap);
-						}
-						break;
-					case "Rocket":
-						if (gameObjects.containsKey(entityData.id)) {
-							((Rocket) gameObjects.get(entityData.id)).updateData(entityData);
-						} else {
-							Rocket rocket = new Rocket(entityData.xPosition, entityData.yPosition, entityData.id);
-							rocket.addImage(ResourceManager.getImage(ROCKET_IMG_RSC));
-							gameObjects.put(entityData.id, rocket);
-						}
-						break;
+				if ("Player".equals(entityData.entityType)) {
+					if (gameObjects.containsKey(entityData.id)) {
+						((Vehicle) gameObjects.get(entityData.id)).updateData(entityData);
+					} else {
+						gameObjects.put(entityData.id, new Vehicle(entityData.xPosition,
+								entityData.yPosition, entityData.id));
+					}
+				} else if ("Powerup".equals(entityData.entityType)) {
+					if (gameObjects.containsKey(entityData.id)) {
+						((Powerup) gameObjects.get(entityData.id)).updateData(entityData);
+					} else {
+						Powerup powerup = new Powerup(entityData.xPosition, entityData.yPosition, entityData.id, 0);
+						powerup.addImage(ResourceManager.getImage(POWERUP_IMG_RSC));
+						gameObjects.put(entityData.id, powerup);
+					}
+				} else if ("SpikeTrap".equals(entityData.entityType)) {
+					if (gameObjects.containsKey(entityData.id)) {
+						((SpikeTrap) gameObjects.get(entityData.id)).updateData(entityData);
+					} else {
+						SpikeTrap spikeTrap = new SpikeTrap(entityData.xPosition, entityData.yPosition, entityData.id);
+						spikeTrap.addImage(ResourceManager.getImage(SPIKETRAP_IMG_RSC));
+						gameObjects.put(entityData.id, spikeTrap);
+					}
+				} else if ("Rocket".equals(entityData.entityType)) {
+					if (gameObjects.containsKey(entityData.id)) {
+						((Rocket) gameObjects.get(entityData.id)).updateData(entityData);
+					} else {
+						Rocket rocket = new Rocket(entityData.xPosition, entityData.yPosition, entityData.id);
+						rocket.addImage(ResourceManager.getImage(ROCKET_IMG_RSC));
+						gameObjects.put(entityData.id, rocket);
+					}
 				}
             }
 			Set<Integer> keys = gameObjects.keySet();
