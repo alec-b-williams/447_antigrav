@@ -63,9 +63,6 @@ public class GameServer {
             }
         }
 
-        //Powerup powerup = new Powerup(7f, 5f, entityId++);
-        //gameObjects.put(powerup.id, powerup);
-
         try {
             this.server = new ServerSocket(9158);
         } catch (IOException e){
@@ -156,8 +153,7 @@ public class GameServer {
             dataOut.flush();
             // update player value in concurrent hashmap
             //gameObjects.put(playerId, player);
-            handlePowerups();
-            handleSpikes();
+            handleGameObjectCollisions();
             // write number of players to client
             dataOut.writeInt(gameObjects.size());
             dataOut.flush();
@@ -178,28 +174,32 @@ public class GameServer {
             }
         }
 
-        public void handlePowerups() {
-            if(player.powerupTypeHeld != Powerup.NONE) return;
-            int powerupId = player.gotPowerup(gameObjects);
-            if(powerupId != -1) {
-                Powerup powerup = (Powerup) gameObjects.get(powerupId);
-                player.powerupTypeHeld = powerup.type;
-                Dispenser dispenser = dispensers.get(powerup.dispenserId);
-                dispenser.timer = Dispenser.powerupSpawnDelay;
-                dispenser.hasPowerup = false;
-                gameObjects.remove(powerupId);
+        public void handleGameObjectCollisions() {
+            ArrayList<Integer> collidedObjectIds = player.getGameObjectCollisions(gameObjects);
+            for(int key: collidedObjectIds) {
+                GameObject object = gameObjects.get(key);
+                if(object instanceof Powerup) handlePowerup(key);
+                if(object instanceof SpikeTrap) handleSpikeTrap(key);
             }
         }
 
-        public void handleSpikes() {
-            int spikeId = player.touchedSpikes(gameObjects);
-            if(spikeId != -1) {
-                SpikeTrap spikeTrap = (SpikeTrap) gameObjects.get(spikeId);
-                if(spikeTrap.placedById != playerId) {
-                    gameObjects.remove(spikeId);
-                }
+        public void handlePowerup(int id) {
+            if(player.powerupTypeHeld != Powerup.NONE) return;
+            Powerup powerup = (Powerup) gameObjects.get(id);
+            player.powerupTypeHeld = powerup.type;
+            Dispenser dispenser = dispensers.get(powerup.dispenserId);
+            dispenser.timer = Dispenser.powerupSpawnDelay;
+            dispenser.hasPowerup = false;
+            gameObjects.remove(id);
+        }
+
+        public void handleSpikeTrap(int id) {
+            SpikeTrap spikeTrap = (SpikeTrap) gameObjects.get(id);
+            if(spikeTrap.placedById != playerId) {
+                gameObjects.remove(id);
             }
         }
+
 
         public void updateDispensers(int delta) {
             Set<Integer> keys = dispensers.keySet();
