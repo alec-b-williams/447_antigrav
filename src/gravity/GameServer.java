@@ -144,6 +144,7 @@ public class GameServer {
                 case "G" -> player.finishMovement(delta, currentMap);
                 case " " -> usePowerUp();
             }
+            updateRockets(delta);
             updateGameObjects();
             updateDispensers(delta);
         }
@@ -168,9 +169,21 @@ public class GameServer {
                     data = new EntityData((Powerup) object, key);
                 } else if (object instanceof SpikeTrap) {
                     data = new EntityData((SpikeTrap) object, key);
+                } else if (object instanceof Rocket) {
+                    data = new EntityData((Rocket) object, key);
                 } else continue;
                 dataOut.writeObject(data);
                 dataOut.flush();
+            }
+        }
+
+        public void updateRockets(int delta) {
+            Set<Integer> keys = gameObjects.keySet();
+            for(Integer key: keys) {
+                GameObject object = gameObjects.get(key);
+                if(object instanceof Rocket) {
+                    ((Rocket) object).move(delta, currentMap);
+                }
             }
         }
 
@@ -179,7 +192,8 @@ public class GameServer {
             for(int key: collidedObjectIds) {
                 GameObject object = gameObjects.get(key);
                 if(object instanceof Powerup) handlePowerup(key);
-                if(object instanceof SpikeTrap) handleSpikeTrap(key);
+                else if(object instanceof SpikeTrap) handleSpikeTrap(key);
+                else if(object instanceof Rocket) handleRocket(key);
             }
         }
 
@@ -200,6 +214,12 @@ public class GameServer {
             }
         }
 
+        public void handleRocket(int id) {
+            Rocket rocket = (Rocket) gameObjects.get(id);
+            if(rocket.placedById != playerId) {
+                gameObjects.remove(id);
+            }
+        }
 
         public void updateDispensers(int delta) {
             Set<Integer> keys = dispensers.keySet();
@@ -226,7 +246,13 @@ public class GameServer {
                     gameObjects.put(entityId, spikeTrap);
                     entityId++;
                 }
-                case Powerup.ROCKET -> {}
+                case Powerup.ROCKET -> {
+                    Rocket rocket = new Rocket(player.worldX, player.worldY, entityId);
+                    rocket.placedById = playerId;
+                    rocket.speed = Vector.getVector(player.speedAngle, ServerVehicle.forwardSpeedLimit);
+                    gameObjects.put(entityId, rocket);
+                    entityId++;
+                }
             }
             player.powerupTypeHeld = Powerup.NONE;
         }

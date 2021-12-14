@@ -174,28 +174,6 @@ public class ServerVehicle extends GameObject {
         return collisions;
     }
 
-    /**
-     * Returns the id of the first Powerup the player is colliding with, or -1
-     * if the player isn't colliding with any Powerups.
-     */
-    //public int gotPowerup(ConcurrentHashMap<Integer, GameObject> gameObjects) {
-    //    Set<Integer> keys = gameObjects.keySet();
-    //    for(Integer key: keys) {
-    //        boolean isPowerup = gameObjects.get(key) instanceof Powerup;
-    //        if(isPowerup && this.collides(gameObjects.get(key)) != null) return key;
-    //    }
-    //    return -1;
-    //}
-//
-    //public int touchedSpikes(ConcurrentHashMap<Integer, GameObject> gameObjects) {
-    //    Set<Integer> keys = gameObjects.keySet();
-    //    for(Integer key: keys) {
-    //        boolean isSpikeTrap = gameObjects.get(key) instanceof SpikeTrap;
-    //        if(isSpikeTrap && this.collides(gameObjects.get(key)) != null) return key;
-    //    }
-    //    return -1;
-    //}
-
     public ArrayList<Integer> getGameObjectCollisions(ConcurrentHashMap<Integer, GameObject> gameObjects) {
         Set<Integer> keys = gameObjects.keySet();
         ArrayList<Integer> collidedObjectKeys = new ArrayList<>();

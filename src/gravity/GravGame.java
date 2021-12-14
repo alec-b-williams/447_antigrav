@@ -65,6 +65,7 @@ public class GravGame extends StateBasedGame {
 	public static final Vector[] BGoffsets = {new Vector(1250, 500)};
 	public static final String POWERUP_IMG_RSC = "gravity/resource/powerup_box.png";
 	public static final String SPIKETRAP_IMG_RSC = "gravity/resource/spikeTrap.png";
+	public static final String ROCKET_IMG_RSC = "gravity/resource/rocket.png";
 
 	public final int ScreenWidth;
 	public final int ScreenHeight;
@@ -123,6 +124,7 @@ public class GravGame extends StateBasedGame {
 		ResourceManager.loadImage(LEVEL_1_BG_IMG_RSC);
 		ResourceManager.loadImage(POWERUP_IMG_RSC);
 		ResourceManager.loadImage(SPIKETRAP_IMG_RSC);
+		ResourceManager.loadImage(ROCKET_IMG_RSC);
 	}
 
 	public void startServerHandler() {
@@ -206,6 +208,15 @@ public class GravGame extends StateBasedGame {
 							SpikeTrap spikeTrap = new SpikeTrap(entityData.xPosition, entityData.yPosition, entityData.id);
 							spikeTrap.addImage(ResourceManager.getImage(SPIKETRAP_IMG_RSC));
 							gameObjects.put(entityData.id, spikeTrap);
+						}
+						break;
+					case "Rocket":
+						if (gameObjects.containsKey(entityData.id)) {
+							((Rocket) gameObjects.get(entityData.id)).updateData(entityData);
+						} else {
+							Rocket rocket = new Rocket(entityData.xPosition, entityData.yPosition, entityData.id);
+							rocket.addImage(ResourceManager.getImage(ROCKET_IMG_RSC));
+							gameObjects.put(entityData.id, rocket);
 						}
 						break;
 				}
