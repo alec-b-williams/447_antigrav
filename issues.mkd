@@ -7,14 +7,13 @@
 - **[6]** Implement proper player vs environment collision
 - **[7]** Implement basic multi-entity networking
 - **[8]** Implement jumps
+- **[10]** Implement misc. course obstacles/features
 
 
 ## Open Issues ##
-- **[9]** Implement jumps
-- **[10]** Implement misc. course obstacles/features
+- **[9]** Implement Power-ups
 - **[11]** Implement Laps/Timers
 - **[12]** Implement UI
-- **[13]** Implement Powerups
 - **[14]** Implement Vehicle-vs-Vehicle collision
 - **[15]** Implement health/boost mechanics
 - **[16]** Implement multiple tracks, maintain leaderboards between tracks

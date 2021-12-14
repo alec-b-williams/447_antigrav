@@ -2,10 +2,12 @@ package gravity;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import jig.Entity;
 import jig.ResourceManager;
-import jig.Shape;
 import jig.Vector;
 
 import org.newdawn.slick.AppGameContainer;
@@ -38,12 +40,20 @@ public class GravGame extends StateBasedGame {
 	public static final int BOOST_E = 8;
 	public static final int BOOST_S = 9;
 	public static final int BOOST_W = 10;
+	public static final int FINISH = 11;
+	public static final int CHECKPOINT = 12;
+	public static final int PLAYER_SPAWN = 13;
 
 	public static final int _SCREENWIDTH = 1280;
 	public static final int _SCREENHEIGHT = 1024;
 	public static final int _TILEWIDTH = 64;
 	public static final int _TILEHEIGHT = 32;
-	
+	public static final int _HEALTHSIZE = 116;
+
+	public static final String POWERUP_IMG_RSC = "gravity/resource/powerup_box.png";
+	public static final String BOOST_IMG_RSC = "gravity/resource/boost.png";
+	public static final String SPIKETRAP_IMG_RSC = "gravity/resource/spikeTrap.png";
+	public static final String ROCKET_IMG_RSC = "gravity/resource/rocket.png";
 	public static final String ENERGY_IMG_RSC = "gravity/resource/energy.png";
 	public static final String ENERGY_CONTAINER_IMG_RSC = "gravity/resource/energy_container.png";
 	public static final String POWERUP_CONTAINER_IMG_RSC = "gravity/resource/powerup_container.png";
@@ -66,13 +76,13 @@ public class GravGame extends StateBasedGame {
 	public float gameScale;
 	public TiledMap map;
 
-	public int playerID;
-	public int maxPlayers;
-	public Entity[] gameObjects;
-
 	public Socket socket;
 	public ObjectInputStream in;
 	public ObjectOutputStream out;
+
+	public int playerID;
+	public int maxPlayers;
+	public ConcurrentHashMap<Integer, GameObject> gameObjects = new ConcurrentHashMap<>();
 
 	/**
 	 * Create the BounceGame frame, saving the width and height for later use.
@@ -102,6 +112,8 @@ public class GravGame extends StateBasedGame {
 		//ResourceManager.loadSound(BANG_EXPLOSIONSND_RSC);
 
 		// preload all the resources to avoid warnings & minimize latency...
+		ResourceManager.setFilterMethod(ResourceManager.FILTER_LINEAR);
+
 		ResourceManager.loadImage(ENERGY_IMG_RSC);
 		ResourceManager.loadImage(ENERGY_CONTAINER_IMG_RSC);
 		ResourceManager.loadImage(POWERUP_CONTAINER_IMG_RSC);
@@ -112,9 +124,13 @@ public class GravGame extends StateBasedGame {
 		ResourceManager.loadImage(PLAYER_3_VEHICLE_ANIM);
 		ResourceManager.loadImage(PLAYER_4_VEHICLE_ANIM);
 		ResourceManager.loadImage(LEVEL_1_BG_IMG_RSC);
+		ResourceManager.loadImage(POWERUP_IMG_RSC);
+		ResourceManager.loadImage(BOOST_IMG_RSC);
+		ResourceManager.loadImage(SPIKETRAP_IMG_RSC);
+		ResourceManager.loadImage(ROCKET_IMG_RSC);
 	}
 
-	public void connectToServer(){
+	public void startServerHandler() {
 		try{
 			socket = new Socket("localhost", 9158);
 			out = new ObjectOutputStream(socket.getOutputStream());
@@ -123,20 +139,90 @@ public class GravGame extends StateBasedGame {
 
 			playerID = in.readInt();
 			maxPlayers = in.readInt();
-			gameObjects = new Entity[maxPlayers];
-			System.out.println("You are player: " + this.playerID);
+			System.out.println("You are player: " + playerID);
+
+			String startMsg = in.readUTF();
+			System.out.println("Message from server: " + startMsg);
+
+			ServerHandler sh = new ServerHandler(socket, out, in);
+			Thread shThread = new Thread(sh);
+			shThread.start();
 		} catch (IOException e){
 			System.out.println("IOException from connectToServer()");
 			e.printStackTrace();
 		}
 	}
 
-	public void waitForStartMsg(){
-		try{
-			String startMsg = in.readUTF();
-			System.out.println("Message from server: " + startMsg);
-		} catch (IOException e){
-			System.err.println("Wait Start IOException error: " + e);
+	public class ServerHandler implements Runnable {
+
+		public Socket socket;
+		public ObjectOutputStream out;
+		public ObjectInputStream in;
+
+		public ServerHandler(Socket socket, ObjectOutputStream out, ObjectInputStream in) {
+			this.socket = socket;
+			this.out = out;
+			this.in = in;
+		}
+
+		@Override
+		public void run() {
+			try {
+				while(true) {
+					String command = in.readUTF();
+					if ("I".equals(command)) {
+						updateGameObjects();
+						//case "R" -> removeGameObject();
+					}
+				}
+			} catch (IOException | ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+
+		public void updateGameObjects() throws IOException, ClassNotFoundException {
+            int entityCount = in.readInt();
+			ArrayList<Integer> serverKeys = new ArrayList<>();
+            for (int i = 0; i < entityCount; i++) {
+                EntityData entityData = (EntityData) in.readObject();
+				serverKeys.add(entityData.id);
+				if ("Player".equals(entityData.entityType)) {
+					if (gameObjects.containsKey(entityData.id)) {
+						((Vehicle) gameObjects.get(entityData.id)).updateData(entityData);
+					} else {
+						gameObjects.put(entityData.id, new Vehicle(entityData.xPosition,
+								entityData.yPosition, entityData.id));
+					}
+				} else if ("Powerup".equals(entityData.entityType)) {
+					if (gameObjects.containsKey(entityData.id)) {
+						((Powerup) gameObjects.get(entityData.id)).updateData(entityData);
+					} else {
+						Powerup powerup = new Powerup(entityData.xPosition, entityData.yPosition, entityData.id, 0);
+						powerup.addImage(ResourceManager.getImage(POWERUP_IMG_RSC));
+						gameObjects.put(entityData.id, powerup);
+					}
+				} else if ("SpikeTrap".equals(entityData.entityType)) {
+					if (gameObjects.containsKey(entityData.id)) {
+						((SpikeTrap) gameObjects.get(entityData.id)).updateData(entityData);
+					} else {
+						SpikeTrap spikeTrap = new SpikeTrap(entityData.xPosition, entityData.yPosition, entityData.id);
+						spikeTrap.addImage(ResourceManager.getImage(SPIKETRAP_IMG_RSC));
+						gameObjects.put(entityData.id, spikeTrap);
+					}
+				} else if ("Rocket".equals(entityData.entityType)) {
+					if (gameObjects.containsKey(entityData.id)) {
+						((Rocket) gameObjects.get(entityData.id)).updateData(entityData);
+					} else {
+						Rocket rocket = new Rocket(entityData.xPosition, entityData.yPosition, entityData.id);
+						rocket.addImage(ResourceManager.getImage(ROCKET_IMG_RSC));
+						gameObjects.put(entityData.id, rocket);
+					}
+				}
+            }
+			Set<Integer> keys = gameObjects.keySet();
+			for(Integer key: keys) {
+				if(!serverKeys.contains(key)) gameObjects.remove(key);
+			}
 		}
 	}
 

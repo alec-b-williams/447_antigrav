@@ -7,23 +7,21 @@ import jig.Shape;
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.geom.Transform;
 
-public class Vehicle extends Entity {
+public class Vehicle extends GameObject {
     Animation sprite;
-    public float worldX;
-    public float worldY;
-    public float height;
     public double speedAngle;
     public int playerNumber;
     public boolean isKill;
+    public float timer;
+    public int lap;
+    public float health;
+    public int powerupTypeHeld;
 
     public Vehicle(float x, float y, int _playerNumber) {
-        super(GravGame._SCREENWIDTH/2.0f, GravGame._SCREENHEIGHT/2.0f);
-
-        worldX = x;
-        worldY = y;
+        super(x, y);
 
         playerNumber = _playerNumber;
-        sprite = new Animation(ResourceManager.getSpriteSheet(GravGame.vehicleImages[_playerNumber], 64, 64),
+        sprite = new Animation(ResourceManager.getSpriteSheet(GravGame.vehicleImages[_playerNumber-1], 64, 64),
                 0, 0, 15, 0, true, 160, false);
 
         this.addAnimation(sprite);
@@ -41,5 +39,9 @@ public class Vehicle extends Entity {
         this.setY((GravGame._SCREENHEIGHT/2.0f) - (height * 32));
         this.isKill = data.isKill;
         this.sprite.setCurrentFrame(data.animationFrame);
+        this.timer = data.timer;
+        this.lap = data.lap;
+        this.health = data.health;
+        this.powerupTypeHeld = data.powerupType;
     }
 }

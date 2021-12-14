@@ -2,12 +2,10 @@ package gravity;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.Set;
 
 import jig.ResourceManager;
-import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Input;
-import org.newdawn.slick.SlickException;
+import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.tiled.TiledMap;
@@ -21,6 +19,14 @@ import org.newdawn.slick.tiled.TiledMap;
 class PlayingState extends BasicGameState {
 	private GravGame gg;
 	private Input input;
+	private Animation currLap;
+	private Animation lapLimit;
+	private Animation minuteTens;
+	private Animation minuteOnes;
+	private Animation secondTens;
+	private Animation secondOnes;
+	private Animation milliTens;
+	private Animation milliOnes;
 
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
@@ -39,16 +45,23 @@ class PlayingState extends BasicGameState {
 		gg.cameraYPos = 0;
 		gg.gameScale = 1;
 
-		for(int i = 0; i < gg.maxPlayers; i++) {
-			gg.gameObjects[i] = new Vehicle(5.5f, 5.5f, i);
-		}
+		currLap = newNum();
+		lapLimit = newNum();
+		minuteTens = newNum();
+		minuteOnes = newNum();
+		secondTens = newNum();
+		secondOnes = newNum();
+		milliTens = newNum();
+		milliOnes = newNum();
+
+		lapLimit.setCurrentFrame(3);
 	}
 
 	@Override
 	public void render(GameContainer container, StateBasedGame game,
 			Graphics g) throws SlickException {
 
-		Vehicle player = (Vehicle) gg.gameObjects[gg.playerID-1];
+		Vehicle player = (Vehicle) gg.gameObjects.get(gg.playerID);
 
 		g.drawImage(ResourceManager.getImage(GravGame.levelBGs[0]),
 				(gg.BGoffsets[0].getX() * -1) - ((player.worldX - player.worldY) * 4),
@@ -56,7 +69,7 @@ class PlayingState extends BasicGameState {
 
 		g.scale(gg.gameScale, gg.gameScale);
 
-		renderEntities(player,g, true);
+		renderEntities(player, g, true);
 
 		gg.map.render(((GravGame._SCREENWIDTH/2) - GravGame._TILEWIDTH/2)
 							+ (int)((player.worldX - player.worldY) * GravGame._TILEWIDTH/2.0f *-1),
@@ -71,31 +84,40 @@ class PlayingState extends BasicGameState {
 	}
 
 	@Override
-	public void update(GameContainer container, StateBasedGame game,
-			int delta) throws SlickException {
+	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
 		try {
-			if(input.isKeyDown(Input.KEY_W)) {
+			if (input.isKeyDown(Input.KEY_W)) {
 				gg.out.writeUTF("W");
-				serverRW(delta);
+				gg.out.writeInt(delta);
+				gg.out.flush();
 			}
-			if(input.isKeyDown(Input.KEY_A)){
+			if (input.isKeyDown(Input.KEY_A)) {
 				gg.out.writeUTF("A");
-				serverRW(delta);
+				gg.out.writeInt(delta);
+				gg.out.flush();
 			}
-			if(input.isKeyDown(Input.KEY_S)){
+			if (input.isKeyDown(Input.KEY_S)) {
 				gg.out.writeUTF("S");
-				serverRW(delta);
+				gg.out.writeInt(delta);
+				gg.out.flush();
 			}
-			if(input.isKeyDown(Input.KEY_D)){
+			if (input.isKeyDown(Input.KEY_D)) {
 				gg.out.writeUTF("D");
-				serverRW(delta);
+				gg.out.writeInt(delta);
+				gg.out.flush();
 			}
-			if(noMovementPressed()){
+			if (noMovementPressed()) {
 				gg.out.writeUTF("G");
-				serverRW(delta);
+				gg.out.writeInt(delta);
+				gg.out.flush();
 			}
-		} catch (IOException e){
-			System.err.println("IOException in write: " + e);
+			if(input.isKeyDown(Input.KEY_SPACE)) {
+				gg.out.writeUTF(" ");
+				gg.out.writeInt(delta);
+				gg.out.flush();
+			}
+		} catch(IOException e) {
+			e. printStackTrace();
 		}
 		
 		if (input.isKeyDown(Input.KEY_LBRACKET))
@@ -105,10 +127,7 @@ class PlayingState extends BasicGameState {
 	}
 
 	public boolean noMovementPressed(){
-		if(!input.isKeyDown(Input.KEY_W) && !input.isKeyDown(Input.KEY_S))
-			return true;
-
-		return false;
+		return !input.isKeyDown(Input.KEY_W) && !input.isKeyDown(Input.KEY_S);
 	}
 
 	@Override
@@ -116,41 +135,22 @@ class PlayingState extends BasicGameState {
 		return GravGame.PLAYINGSTATE;
 	}
 
-	public void serverRW(int delta) {
-		try {
-			gg.out.writeInt(delta);
-			gg.out.flush();
-
-			int playerCount = gg.in.readInt();
-			for (int i = 0; i < playerCount; i++) {
-				EntityData entityData = (EntityData) gg.in.readObject();
-				if (entityData.entityType.equals("Player")) {
-					((Vehicle) gg.gameObjects[i]).updateData(entityData);
-				}
-			}
-		} catch (IOException | ClassNotFoundException e){
-			System.err.println("IOException in write: " + e);
-		}
-	}
-
 	public void renderEntities(Vehicle player, Graphics g, boolean kill) {
-		for (int i = 0; i < gg.gameObjects.length; i++) {
-			if (i != (gg.playerID-1)) {
-				Vehicle e = (Vehicle) gg.gameObjects[i];
+		Set<Integer> keys = gg.gameObjects.keySet();
+		for (Integer key: keys) {
+			GameObject object = gg.gameObjects.get(key);
+			if(object == null) continue;
+			if (key != (gg.playerID)) {
 
-				e.setX((GravGame._SCREENWIDTH/2.0f) +
-						(((e.worldX-e.worldY) - (player.worldX-player.worldY))) * GravGame._TILEWIDTH/2.0f);
-				e.setY((GravGame._SCREENHEIGHT/2.0f) +
-						(((e.worldX+e.worldY) - (player.worldX+player.worldY))) * GravGame._TILEHEIGHT/2.0f);
+				object.setX((GravGame._SCREENWIDTH / 2.0f) +
+						(((object.worldX - object.worldY) - (player.worldX - player.worldY))) * GravGame._TILEWIDTH / 2.0f);
+				object.setY((GravGame._SCREENHEIGHT / 2.0f) +
+						(((object.worldX + object.worldY) - (player.worldX + player.worldY))) * GravGame._TILEHEIGHT / 2.0f);
 			}
-			if (kill) {
-				if (((Vehicle)gg.gameObjects[i]).isKill) {
-					gg.gameObjects[i].render(g);
-				}
+			if (object instanceof Vehicle && kill && ((Vehicle) gg.gameObjects.get(key)).isKill) {
+				object.render(g);
 			} else {
-				if (!((Vehicle)gg.gameObjects[i]).isKill) {
-					gg.gameObjects[i].render(g);
-				}
+				object.render(g);
 			}
 		}
 	}
@@ -163,11 +163,56 @@ class PlayingState extends BasicGameState {
 			g.drawString("Player Rotation: " + df.format((float)player.speedAngle), 10, 50);
 		}
 
-		//TODO: shrink this image based on player health
-		g.drawImage(ResourceManager.getImage(GravGame.ENERGY_IMG_RSC), 100, 16);
+		g.drawImage(ResourceManager.getImage(GravGame.ENERGY_IMG_RSC),
+				100,
+				16 + (116 - (player.health * (116/100.0f))),
+				100+116,
+				16+116,
+				0,
+				0 + (116 - (player.health * (116/100.0f))),
+				116,
+				116);
 		g.drawImage(ResourceManager.getImage(GravGame.ENERGY_CONTAINER_IMG_RSC), 94, 10);
 
 		g.drawImage(ResourceManager.getImage(GravGame.POWERUP_CONTAINER_IMG_RSC), (GravGame._SCREENWIDTH/2.0f) - 64, 10);
+		if(player.powerupTypeHeld == Powerup.BOOST){
+			g.drawImage(ResourceManager.getImage(GravGame.BOOST_IMG_RSC), (GravGame._SCREENWIDTH/2.0f) - 32, 42);
+		}
+		else if(player.powerupTypeHeld == Powerup.SPIKE_TRAP){
+			g.drawImage(ResourceManager.getImage(GravGame.SPIKETRAP_IMG_RSC), (GravGame._SCREENWIDTH/2.0f) - 32, 42);
+		}
+		else if(player.powerupTypeHeld == Powerup.ROCKET) {
+			g.drawImage(ResourceManager.getImage(GravGame.ROCKET_IMG_RSC), (GravGame._SCREENWIDTH/2.0f) - 32, 42);
+		}
+
 		g.drawImage(ResourceManager.getImage(GravGame.LAPTIME_IMG_RSC), GravGame._SCREENWIDTH - 300, 10);
+
+		currLap.setCurrentFrame((player.lap) % 10);
+
+		g.drawAnimation(currLap, GravGame._SCREENWIDTH - 230, 13);
+		g.drawAnimation(lapLimit, GravGame._SCREENWIDTH - 195, 13);
+
+		float time = player.timer;
+		int minutes = (int)((time / 1000) / 60);
+		int seconds = (int)((time / 1000) % 60);
+
+		minuteTens.setCurrentFrame((minutes/10) % 10);
+		minuteOnes.setCurrentFrame(minutes % 10);
+		secondTens.setCurrentFrame((seconds/10) % 10);
+		secondOnes.setCurrentFrame(seconds % 10);
+		milliTens.setCurrentFrame(((int)time / 100) % 10);
+		milliOnes.setCurrentFrame(((int)time/10) % 10);
+
+		g.drawAnimation(minuteTens, GravGame._SCREENWIDTH - 230, 38);
+		g.drawAnimation(minuteOnes, GravGame._SCREENWIDTH - 210, 38);
+		g.drawAnimation(secondTens, GravGame._SCREENWIDTH - 170, 38);
+		g.drawAnimation(secondOnes, GravGame._SCREENWIDTH - 150, 38);
+		g.drawAnimation(milliTens, GravGame._SCREENWIDTH - 110, 38);
+		g.drawAnimation(milliOnes, GravGame._SCREENWIDTH - 90, 38);
+	}
+
+	private Animation newNum() {
+		return new Animation(ResourceManager.getSpriteSheet(GravGame.NUM_ANIM_RSC, 16, 18),
+				0, 0, 9, 0, true, 160, false);
 	}
 }

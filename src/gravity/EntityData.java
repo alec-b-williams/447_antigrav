@@ -11,6 +11,10 @@ public class EntityData implements Serializable {
     public float height;
     public int animationFrame;
     public boolean isKill;
+    public float timer;
+    public int lap;
+    public float health;
+    public int powerupType;
 
     public EntityData(String entityType, int id, float xPosition, float yPosition, double direction, float height, int animationFrame) {
         this.entityType = entityType;
@@ -31,6 +35,31 @@ public class EntityData implements Serializable {
         this.height = vehicle.height;
         this.animationFrame = vehicle.frame;
         this.isKill = vehicle.isKill;
+        this.lap = vehicle.lap;
+        this.timer = vehicle.timer;
+        this.health = vehicle.getHealth();
+        this.powerupType = vehicle.powerupTypeHeld;
     }
 
+    public EntityData(Powerup power, int id) {
+        this.entityType = "Powerup";
+        this.id = id;
+        this.xPosition = power.worldX;
+        this.yPosition = power.worldY;
+        this.powerupType = power.type;
+    }
+
+    public EntityData(SpikeTrap spikeTrap, int id) {
+        this.entityType = "SpikeTrap";
+        this.id = id;
+        this.xPosition = spikeTrap.worldX;
+        this.yPosition = spikeTrap.worldY;
+    }
+
+    public EntityData(Rocket rocket, int id) {
+        this.entityType = "Rocket";
+        this.id = id;
+        this.xPosition = rocket.worldX;
+        this.yPosition = rocket.worldY;
+    }
 }
