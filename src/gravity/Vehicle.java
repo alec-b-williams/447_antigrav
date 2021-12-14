@@ -14,6 +14,7 @@ public class Vehicle extends GameObject {
     public boolean isKill;
     public float timer;
     public int lap;
+    public int powerupTypeHeld;
 
     public Vehicle(float x, float y, int _playerNumber) {
         super(x, y);
@@ -39,5 +40,6 @@ public class Vehicle extends GameObject {
         this.sprite.setCurrentFrame(data.animationFrame);
         this.timer = data.timer;
         this.lap = data.lap;
+        this.powerupTypeHeld = data.powerupType;
     }
 }

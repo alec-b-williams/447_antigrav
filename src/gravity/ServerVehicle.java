@@ -29,7 +29,7 @@ public class ServerVehicle extends GameObject {
     public int lap;
     public float timer;
     public boolean checkpoint;
-    public Powerup powerupHeld;
+    public int powerupTypeHeld;
 
     private static final float degPerSecond = 180;
 
@@ -55,7 +55,7 @@ public class ServerVehicle extends GameObject {
 
         setRotationFrame((float)speedAngle);
 
-        powerupHeld = null;
+        powerupTypeHeld = -1;
     }
 
     public void linearMovement(int dir, int delta, TiledMap map){
@@ -122,7 +122,7 @@ public class ServerVehicle extends GameObject {
             //bounce vehicle
             for (Vector collision : collisions) {
                 if (collision.length() != 0) {
-                    System.out.println("Collided with adjacent");
+                    //System.out.println("Collided with adjacent");
                     this.speed = this.speed.bounce((float)collision.getRotation()+90).scale(1f);
                     bounced = true;
                 }
@@ -133,7 +133,7 @@ public class ServerVehicle extends GameObject {
 
                 for (Vector collision : collisions) {
                     if (collision.length() != 0) {
-                        System.out.println("Collided with corner");
+                        //System.out.println("Collided with corner");
                         this.speed = this.speed.bounce((float)collision.getRotation()+90).scale(1f);
                     }
                 }
@@ -174,17 +174,13 @@ public class ServerVehicle extends GameObject {
         return collisions;
     }
 
-    /**
-     * Returns the id of the first Powerup the player is colliding with, or -1
-     * if the player isn't colliding with any Powerups.
-     */
-    public int gotPowerup(ConcurrentHashMap<Integer, GameObject> gameObjects) {
+    public ArrayList<Integer> getGameObjectCollisions(ConcurrentHashMap<Integer, GameObject> gameObjects) {
         Set<Integer> keys = gameObjects.keySet();
+        ArrayList<Integer> collidedObjectKeys = new ArrayList<>();
         for(Integer key: keys) {
-            boolean isPowerup = gameObjects.get(key) instanceof Powerup;
-            if(isPowerup && this.collides(gameObjects.get(key)) != null) return key;
+            if(this.collides(gameObjects.get(key)) != null) collidedObjectKeys.add(key);
         }
-        return -1;
+        return collidedObjectKeys;
     }
 
     private Entity newWall(int i, int j) {

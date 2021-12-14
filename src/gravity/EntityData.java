@@ -13,6 +13,7 @@ public class EntityData implements Serializable {
     public boolean isKill;
     public float timer;
     public int lap;
+    public int powerupType;
 
     public EntityData(String entityType, int id, float xPosition, float yPosition, double direction, float height, int animationFrame) {
         this.entityType = entityType;
@@ -35,6 +36,7 @@ public class EntityData implements Serializable {
         this.isKill = vehicle.isKill;
         this.lap = vehicle.lap;
         this.timer = vehicle.timer;
+        this.powerupType = vehicle.powerupTypeHeld;
     }
 
     public EntityData(Powerup power, int id) {
@@ -42,5 +44,20 @@ public class EntityData implements Serializable {
         this.id = id;
         this.xPosition = power.worldX;
         this.yPosition = power.worldY;
+        this.powerupType = power.type;
+    }
+
+    public EntityData(SpikeTrap spikeTrap, int id) {
+        this.entityType = "SpikeTrap";
+        this.id = id;
+        this.xPosition = spikeTrap.worldX;
+        this.yPosition = spikeTrap.worldY;
+    }
+
+    public EntityData(Rocket rocket, int id) {
+        this.entityType = "Rocket";
+        this.id = id;
+        this.xPosition = rocket.worldX;
+        this.yPosition = rocket.worldY;
     }
 }
