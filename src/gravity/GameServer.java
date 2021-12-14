@@ -28,7 +28,7 @@ public class GameServer {
         currentMap = new TiledMap("gravity/resource/track1.tmx", false);
         System.out.println("Game Server spinning up!");
         numPlayers = 0;
-        maxPlayers = 2;
+        maxPlayers = 1;
         handlers = new ArrayList<>();
         playerSockets = new ArrayList<>();
 
@@ -109,7 +109,9 @@ public class GameServer {
         }
 
         public void handleInputs(String input) throws IOException {
+
             int delta = dataIn.readInt();
+
 
             switch (input) {
                 case "W" -> player.linearMovement(1, delta, currentMap);
@@ -119,9 +121,12 @@ public class GameServer {
                 case "G" -> player.finishMovement(delta, currentMap);
             }
             updateGameObjects();
+
+
         }
         
         public void updateGameObjects() throws IOException {
+
             dataOut.writeUTF("I");
             dataOut.flush();
             // update player value in concurrent hashmap
@@ -143,6 +148,7 @@ public class GameServer {
                 dataOut.writeObject(data);
                 dataOut.flush();
             }
+
         }
 
         public void handlePowerups() throws IOException {

@@ -30,6 +30,7 @@ public class ServerVehicle extends GameObject {
     public float timer;
     public boolean checkpoint;
     public Powerup powerupHeld;
+    private float health;
 
     private static final float degPerSecond = 180;
 
@@ -48,6 +49,7 @@ public class ServerVehicle extends GameObject {
         this.lap = 1;
         this.timer = 0;
         this.checkpoint = false;
+        this.health = 100;
 
         Shape boundingCircle = new ConvexPolygon(12.0f/32.0f);
         this.addShape(boundingCircle);
@@ -102,6 +104,7 @@ public class ServerVehicle extends GameObject {
             checkpoint = false;
             lastTile = new Vector(newX, newY);
             lap++;
+            setHealth(getHealth() + 50);
             System.out.println("Completed lap " + (lap-1) + "! Time: " + timer);
         }
 
@@ -122,9 +125,10 @@ public class ServerVehicle extends GameObject {
             //bounce vehicle
             for (Vector collision : collisions) {
                 if (collision.length() != 0) {
-                    System.out.println("Collided with adjacent");
+                    Vector oldSpeed = this.speed;
                     this.speed = this.speed.bounce((float)collision.getRotation()+90).scale(1f);
                     bounced = true;
+                    damagePlayer(oldSpeed);
                 }
             }
 
@@ -133,8 +137,9 @@ public class ServerVehicle extends GameObject {
 
                 for (Vector collision : collisions) {
                     if (collision.length() != 0) {
-                        System.out.println("Collided with corner");
+                        Vector oldSpeed = this.speed;
                         this.speed = this.speed.bounce((float)collision.getRotation()+90).scale(1f);
+                        damagePlayer(oldSpeed);
                     }
                 }
             }
@@ -185,6 +190,13 @@ public class ServerVehicle extends GameObject {
             if(isPowerup && this.collides(gameObjects.get(key)) != null) return key;
         }
         return -1;
+    }
+
+    public void damagePlayer(Vector oldSpeed) {
+        float cross = this.speed.unit().cross(oldSpeed.unit());
+        cross = Math.abs(cross - 1);
+        System.out.println("collision cross: " + cross + ", len: " + this.speed.length());
+        setHealth(this.getHealth() - (this.speed.length() * cross * 20));
     }
 
     private Entity newWall(int i, int j) {
@@ -269,5 +281,18 @@ public class ServerVehicle extends GameObject {
 
     public Vector getSpeed(){
         return this.speed;
+    }
+
+    public float getHealth() {
+        return this.health;
+    }
+
+    public void setHealth(float _health) {
+        if (_health < 0)
+            health = 0;
+        else if (_health > 100)
+            health = 100;
+        else
+            health = _health;
     }
 }

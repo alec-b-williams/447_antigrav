@@ -14,12 +14,13 @@ public class Vehicle extends GameObject {
     public boolean isKill;
     public float timer;
     public int lap;
+    public float health;
 
     public Vehicle(float x, float y, int _playerNumber) {
         super(x, y);
 
         playerNumber = _playerNumber;
-        sprite = new Animation(ResourceManager.getSpriteSheet(GravGame.vehicleImages[_playerNumber], 64, 64),
+        sprite = new Animation(ResourceManager.getSpriteSheet(GravGame.vehicleImages[_playerNumber-1], 64, 64),
                 0, 0, 15, 0, true, 160, false);
 
         this.addAnimation(sprite);
@@ -39,5 +40,6 @@ public class Vehicle extends GameObject {
         this.sprite.setCurrentFrame(data.animationFrame);
         this.timer = data.timer;
         this.lap = data.lap;
+        this.health = data.health;
     }
 }

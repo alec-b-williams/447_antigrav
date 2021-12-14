@@ -47,7 +47,9 @@ public class GravGame extends StateBasedGame {
 	public static final int _SCREENHEIGHT = 1024;
 	public static final int _TILEWIDTH = 64;
 	public static final int _TILEHEIGHT = 32;
-	
+	public static final int _HEALTHSIZE = 116;
+
+	public static final String POWERUP_IMG_RSC = "gravity/resource/powerup_box.png";
 	public static final String ENERGY_IMG_RSC = "gravity/resource/energy.png";
 	public static final String ENERGY_CONTAINER_IMG_RSC = "gravity/resource/energy_container.png";
 	public static final String POWERUP_CONTAINER_IMG_RSC = "gravity/resource/powerup_container.png";
@@ -62,7 +64,6 @@ public class GravGame extends StateBasedGame {
 	public static final String LEVEL_1_BG_IMG_RSC = "gravity/resource/level1_bg.jpg";
 	public static final String[] levelBGs = {LEVEL_1_BG_IMG_RSC};
 	public static final Vector[] BGoffsets = {new Vector(1250, 500)};
-	public static final String POWERUP_IMG_RSC = "gravity/resource/powerup_box.png";
 
 	public final int ScreenWidth;
 	public final int ScreenHeight;

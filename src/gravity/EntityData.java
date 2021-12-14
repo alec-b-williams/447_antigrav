@@ -13,6 +13,7 @@ public class EntityData implements Serializable {
     public boolean isKill;
     public float timer;
     public int lap;
+    public float health;
 
     public EntityData(String entityType, int id, float xPosition, float yPosition, double direction, float height, int animationFrame) {
         this.entityType = entityType;
@@ -35,6 +36,7 @@ public class EntityData implements Serializable {
         this.isKill = vehicle.isKill;
         this.lap = vehicle.lap;
         this.timer = vehicle.timer;
+        this.health = vehicle.getHealth();
     }
 
     public EntityData(Powerup power, int id) {
