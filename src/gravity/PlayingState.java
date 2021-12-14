@@ -116,6 +116,11 @@ class PlayingState extends BasicGameState {
 				gg.out.writeInt(delta);
 				gg.out.flush();
 			}
+			if (input.isKeyDown(Input.KEY_LSHIFT)) {
+				gg.out.writeUTF("^");
+				gg.out.writeInt(delta);
+				gg.out.flush();
+			}
 		} catch(IOException e) {
 			e. printStackTrace();
 		}
@@ -147,10 +152,12 @@ class PlayingState extends BasicGameState {
 				object.setY((GravGame._SCREENHEIGHT / 2.0f) +
 						(((object.worldX + object.worldY) - (player.worldX + player.worldY))) * GravGame._TILEHEIGHT / 2.0f);
 			}
-			if (object instanceof Vehicle && kill && ((Vehicle) gg.gameObjects.get(key)).isKill) {
-				object.render(g);
+			if (kill) {
+				if (object instanceof Vehicle && ((Vehicle) gg.gameObjects.get(key)).height < 0)
+					object.render(g);
 			} else {
-				object.render(g);
+				if (object instanceof Vehicle && ((Vehicle) gg.gameObjects.get(key)).height >= 0)
+					object.render(g);
 			}
 		}
 	}

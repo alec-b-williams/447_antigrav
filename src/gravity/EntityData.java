@@ -9,7 +9,6 @@ public class EntityData implements Serializable {
     public float yPosition;
     public double direction;
     public float height;
-    public int animationFrame;
     public boolean isKill;
     public float timer;
     public int lap;
@@ -23,7 +22,6 @@ public class EntityData implements Serializable {
         this.yPosition = yPosition;
         this.direction = direction;
         this.height = height;
-        this.animationFrame = animationFrame;
     }
 
     public EntityData(ServerVehicle vehicle, int id) {
@@ -33,7 +31,6 @@ public class EntityData implements Serializable {
         this.yPosition = vehicle.worldY;
         this.direction = vehicle.speedAngle;
         this.height = vehicle.height;
-        this.animationFrame = vehicle.frame;
         this.isKill = vehicle.isKill;
         this.lap = vehicle.lap;
         this.timer = vehicle.timer;

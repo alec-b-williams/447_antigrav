@@ -21,9 +21,9 @@ public class ServerVehicle extends GameObject {
     public double speedAngle;
     public float height;
     public float verticalMomentum;
-    public int frame;
     public boolean isKill;
     private Vector lastTile;
+    private double lastHeading;
     public float deathCooldown;
     public float boostCooldown;
     public int lap;
@@ -54,8 +54,6 @@ public class ServerVehicle extends GameObject {
         Shape boundingCircle = new ConvexPolygon(12.0f/32.0f);
         this.addShape(boundingCircle);
         this.setCoarseGrainedRadius(1);
-
-        setRotationFrame((float)speedAngle);
 
         powerupTypeHeld = -1;
     }
@@ -97,12 +95,14 @@ public class ServerVehicle extends GameObject {
         if (tileID == GravGame.CHECKPOINT) {
             checkpoint = true;
             lastTile = new Vector(newX, newY);
+            lastHeading = speedAngle;
             System.out.println("Checkpoint! lap " + (lap));
         }
 
         if (checkpoint && tileID == GravGame.FINISH) {
             checkpoint = false;
             lastTile = new Vector(newX, newY);
+            lastHeading = speedAngle;
             lap++;
             setHealth(getHealth() + 50);
             System.out.println("Completed lap " + (lap-1) + "! Time: " + timer);
@@ -114,7 +114,6 @@ public class ServerVehicle extends GameObject {
         boostCooldown -= delta;
         deathCooldown -= delta;
         timer += delta;
-        setRotationFrame((float)speedAngle);
     }
 
     private void calcCollision(int newX, int newY, TiledMap map) {
@@ -226,6 +225,7 @@ public class ServerVehicle extends GameObject {
                 isKill = true;
             } else if (isKill) {
                 if (height < -8) {
+                    setHealth(getHealth() - 10);
                     resetPlayer();
                 }
             } else {
@@ -240,23 +240,30 @@ public class ServerVehicle extends GameObject {
         this.setY(lastTile.getY());
         worldX = lastTile.getX();
         worldY = lastTile.getY();
+        speedAngle = lastHeading;
         this.speed = new Vector(0,0);
         this.height = 0;
         this.verticalMomentum = 0;
         isKill = false;
         this.boostCooldown = 0;
-        this.deathCooldown = 2000;
+        if (health <= 0) {
+            this.deathCooldown = 5000;
+            this.health = 100;
+        } else {
+            this.deathCooldown = 2000;
+        }
+    }
+
+    public void boost(int delta) {
+        if (speed.length() != 0 && boostCooldown < 0) {
+            setHealth(getHealth() - ((delta/1000.0f) * 33) );
+            boostCooldown = delta;
+        }
     }
 
     public void turn(int dir, int delta){
         float newAngle = (float)(this.speedAngle + (degPerSecond * (delta/1000.0f) * dir));
         speedAngle = Math.floorMod((int)newAngle, 360);
-        setRotationFrame(newAngle);
-    }
-
-    private void setRotationFrame(float angle) {
-        int num =  (int)(angle) + 100;
-        frame = Math.floorMod(((int)(num / 22.5) + 6), 16);
     }
 
     private boolean isSlow(int tileID) {
@@ -290,5 +297,8 @@ public class ServerVehicle extends GameObject {
             health = 100;
         else
             health = _health;
+
+        if (health == 0)
+            resetPlayer();
     }
 }
