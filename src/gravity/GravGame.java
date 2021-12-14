@@ -42,6 +42,7 @@ public class GravGame extends StateBasedGame {
 	public static final int BOOST_W = 10;
 	public static final int FINISH = 11;
 	public static final int CHECKPOINT = 12;
+	public static final int PLAYER_SPAWN = 13;
 
 	public static final int _SCREENWIDTH = 1280;
 	public static final int _SCREENHEIGHT = 1024;
@@ -50,6 +51,9 @@ public class GravGame extends StateBasedGame {
 	public static final int _HEALTHSIZE = 116;
 
 	public static final String POWERUP_IMG_RSC = "gravity/resource/powerup_box.png";
+	public static final String BOOST_IMG_RSC = "gravity/resource/boost.png";
+	public static final String SPIKETRAP_IMG_RSC = "gravity/resource/spikeTrap.png";
+	public static final String ROCKET_IMG_RSC = "gravity/resource/rocket.png";
 	public static final String ENERGY_IMG_RSC = "gravity/resource/energy.png";
 	public static final String ENERGY_CONTAINER_IMG_RSC = "gravity/resource/energy_container.png";
 	public static final String POWERUP_CONTAINER_IMG_RSC = "gravity/resource/powerup_container.png";
@@ -121,6 +125,9 @@ public class GravGame extends StateBasedGame {
 		ResourceManager.loadImage(PLAYER_4_VEHICLE_ANIM);
 		ResourceManager.loadImage(LEVEL_1_BG_IMG_RSC);
 		ResourceManager.loadImage(POWERUP_IMG_RSC);
+		ResourceManager.loadImage(BOOST_IMG_RSC);
+		ResourceManager.loadImage(SPIKETRAP_IMG_RSC);
+		ResourceManager.loadImage(ROCKET_IMG_RSC);
 	}
 
 	public void startServerHandler() {
@@ -163,8 +170,8 @@ public class GravGame extends StateBasedGame {
 			try {
 				while(true) {
 					String command = in.readUTF();
-					switch (command) {
-						case "I" -> updateGameObjects();
+					if ("I".equals(command)) {
+						updateGameObjects();
 						//case "R" -> removeGameObject();
 					}
 				}
@@ -179,22 +186,38 @@ public class GravGame extends StateBasedGame {
             for (int i = 0; i < entityCount; i++) {
                 EntityData entityData = (EntityData) in.readObject();
 				serverKeys.add(entityData.id);
-                if (entityData.entityType.equals("Player")) {
-                    if (gameObjects.containsKey(entityData.id)) {
-                        ((Vehicle) gameObjects.get(entityData.id)).updateData(entityData);
-                    } else {
-                        gameObjects.put(entityData.id, new Vehicle(entityData.xPosition,
-                                entityData.yPosition, entityData.id));
-                    }
-                } else if (entityData.entityType.equals("Powerup")) {
-                    if (gameObjects.containsKey(entityData.id)) {
-                        ((Powerup) gameObjects.get(entityData.id)).updateData(entityData);
-                    } else {
-                        Powerup powerup = new Powerup(entityData.xPosition, entityData.yPosition, entityData.id);
-                        powerup.addImage(ResourceManager.getImage(POWERUP_IMG_RSC));
-                        gameObjects.put(entityData.id, powerup);
-                    }
-                }
+				if ("Player".equals(entityData.entityType)) {
+					if (gameObjects.containsKey(entityData.id)) {
+						((Vehicle) gameObjects.get(entityData.id)).updateData(entityData);
+					} else {
+						gameObjects.put(entityData.id, new Vehicle(entityData.xPosition,
+								entityData.yPosition, entityData.id));
+					}
+				} else if ("Powerup".equals(entityData.entityType)) {
+					if (gameObjects.containsKey(entityData.id)) {
+						((Powerup) gameObjects.get(entityData.id)).updateData(entityData);
+					} else {
+						Powerup powerup = new Powerup(entityData.xPosition, entityData.yPosition, entityData.id, 0);
+						powerup.addImage(ResourceManager.getImage(POWERUP_IMG_RSC));
+						gameObjects.put(entityData.id, powerup);
+					}
+				} else if ("SpikeTrap".equals(entityData.entityType)) {
+					if (gameObjects.containsKey(entityData.id)) {
+						((SpikeTrap) gameObjects.get(entityData.id)).updateData(entityData);
+					} else {
+						SpikeTrap spikeTrap = new SpikeTrap(entityData.xPosition, entityData.yPosition, entityData.id);
+						spikeTrap.addImage(ResourceManager.getImage(SPIKETRAP_IMG_RSC));
+						gameObjects.put(entityData.id, spikeTrap);
+					}
+				} else if ("Rocket".equals(entityData.entityType)) {
+					if (gameObjects.containsKey(entityData.id)) {
+						((Rocket) gameObjects.get(entityData.id)).updateData(entityData);
+					} else {
+						Rocket rocket = new Rocket(entityData.xPosition, entityData.yPosition, entityData.id);
+						rocket.addImage(ResourceManager.getImage(ROCKET_IMG_RSC));
+						gameObjects.put(entityData.id, rocket);
+					}
+				}
             }
 			Set<Integer> keys = gameObjects.keySet();
 			for(Integer key: keys) {

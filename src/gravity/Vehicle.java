@@ -15,6 +15,7 @@ public class Vehicle extends GameObject {
     public float timer;
     public int lap;
     public float health;
+    public int powerupTypeHeld;
 
     public Vehicle(float x, float y, int _playerNumber) {
         super(x, y);
@@ -41,5 +42,6 @@ public class Vehicle extends GameObject {
         this.timer = data.timer;
         this.lap = data.lap;
         this.health = data.health;
+        this.powerupTypeHeld = data.powerupType;
     }
 }
