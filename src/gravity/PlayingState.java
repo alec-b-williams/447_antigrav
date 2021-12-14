@@ -95,7 +95,7 @@ class PlayingState extends BasicGameState {
 				gg.out.flush();
 				//String command = gg.in.readUTF();
 				//if ("I".equals(command)) {
-					gg.updateGameObjects();
+					//gg.updateGameObjects();
 					//case "R" -> removeGameObject();
 				//}
 			}
@@ -105,7 +105,7 @@ class PlayingState extends BasicGameState {
 				gg.out.flush();
 				//String command = gg.in.readUTF();
 				//if ("I".equals(command)) {
-					gg.updateGameObjects();
+					//gg.updateGameObjects();
 					//case "R" -> removeGameObject();
 				//}
 			}
@@ -115,7 +115,7 @@ class PlayingState extends BasicGameState {
 				gg.out.flush();
 				//String command = gg.in.readUTF();
 				//if ("I".equals(command)) {
-					gg.updateGameObjects();
+					//gg.updateGameObjects();
 					//case "R" -> removeGameObject();
 				//}
 			}
@@ -125,7 +125,7 @@ class PlayingState extends BasicGameState {
 				gg.out.flush();
 				//String command = gg.in.readUTF();
 				//if ("I".equals(command)) {
-					gg.updateGameObjects();
+					//gg.updateGameObjects();
 					//case "R" -> removeGameObject();
 				//}
 			}
@@ -135,7 +135,7 @@ class PlayingState extends BasicGameState {
 				gg.out.flush();
 				//String command = gg.in.readUTF();
 				//if ("I".equals(command)) {
-					gg.updateGameObjects();
+					//gg.updateGameObjects();
 					//case "R" -> removeGameObject();
 				//}
 			}
@@ -145,12 +145,12 @@ class PlayingState extends BasicGameState {
 				gg.out.flush();
 				//String command = gg.in.readUTF();
 				//if ("I".equals(command)) {
-					gg.updateGameObjects();
+					//gg.updateGameObjects();
 					//case "R" -> removeGameObject();
 				//}
 			}
-		} catch(IOException | ClassNotFoundException e) {
-			e. printStackTrace();
+		} catch(IOException e) {
+			e.printStackTrace();
 		}
 		
 		if (input.isKeyDown(Input.KEY_LBRACKET))

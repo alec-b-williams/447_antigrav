@@ -27,7 +27,8 @@ public class EntityData implements Serializable {
     }
 
     public EntityData(ServerVehicle vehicle, int id) {
-        this.entityType = "Player";
+        if(!vehicle.destroy) this.entityType = "Player";
+        else this.entityType = "null";
         this.id = id;
         this.xPosition = vehicle.worldX;
         this.yPosition = vehicle.worldY;
@@ -42,7 +43,8 @@ public class EntityData implements Serializable {
     }
 
     public EntityData(Powerup power, int id) {
-        this.entityType = "Powerup";
+        if(!power.destroy) this.entityType = "Powerup";
+        else this.entityType = "null";
         this.id = id;
         this.xPosition = power.worldX;
         this.yPosition = power.worldY;
@@ -50,14 +52,16 @@ public class EntityData implements Serializable {
     }
 
     public EntityData(SpikeTrap spikeTrap, int id) {
-        this.entityType = "SpikeTrap";
+        if(!spikeTrap.destroy) this.entityType = "SpikeTrap";
+        else this.entityType = "null";
         this.id = id;
         this.xPosition = spikeTrap.worldX;
         this.yPosition = spikeTrap.worldY;
     }
 
     public EntityData(Rocket rocket, int id) {
-        this.entityType = "Rocket";
+        if(!rocket.destroy) this.entityType = "Rocket";
+        else this.entityType = "null";
         this.id = id;
         this.xPosition = rocket.worldX;
         this.yPosition = rocket.worldY;

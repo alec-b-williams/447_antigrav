@@ -38,7 +38,7 @@ public class GameServer {
 
         System.out.println("Game Server spinning up!");
         numPlayers = 0;
-        maxPlayers = 1;
+        maxPlayers = 4;
         handlers = new ArrayList<>();
         playerSockets = new ArrayList<>();
 
@@ -124,12 +124,12 @@ public class GameServer {
                     }
                 }
             } catch(IOException e){
-                System.err.println("ClientHandler IOException: " + e);
+                e.printStackTrace();
             }
+            System.out.println("Player " + playerId + "reached end");
         }
 
         public void handleInputs(String input) throws IOException {
-          
             int delta = dataIn.readInt();
 
             if ("W".equals(input)) player.linearMovement(1, delta, currentMap);
@@ -147,14 +147,10 @@ public class GameServer {
         }
         
         public void updateGameObjects() throws IOException {
-            //dataOut.writeUTF("I");
-            //dataOut.flush();
-            // update player value in concurrent hashmap
-            //gameObjects.put(playerId, player);
             handleGameObjectCollisions();
             // write number of players to client
-            dataOut.writeInt(gameObjects.size());
-            dataOut.flush();
+            //dataOut.writeInt(gameObjects.size());
+            //dataOut.flush();
             // write all player data to client
             Set<Integer> keys = gameObjects.keySet();
             for(Integer key : keys) {
@@ -171,6 +167,7 @@ public class GameServer {
                 } else continue;
                 dataOut.writeObject(data);
                 dataOut.flush();
+                if(object.destroy) gameObjects.remove(key);
             }
         }
 
@@ -180,7 +177,7 @@ public class GameServer {
                 GameObject object = gameObjects.get(key);
                 if(object instanceof Rocket) {
                     ((Rocket) object).move(delta, currentMap);
-                    if(((Rocket) object).bounces <= 0) gameObjects.remove(key);
+                    if(((Rocket) object).bounces <= 0) object.destroy = true;
                 }
             }
         }
@@ -202,20 +199,20 @@ public class GameServer {
             Dispenser dispenser = dispensers.get(powerup.dispenserId);
             dispenser.timer = Dispenser.powerupSpawnDelay;
             dispenser.hasPowerup = false;
-            gameObjects.remove(id);
+            powerup.destroy = true;
         }
 
         public void handleSpikeTrap(int id) {
             SpikeTrap spikeTrap = (SpikeTrap) gameObjects.get(id);
             if(spikeTrap.placedById != playerId) {
-                gameObjects.remove(id);
+                spikeTrap.destroy = true;
             }
         }
 
         public void handleRocket(int id) {
             Rocket rocket = (Rocket) gameObjects.get(id);
             if(rocket.placedById != playerId) {
-                gameObjects.remove(id);
+                rocket.destroy = true;
             }
         }
 
@@ -232,7 +229,6 @@ public class GameServer {
                         gameObjects.put(id, new Powerup(x, y, id, key));
                         dispenser.hasPowerup = true;
                         dispenser.canDispense = false;
-
                     }
                 }
             }
