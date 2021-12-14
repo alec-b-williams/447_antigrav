@@ -1,6 +1,7 @@
 package gravity;
 
 import jig.Entity;
+import jig.Vector;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.tiled.TiledMap;
 
@@ -17,25 +18,53 @@ public class GameServer {
     private int maxPlayers;
     private ArrayList<Socket> playerSockets;
     private ArrayList<ClientHandler> handlers;
+
     private volatile TiledMap currentMap;
+    private int mapWidth;
+    private int mapHeight;
+    private ConcurrentHashMap<Integer, Dispenser> dispensers;
+    private ArrayList<Vector> playerSpawnLocations;
 
     private ConcurrentHashMap<Integer, GameObject> gameObjects = new ConcurrentHashMap<>();
-    private int entityId;
+    private static volatile int entityId;
 
     public GameServer() throws SlickException {
 
         Entity.setCoarseGrainedCollisionBoundary(Entity.CIRCLE);
         currentMap = new TiledMap("gravity/resource/track1.tmx", false);
+        mapWidth = currentMap.getWidth();
+        mapHeight = currentMap.getHeight();
+        dispensers = new ConcurrentHashMap<>();
+        playerSpawnLocations = new ArrayList<>();
+
+
+
         System.out.println("Game Server spinning up!");
         numPlayers = 0;
-        maxPlayers = 2;
+        maxPlayers = 1;
         handlers = new ArrayList<>();
         playerSockets = new ArrayList<>();
 
         entityId = maxPlayers + 1;
 
-        Powerup powerup = new Powerup(7f, 5f, entityId++);
-        gameObjects.put(powerup.id, powerup);
+        int dispenserId = 0;
+        for(int x = 0; x < mapWidth; x++) {
+            for(int y = 0; y < mapHeight; y++) {
+                if(currentMap.getTileId(x, y, 0) == GravGame.DISPENSER) {
+                    Vector location = new Vector(x, y);
+                    gameObjects.put(entityId, new Powerup(x, y, entityId, dispenserId));
+                    dispensers.put(dispenserId, new Dispenser(location));
+                    entityId++;
+                    dispenserId++;
+                }
+                else if(currentMap.getTileId(x, y, 0) == GravGame.PLAYER_SPAWN) {
+                    playerSpawnLocations.add(new Vector(x, y));
+                }
+            }
+        }
+
+        //Powerup powerup = new Powerup(7f, 5f, entityId++);
+        //gameObjects.put(powerup.id, powerup);
 
         try {
             this.server = new ServerSocket(9158);
@@ -99,7 +128,6 @@ public class GameServer {
                     switch(command) {
                         case "W", "S", "A", "D", "G" -> {
                             handleInputs(command);
-                            handlePowerups();
                         }
                     }
                 }
@@ -119,6 +147,7 @@ public class GameServer {
                 case "G" -> player.finishMovement(delta, currentMap);
             }
             updateGameObjects();
+            updateDispensers(delta);
         }
         
         public void updateGameObjects() throws IOException {
@@ -148,8 +177,28 @@ public class GameServer {
         public void handlePowerups() throws IOException {
             int powerupId = player.gotPowerup(gameObjects);
             if(powerupId != -1) {
-                player.powerupHeld = (Powerup) gameObjects.get(powerupId);
+                Powerup powerup = (Powerup) gameObjects.get(powerupId);
+                Dispenser dispenser = dispensers.get(powerup.dispenserId);
+                dispenser.timer = Dispenser.powerupSpawnDelay;
+                dispenser.hasPowerup = false;
+                player.powerupHeld = powerup;
                 gameObjects.remove(powerupId);
+            }
+        }
+
+        public void updateDispensers(int delta) {
+            Set<Integer> keys = dispensers.keySet();
+            for(Integer key: keys) {
+                Dispenser dispenser = dispensers.get(key);
+                dispenser.decreaseTimer(delta);
+                if(dispenser.canDispense) {
+                    float x = dispenser.position.getX();
+                    float y = dispenser.position.getY();
+                    gameObjects.put(entityId, new Powerup(x, y, entityId, key));
+                    dispenser.hasPowerup = true;
+                    dispenser.canDispense = false;
+                    entityId++;
+                }
             }
         }
 

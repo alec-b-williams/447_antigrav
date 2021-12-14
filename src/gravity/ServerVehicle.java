@@ -122,7 +122,7 @@ public class ServerVehicle extends GameObject {
             //bounce vehicle
             for (Vector collision : collisions) {
                 if (collision.length() != 0) {
-                    System.out.println("Collided with adjacent");
+                    //System.out.println("Collided with adjacent");
                     this.speed = this.speed.bounce((float)collision.getRotation()+90).scale(1f);
                     bounced = true;
                 }
@@ -133,7 +133,7 @@ public class ServerVehicle extends GameObject {
 
                 for (Vector collision : collisions) {
                     if (collision.length() != 0) {
-                        System.out.println("Collided with corner");
+                        //System.out.println("Collided with corner");
                         this.speed = this.speed.bounce((float)collision.getRotation()+90).scale(1f);
                     }
                 }

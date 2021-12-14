@@ -42,6 +42,7 @@ public class GravGame extends StateBasedGame {
 	public static final int BOOST_W = 10;
 	public static final int FINISH = 11;
 	public static final int CHECKPOINT = 12;
+	public static final int PLAYER_SPAWN = 13;
 
 	public static final int _SCREENWIDTH = 1280;
 	public static final int _SCREENHEIGHT = 1024;
@@ -189,7 +190,7 @@ public class GravGame extends StateBasedGame {
                     if (gameObjects.containsKey(entityData.id)) {
                         ((Powerup) gameObjects.get(entityData.id)).updateData(entityData);
                     } else {
-                        Powerup powerup = new Powerup(entityData.xPosition, entityData.yPosition, entityData.id);
+                        Powerup powerup = new Powerup(entityData.xPosition, entityData.yPosition, entityData.id, 0);
                         powerup.addImage(ResourceManager.getImage(POWERUP_IMG_RSC));
                         gameObjects.put(entityData.id, powerup);
                     }
