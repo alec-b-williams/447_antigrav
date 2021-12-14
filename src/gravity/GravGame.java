@@ -112,7 +112,7 @@ public class GravGame extends StateBasedGame {
 		//ResourceManager.loadSound(BANG_EXPLOSIONSND_RSC);
 
 		// preload all the resources to avoid warnings & minimize latency...
-		// ResourceManager.setFilterMethod(ResourceManager.FILTER_LINEAR);
+		ResourceManager.setFilterMethod(ResourceManager.FILTER_LINEAR);
 
 		ResourceManager.loadImage(ENERGY_IMG_RSC);
 		ResourceManager.loadImage(ENERGY_CONTAINER_IMG_RSC);

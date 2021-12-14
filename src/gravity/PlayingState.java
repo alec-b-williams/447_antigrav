@@ -19,14 +19,14 @@ import org.newdawn.slick.tiled.TiledMap;
 class PlayingState extends BasicGameState {
 	private GravGame gg;
 	private Input input;
-	private Animation currLap = newNum();
-	private Animation lapLimit = newNum();
-	private Animation minuteTens = newNum();
-	private Animation minuteOnes = newNum();
-	private Animation secondTens = newNum();
-	private Animation secondOnes = newNum();
-	private Animation milliTens = newNum();
-	private Animation milliOnes = newNum();
+	private Animation currLap;
+	private Animation lapLimit;
+	private Animation minuteTens;
+	private Animation minuteOnes;
+	private Animation secondTens;
+	private Animation secondOnes;
+	private Animation milliTens;
+	private Animation milliOnes;
 
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
@@ -44,6 +44,15 @@ class PlayingState extends BasicGameState {
 		gg.cameraXPos = 0;
 		gg.cameraYPos = 0;
 		gg.gameScale = 1;
+
+		currLap = newNum();
+		lapLimit = newNum();
+		minuteTens = newNum();
+		minuteOnes = newNum();
+		secondTens = newNum();
+		secondOnes = newNum();
+		milliTens = newNum();
+		milliOnes = newNum();
 
 		lapLimit.setCurrentFrame(3);
 	}
