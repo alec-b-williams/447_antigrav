@@ -41,7 +41,7 @@ public class GameServer {
 
         System.out.println("Game Server spinning up!");
         numPlayers = 0;
-        maxPlayers = 1;
+        maxPlayers = 2;
         handlers = new ArrayList<>();
         playerSockets = new ArrayList<>();
 
@@ -157,6 +157,7 @@ public class GameServer {
             // update player value in concurrent hashmap
             //gameObjects.put(playerId, player);
             handlePowerups();
+            handleSpikes();
             // write number of players to client
             dataOut.writeInt(gameObjects.size());
             dataOut.flush();
@@ -169,6 +170,8 @@ public class GameServer {
                     data = new EntityData((ServerVehicle) object, key);
                 } else if (object instanceof Powerup) {
                     data = new EntityData((Powerup) object, key);
+                } else if (object instanceof SpikeTrap) {
+                    data = new EntityData((SpikeTrap) object, key);
                 } else continue;
                 dataOut.writeObject(data);
                 dataOut.flush();
@@ -185,6 +188,16 @@ public class GameServer {
                 dispenser.timer = Dispenser.powerupSpawnDelay;
                 dispenser.hasPowerup = false;
                 gameObjects.remove(powerupId);
+            }
+        }
+
+        public void handleSpikes() {
+            int spikeId = player.touchedSpikes(gameObjects);
+            if(spikeId != -1) {
+                SpikeTrap spikeTrap = (SpikeTrap) gameObjects.get(spikeId);
+                if(spikeTrap.placedById != playerId) {
+                    gameObjects.remove(spikeId);
+                }
             }
         }
 
@@ -207,7 +220,12 @@ public class GameServer {
         public void usePowerUp() {
             switch (player.powerupTypeHeld) {
                 case Powerup.NOS -> player.boostCooldown = 1000;
-                case Powerup.SPIKE_TRAP -> {}
+                case Powerup.SPIKE_TRAP -> {
+                    SpikeTrap spikeTrap = new SpikeTrap(player.worldX, player.worldY, entityId);
+                    spikeTrap.placedById = playerId;
+                    gameObjects.put(entityId, spikeTrap);
+                    entityId++;
+                }
                 case Powerup.ROCKET -> {}
             }
             player.powerupTypeHeld = Powerup.NONE;

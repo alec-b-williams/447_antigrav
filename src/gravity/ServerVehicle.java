@@ -187,6 +187,15 @@ public class ServerVehicle extends GameObject {
         return -1;
     }
 
+    public int touchedSpikes(ConcurrentHashMap<Integer, GameObject> gameObjects) {
+        Set<Integer> keys = gameObjects.keySet();
+        for(Integer key: keys) {
+            boolean isSpikeTrap = gameObjects.get(key) instanceof SpikeTrap;
+            if(isSpikeTrap && this.collides(gameObjects.get(key)) != null) return key;
+        }
+        return -1;
+    }
+
     private Entity newWall(int i, int j) {
         Entity wall = new Entity(i, j);
         wall.addShape(new ConvexPolygon(1, 1.0f));

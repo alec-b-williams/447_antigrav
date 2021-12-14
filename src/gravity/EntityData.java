@@ -46,4 +46,11 @@ public class EntityData implements Serializable {
         this.yPosition = power.worldY;
         this.powerupType = power.type;
     }
+
+    public EntityData(SpikeTrap spikeTrap, int id) {
+        this.entityType = "SpikeTrap";
+        this.id = id;
+        this.xPosition = spikeTrap.worldX;
+        this.yPosition = spikeTrap.worldY;
+    }
 }
