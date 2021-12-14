@@ -133,6 +133,7 @@ public class GameServer {
         }
 
         public void handleInputs(String input) throws IOException {
+          
             int delta = dataIn.readInt();
 
             if ("W".equals(input)) player.linearMovement(1, delta, currentMap);
@@ -148,6 +149,7 @@ public class GameServer {
         }
         
         public void updateGameObjects() throws IOException {
+
             dataOut.writeUTF("I");
             dataOut.flush();
             // update player value in concurrent hashmap
@@ -173,6 +175,7 @@ public class GameServer {
                 dataOut.writeObject(data);
                 dataOut.flush();
             }
+
         }
 
         public void updateRockets(int delta) {

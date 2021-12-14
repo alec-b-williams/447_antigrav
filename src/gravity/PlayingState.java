@@ -60,7 +60,7 @@ class PlayingState extends BasicGameState {
 
 		g.scale(gg.gameScale, gg.gameScale);
 
-		renderEntities(player,g, true);
+		renderEntities(player, g, true);
 
 		gg.map.render(((GravGame._SCREENWIDTH/2) - GravGame._TILEWIDTH/2)
 							+ (int)((player.worldX - player.worldY) * GravGame._TILEWIDTH/2.0f *-1),
@@ -154,8 +154,15 @@ class PlayingState extends BasicGameState {
 			g.drawString("Player Rotation: " + df.format((float)player.speedAngle), 10, 50);
 		}
 
-		//TODO: shrink this image based on player health
-		g.drawImage(ResourceManager.getImage(GravGame.ENERGY_IMG_RSC), 100, 16);
+		g.drawImage(ResourceManager.getImage(GravGame.ENERGY_IMG_RSC),
+				100,
+				16 + (116 - (player.health * (116/100.0f))),
+				100+116,
+				16+116,
+				0,
+				0 + (116 - (player.health * (116/100.0f))),
+				116,
+				116);
 		g.drawImage(ResourceManager.getImage(GravGame.ENERGY_CONTAINER_IMG_RSC), 94, 10);
 
 		g.drawImage(ResourceManager.getImage(GravGame.POWERUP_CONTAINER_IMG_RSC), (GravGame._SCREENWIDTH/2.0f) - 64, 10);
