@@ -103,6 +103,11 @@ class PlayingState extends BasicGameState {
 				gg.out.writeInt(delta);
 				gg.out.flush();
 			}
+			if(input.isKeyDown(Input.KEY_SPACE)) {
+				gg.out.writeUTF(" ");
+				gg.out.writeInt(delta);
+				gg.out.flush();
+			}
 		} catch(IOException e) {
 			e. printStackTrace();
 		}
@@ -148,6 +153,7 @@ class PlayingState extends BasicGameState {
 		if (player.getDebug()){
 			g.drawString("Player Pos: " + df.format(player.worldX) + ", " + df.format(player.worldY), 10, 30);
 			g.drawString("Player Rotation: " + df.format((float)player.speedAngle), 10, 50);
+			g.drawString("Player Powerup: " + player.powerupTypeHeld, 10, 230); //TODO display this as an icon
 		}
 
 		//TODO: shrink this image based on player health

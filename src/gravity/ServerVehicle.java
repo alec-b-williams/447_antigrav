@@ -29,7 +29,7 @@ public class ServerVehicle extends GameObject {
     public int lap;
     public float timer;
     public boolean checkpoint;
-    public Powerup powerupHeld;
+    public int powerupTypeHeld;
 
     private static final float degPerSecond = 180;
 
@@ -55,7 +55,7 @@ public class ServerVehicle extends GameObject {
 
         setRotationFrame((float)speedAngle);
 
-        powerupHeld = null;
+        powerupTypeHeld = -1;
     }
 
     public void linearMovement(int dir, int delta, TiledMap map){

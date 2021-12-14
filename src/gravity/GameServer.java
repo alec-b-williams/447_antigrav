@@ -126,7 +126,7 @@ public class GameServer {
                 while(true){
                     String command = dataIn.readUTF();
                     switch(command) {
-                        case "W", "S", "A", "D", "G" -> {
+                        case "W", "S", "A", "D", "G", " " -> {
                             handleInputs(command);
                         }
                     }
@@ -145,6 +145,7 @@ public class GameServer {
                 case "A" -> player.turn(-1, delta);
                 case "D" -> player.turn(1, delta);
                 case "G" -> player.finishMovement(delta, currentMap);
+                case " " -> usePowerUp();
             }
             updateGameObjects();
             updateDispensers(delta);
@@ -154,7 +155,7 @@ public class GameServer {
             dataOut.writeUTF("I");
             dataOut.flush();
             // update player value in concurrent hashmap
-            gameObjects.put(playerId, player);
+            //gameObjects.put(playerId, player);
             handlePowerups();
             // write number of players to client
             dataOut.writeInt(gameObjects.size());
@@ -174,14 +175,15 @@ public class GameServer {
             }
         }
 
-        public void handlePowerups() throws IOException {
+        public void handlePowerups() {
+            if(player.powerupTypeHeld != Powerup.NONE) return;
             int powerupId = player.gotPowerup(gameObjects);
             if(powerupId != -1) {
                 Powerup powerup = (Powerup) gameObjects.get(powerupId);
+                player.powerupTypeHeld = powerup.type;
                 Dispenser dispenser = dispensers.get(powerup.dispenserId);
                 dispenser.timer = Dispenser.powerupSpawnDelay;
                 dispenser.hasPowerup = false;
-                player.powerupHeld = powerup;
                 gameObjects.remove(powerupId);
             }
         }
@@ -200,6 +202,15 @@ public class GameServer {
                     entityId++;
                 }
             }
+        }
+
+        public void usePowerUp() {
+            switch (player.powerupTypeHeld) {
+                case Powerup.NOS -> player.boostCooldown = 1000;
+                case Powerup.SPIKE_TRAP -> {}
+                case Powerup.ROCKET -> {}
+            }
+            player.powerupTypeHeld = Powerup.NONE;
         }
 
         public void sendStartMsg(){
