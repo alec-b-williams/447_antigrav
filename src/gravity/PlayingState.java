@@ -187,11 +187,12 @@ class PlayingState extends BasicGameState {
 							(((object.worldX + object.worldY) - (player.worldX + player.worldY))) * GravGame._TILEHEIGHT / 2.0f);
 				}
 				if (kill) {
-				  if (object instanceof Vehicle && ((Vehicle) gg.gameObjects.get(key)).height < 0)
-					  object.render(g);
-			  } else {
-				  if (!(object instanceof Vehicle) || ((Vehicle) gg.gameObjects.get(key)).height >= 0)
-					  object.render(g);
+					if (object instanceof Vehicle && ((Vehicle) gg.gameObjects.get(key)).height < 0)
+						object.render(g);
+				} else {
+					if (!(object instanceof Vehicle) || ((Vehicle) gg.gameObjects.get(key)).height >= 0)
+						object.render(g);
+				}
 			}
 		}
 	}
