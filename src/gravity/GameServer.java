@@ -152,7 +152,7 @@ public class GameServer {
             handleGameObjectCollisions();
             // write number of players to client
             Set<Map.Entry<Integer, GameObject>> entries = gameObjects.entrySet();
-            dataOut.writeInt(entries.size());
+            dataOut.writeObject(entries.size());
             dataOut.flush();
             // write all player data to client
             for(Map.Entry<Integer, GameObject> entry : entries) {

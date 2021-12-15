@@ -155,7 +155,11 @@ public class GravGame extends StateBasedGame {
 
 	public void updateGameObjects() throws IOException, ClassNotFoundException {
 		synchronized (gameObjects) {
-			int entityCount = in.readInt();
+			Object object = in.readObject();
+			int entityCount;
+			if(object instanceof Integer) {
+				entityCount = (Integer) object;
+			} else return;
 			ArrayList<Integer> serverKeys = new ArrayList<>();
 			for (int i = 0; i < entityCount; i++) {
 				EntityData entityData = (EntityData) in.readObject();
