@@ -85,7 +85,7 @@ public class GravGame extends StateBasedGame {
 
 	public int playerID;
 	public int maxPlayers;
-	public ConcurrentHashMap<Integer, GameObject> gameObjects = new ConcurrentHashMap<>();
+	public final ConcurrentHashMap<Integer, GameObject> gameObjects = new ConcurrentHashMap<>();
 
 	/**
 	 * Create the BounceGame frame, saving the width and height for later use.
@@ -149,47 +149,25 @@ public class GravGame extends StateBasedGame {
 			String startMsg = in.readUTF();
 			System.out.println("Message from server: " + startMsg);
 
-			ServerHandler sh = new ServerHandler(socket, out, in);
-			Thread shThread = new Thread(sh);
-			shThread.start();
+			//ServerHandler sh = new ServerHandler(socket, out, in);
+			//Thread shThread = new Thread(sh);
+			//shThread.start();
 		} catch (IOException e){
 			System.out.println("IOException from connectToServer()");
 			e.printStackTrace();
 		}
 	}
 
-	public class ServerHandler implements Runnable {
-
-		public Socket socket;
-		public ObjectOutputStream out;
-		public ObjectInputStream in;
-
-		public ServerHandler(Socket socket, ObjectOutputStream out, ObjectInputStream in) {
-			this.socket = socket;
-			this.out = out;
-			this.in = in;
-		}
-
-		@Override
-		public void run() {
-			try {
-				while(true) {
-					String command = in.readUTF();
-					if ("I".equals(command)) {
-						updateGameObjects();
-						//case "R" -> removeGameObject();
-					}
-				}
-			} catch (IOException | ClassNotFoundException e) {
-				e.printStackTrace();
-			}
-		}
-
-		public void updateGameObjects() throws IOException, ClassNotFoundException {
-            int entityCount = in.readInt();
+	public void updateGameObjects() throws IOException, ClassNotFoundException {
+		synchronized (gameObjects) {
+			Object object = in.readObject();
+			int entityCount;
+			if(object instanceof Integer) {
+				entityCount = (Integer) object;
+			} else return;
 			ArrayList<Integer> serverKeys = new ArrayList<>();
-            for (int i = 0; i < entityCount; i++) {
-                EntityData entityData = (EntityData) in.readObject();
+			for (int i = 0; i < entityCount; i++) {
+				EntityData entityData = (EntityData) in.readObject();
 				serverKeys.add(entityData.id);
 				if ("Player".equals(entityData.entityType)) {
 					if (gameObjects.containsKey(entityData.id)) {
@@ -227,10 +205,85 @@ public class GravGame extends StateBasedGame {
 						gameObjects.put(entityData.id, rocket);
 					}
 				}
-            }
+			}
 			Set<Integer> keys = gameObjects.keySet();
-			for(Integer key: keys) {
-				if(!serverKeys.contains(key)) gameObjects.remove(key);
+			for (Integer key : keys) {
+				if (!serverKeys.contains(key)) gameObjects.remove(key);
+			}
+		}
+	}
+
+	public class ServerHandler implements Runnable {
+
+		public Socket socket;
+		public ObjectOutputStream out;
+		public ObjectInputStream in;
+
+		public ServerHandler(Socket socket, ObjectOutputStream out, ObjectInputStream in) {
+			this.socket = socket;
+			this.out = out;
+			this.in = in;
+		}
+
+		@Override
+		public void run() {
+			try {
+				while(true) {
+					String command = in.readUTF();
+					if ("I".equals(command)) {
+						updateGameObjects();
+						//case "R" -> removeGameObject();
+					}
+				}
+			} catch (IOException | ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+
+		public void updateGameObjects() throws IOException, ClassNotFoundException {
+			synchronized (gameObjects) {
+				int entityCount = in.readInt();
+				ArrayList<Integer> serverKeys = new ArrayList<>();
+				for (int i = 0; i < entityCount; i++) {
+					EntityData entityData = (EntityData) in.readObject();
+					serverKeys.add(entityData.id);
+					if ("Player".equals(entityData.entityType)) {
+						if (gameObjects.containsKey(entityData.id)) {
+							((Vehicle) gameObjects.get(entityData.id)).updateData(entityData);
+						} else {
+							gameObjects.put(entityData.id, new Vehicle(entityData.xPosition,
+									entityData.yPosition, entityData.id));
+						}
+					} else if ("Powerup".equals(entityData.entityType)) {
+						if (gameObjects.containsKey(entityData.id)) {
+							((Powerup) gameObjects.get(entityData.id)).updateData(entityData);
+						} else {
+							Powerup powerup = new Powerup(entityData.xPosition, entityData.yPosition, entityData.id, 0);
+							powerup.addImage(ResourceManager.getImage(POWERUP_IMG_RSC));
+							gameObjects.put(entityData.id, powerup);
+						}
+					} else if ("SpikeTrap".equals(entityData.entityType)) {
+						if (gameObjects.containsKey(entityData.id)) {
+							((SpikeTrap) gameObjects.get(entityData.id)).updateData(entityData);
+						} else {
+							SpikeTrap spikeTrap = new SpikeTrap(entityData.xPosition, entityData.yPosition, entityData.id);
+							spikeTrap.addImage(ResourceManager.getImage(SPIKETRAP_IMG_RSC));
+							gameObjects.put(entityData.id, spikeTrap);
+						}
+					} else if ("Rocket".equals(entityData.entityType)) {
+						if (gameObjects.containsKey(entityData.id)) {
+							((Rocket) gameObjects.get(entityData.id)).updateData(entityData);
+						} else {
+							Rocket rocket = new Rocket(entityData.xPosition, entityData.yPosition, entityData.id);
+							rocket.addImage(ResourceManager.getImage(ROCKET_IMG_RSC));
+							gameObjects.put(entityData.id, rocket);
+						}
+					}
+				}
+				Set<Integer> keys = gameObjects.keySet();
+				for (Integer key : keys) {
+					if (!serverKeys.contains(key)) gameObjects.remove(key);
+				}
 			}
 		}
 	}

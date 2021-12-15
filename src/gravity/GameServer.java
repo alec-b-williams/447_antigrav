@@ -8,53 +8,49 @@ import org.newdawn.slick.tiled.TiledMap;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class GameServer {
 
     private ServerSocket server;
     private int numPlayers;
-    private int maxPlayers;
-    private ArrayList<Socket> playerSockets;
-    private ArrayList<ClientHandler> handlers;
+    private final int maxPlayers;
+    private final ArrayList<ClientHandler> handlers;
 
-    private volatile TiledMap currentMap;
-    private int mapWidth;
-    private int mapHeight;
-    private ConcurrentHashMap<Integer, Dispenser> dispensers;
-    private ArrayList<Vector> playerSpawnLocations;
+    private final TiledMap currentMap;
+    private final ConcurrentHashMap<Integer, Dispenser> dispensers;
 
-    private ConcurrentHashMap<Integer, GameObject> gameObjects = new ConcurrentHashMap<>();
-    private static volatile int entityId;
+    private final ConcurrentHashMap<Integer, GameObject> gameObjects = new ConcurrentHashMap<>();
+    private final AtomicInteger entityId = new AtomicInteger();
 
     public GameServer() throws SlickException {
 
         Entity.setCoarseGrainedCollisionBoundary(Entity.CIRCLE);
         currentMap = new TiledMap("gravity/resource/track1.tmx", false);
-        mapWidth = currentMap.getWidth();
-        mapHeight = currentMap.getHeight();
+        int mapWidth = currentMap.getWidth();
+        int mapHeight = currentMap.getHeight();
         dispensers = new ConcurrentHashMap<>();
-        playerSpawnLocations = new ArrayList<>();
-
+        ArrayList<Vector> playerSpawnLocations = new ArrayList<>();
 
 
         System.out.println("Game Server spinning up!");
         numPlayers = 0;
-        maxPlayers = 1;
+        maxPlayers = 4;
         handlers = new ArrayList<>();
-        playerSockets = new ArrayList<>();
 
-        entityId = maxPlayers + 1;
+        entityId.set(maxPlayers + 1);
 
         int dispenserId = 0;
         for(int x = 0; x < mapWidth; x++) {
             for(int y = 0; y < mapHeight; y++) {
                 if(currentMap.getTileId(x, y, 0) == GravGame.DISPENSER) {
                     Vector location = new Vector(x, y);
-                    gameObjects.put(entityId, new Powerup(x, y, entityId, dispenserId));
+                    gameObjects.put(entityId.get(), new Powerup(x, y, entityId.get(), dispenserId));
                     dispensers.put(dispenserId, new Dispenser(location));
-                    entityId++;
+                    entityId.incrementAndGet();
                     dispenserId++;
                 }
                 else if(currentMap.getTileId(x, y, 0) == GravGame.PLAYER_SPAWN) {
@@ -87,7 +83,6 @@ public class GameServer {
                 System.out.println("Player #" + numPlayers + " has connected");
 
                 handlers.add(new ClientHandler(this.numPlayers, in, out));
-                playerSockets.add(socket);
             }
             System.out.println("Max Players Reached");
             for(ClientHandler handler: handlers) {
@@ -104,17 +99,16 @@ public class GameServer {
     }
 
     private class ClientHandler implements Runnable {
-        private int playerId;
-        private ObjectInputStream dataIn;
-        private ObjectOutputStream dataOut;
-        private ServerVehicle player;
+        private final int playerId;
+        private final ObjectInputStream dataIn;
+        private final ObjectOutputStream dataOut;
+        private final ServerVehicle player;
 
         public ClientHandler(int playerId, ObjectInputStream in, ObjectOutputStream out){
             this.playerId = playerId;
             this.dataIn = in;
             this.dataOut = out;
             this.player = (ServerVehicle) gameObjects.get(playerId);
-
         }
 
         @Override
@@ -144,26 +138,28 @@ public class GameServer {
             else if (" ".equals(input)) usePowerUp();
             else if ("^".equals(input)) player.boost(delta);
 
-            updateRockets(delta);
-            updateGameObjects();
+            synchronized (gameObjects) {
+                updateRockets(delta);
+                updateGameObjects();
+            }
             updateDispensers(delta);
         }
         
         public void updateGameObjects() throws IOException {
-
-            dataOut.writeUTF("I");
-            dataOut.flush();
+            //dataOut.writeUTF("I");
+            //dataOut.flush();
             // update player value in concurrent hashmap
             //gameObjects.put(playerId, player);
             handleGameObjectCollisions();
             // write number of players to client
-            dataOut.writeInt(gameObjects.size());
+            Set<Map.Entry<Integer, GameObject>> entries = gameObjects.entrySet();
+            dataOut.writeObject(entries.size());
             dataOut.flush();
             // write all player data to client
-            Set<Integer> keys = gameObjects.keySet();
-            for(Integer key : keys) {
+            for(Map.Entry<Integer, GameObject> entry : entries) {
+                Integer key = entry.getKey();
+                GameObject object = entry.getValue();
                 EntityData data;
-                GameObject object = gameObjects.get(key);
                 if (object instanceof ServerVehicle) {
                     data = new EntityData((ServerVehicle) object, key);
                 } else if (object instanceof Powerup) {
@@ -172,11 +168,13 @@ public class GameServer {
                     data = new EntityData((SpikeTrap) object, key);
                 } else if (object instanceof Rocket) {
                     data = new EntityData((Rocket) object, key);
-                } else continue;
+                } else {
+                    System.out.println("Weird object: " + object);
+                    continue;
+                }
                 dataOut.writeObject(data);
                 dataOut.flush();
             }
-
         }
 
         public void updateRockets(int delta) {
@@ -225,37 +223,37 @@ public class GameServer {
         }
 
         public void updateDispensers(int delta) {
-            Set<Integer> keys = dispensers.keySet();
-            for(Integer key: keys) {
-                Dispenser dispenser = dispensers.get(key);
-                dispenser.decreaseTimer(delta);
-                if(dispenser.canDispense) {
-                    float x = dispenser.position.getX();
-                    float y = dispenser.position.getY();
-                    gameObjects.put(entityId, new Powerup(x, y, entityId, key));
-                    dispenser.hasPowerup = true;
-                    dispenser.canDispense = false;
-                    entityId++;
+            synchronized (dispensers) {
+                Set<Integer> keys = dispensers.keySet();
+                for (Integer key : keys) {
+                    Dispenser dispenser = dispensers.get(key);
+                    dispenser.decreaseTimer(delta);
+                    if (dispenser.canDispense) {
+                        float x = dispenser.position.getX();
+                        float y = dispenser.position.getY();
+                        int id = entityId.incrementAndGet();
+                        gameObjects.put(id, new Powerup(x, y, id, key));
+                        dispenser.hasPowerup = true;
+                        dispenser.canDispense = false;
+                    }
                 }
             }
         }
 
         public void usePowerUp() {
-            switch (player.powerupTypeHeld) {
-                case Powerup.BOOST -> player.boostCooldown = 1000;
-                case Powerup.SPIKE_TRAP -> {
-                    SpikeTrap spikeTrap = new SpikeTrap(player.worldX, player.worldY, entityId);
-                    spikeTrap.placedById = playerId;
-                    gameObjects.put(entityId, spikeTrap);
-                    entityId++;
-                }
-                case Powerup.ROCKET -> {
-                    Rocket rocket = new Rocket(player.worldX, player.worldY, entityId);
-                    rocket.placedById = playerId;
-                    rocket.speed = Vector.getVector(player.speedAngle, ServerVehicle.forwardSpeedLimit);
-                    gameObjects.put(entityId, rocket);
-                    entityId++;
-                }
+            if (player.powerupTypeHeld == Powerup.BOOST) {
+                player.boostCooldown = 1000;
+            } else if (player.powerupTypeHeld == Powerup.SPIKE_TRAP) {
+                int id = entityId.incrementAndGet();
+                SpikeTrap spikeTrap = new SpikeTrap(player.worldX, player.worldY, id);
+                spikeTrap.placedById = playerId;
+                gameObjects.put(id, spikeTrap);
+            } else if (player.powerupTypeHeld == Powerup.ROCKET) {
+                int id = entityId.incrementAndGet();
+                Rocket rocket = new Rocket(player.worldX, player.worldY, id);
+                rocket.placedById = playerId;
+                rocket.speed = Vector.getVector(player.speedAngle, ServerVehicle.forwardSpeedLimit);
+                gameObjects.put(id, rocket);
             }
             player.powerupTypeHeld = Powerup.NONE;
         }

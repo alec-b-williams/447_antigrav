@@ -61,7 +61,10 @@ class PlayingState extends BasicGameState {
 	public void render(GameContainer container, StateBasedGame game,
 			Graphics g) throws SlickException {
 
-		Vehicle player = (Vehicle) gg.gameObjects.get(gg.playerID);
+		Vehicle player;
+		synchronized (gg.gameObjects) {
+			player = (Vehicle) gg.gameObjects.get(gg.playerID);
+		}
 
 		g.drawImage(ResourceManager.getImage(GravGame.levelBGs[0]),
 				(gg.BGoffsets[0].getX() * -1) - ((player.worldX - player.worldY) * 4),
@@ -90,38 +93,68 @@ class PlayingState extends BasicGameState {
 				gg.out.writeUTF("W");
 				gg.out.writeInt(delta);
 				gg.out.flush();
+				//String command = gg.in.readUTF();
+				//if ("I".equals(command)) {
+					gg.updateGameObjects();
+					//case "R" -> removeGameObject();
+				//}
 			}
 			if (input.isKeyDown(Input.KEY_A)) {
 				gg.out.writeUTF("A");
 				gg.out.writeInt(delta);
 				gg.out.flush();
+				//String command = gg.in.readUTF();
+				//if ("I".equals(command)) {
+					gg.updateGameObjects();
+					//case "R" -> removeGameObject();
+				//}
 			}
 			if (input.isKeyDown(Input.KEY_S)) {
 				gg.out.writeUTF("S");
 				gg.out.writeInt(delta);
 				gg.out.flush();
+				//String command = gg.in.readUTF();
+				//if ("I".equals(command)) {
+					gg.updateGameObjects();
+					//case "R" -> removeGameObject();
+				//}
 			}
 			if (input.isKeyDown(Input.KEY_D)) {
 				gg.out.writeUTF("D");
 				gg.out.writeInt(delta);
 				gg.out.flush();
+				//String command = gg.in.readUTF();
+				//if ("I".equals(command)) {
+					gg.updateGameObjects();
+					//case "R" -> removeGameObject();
+				//}
 			}
 			if (noMovementPressed()) {
 				gg.out.writeUTF("G");
 				gg.out.writeInt(delta);
 				gg.out.flush();
+				//String command = gg.in.readUTF();
+				//if ("I".equals(command)) {
+					gg.updateGameObjects();
+					//case "R" -> removeGameObject();
+				//}
 			}
 			if(input.isKeyDown(Input.KEY_SPACE)) {
 				gg.out.writeUTF(" ");
 				gg.out.writeInt(delta);
 				gg.out.flush();
+				//String command = gg.in.readUTF();
+				//if ("I".equals(command)) {
+					gg.updateGameObjects();
+					//case "R" -> removeGameObject();
+				//}
 			}
-			if (input.isKeyDown(Input.KEY_LSHIFT)) {
+      if (input.isKeyDown(Input.KEY_LSHIFT)) {
 				gg.out.writeUTF("^");
 				gg.out.writeInt(delta);
 				gg.out.flush();
 			}
-		} catch(IOException e) {
+		} catch(IOException | ClassNotFoundException e) {
 			e. printStackTrace();
 		}
 		
@@ -141,23 +174,25 @@ class PlayingState extends BasicGameState {
 	}
 
 	public void renderEntities(Vehicle player, Graphics g, boolean kill) {
-		Set<Integer> keys = gg.gameObjects.keySet();
-		for (Integer key: keys) {
-			GameObject object = gg.gameObjects.get(key);
-			if(object == null) continue;
-			if (key != (gg.playerID)) {
+		synchronized (gg.gameObjects) {
+			Set<Integer> keys = gg.gameObjects.keySet();
+			for (Integer key : keys) {
+				GameObject object = gg.gameObjects.get(key);
+				if (object == null) continue;
+				if (key != (gg.playerID)) {
 
-				object.setX((GravGame._SCREENWIDTH / 2.0f) +
-						(((object.worldX - object.worldY) - (player.worldX - player.worldY))) * GravGame._TILEWIDTH / 2.0f);
-				object.setY((GravGame._SCREENHEIGHT / 2.0f) +
-						(((object.worldX + object.worldY) - (player.worldX + player.worldY))) * GravGame._TILEHEIGHT / 2.0f);
-			}
-			if (kill) {
-				if (object instanceof Vehicle && ((Vehicle) gg.gameObjects.get(key)).height < 0)
-					object.render(g);
-			} else {
-				if (!(object instanceof Vehicle) || ((Vehicle) gg.gameObjects.get(key)).height >= 0)
-					object.render(g);
+					object.setX((GravGame._SCREENWIDTH / 2.0f) +
+							(((object.worldX - object.worldY) - (player.worldX - player.worldY))) * GravGame._TILEWIDTH / 2.0f);
+					object.setY((GravGame._SCREENHEIGHT / 2.0f) +
+							(((object.worldX + object.worldY) - (player.worldX + player.worldY))) * GravGame._TILEHEIGHT / 2.0f);
+				}
+				if (kill) {
+					if (object instanceof Vehicle && ((Vehicle) gg.gameObjects.get(key)).height < 0)
+						object.render(g);
+				} else {
+					if (!(object instanceof Vehicle) || ((Vehicle) gg.gameObjects.get(key)).height >= 0)
+						object.render(g);
+				}
 			}
 		}
 	}
