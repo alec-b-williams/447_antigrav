@@ -10,6 +10,7 @@ import jig.Entity;
 import jig.ResourceManager;
 import jig.Vector;
 
+import org.newdawn.slick.Animation;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
@@ -52,8 +53,10 @@ public class GravGame extends StateBasedGame {
 
 	public static final String POWERUP_IMG_RSC = "gravity/resource/powerup_box.png";
 	public static final String BOOST_IMG_RSC = "gravity/resource/boost.png";
-	public static final String SPIKETRAP_IMG_RSC = "gravity/resource/spikeTrap.png";
-	public static final String ROCKET_IMG_RSC = "gravity/resource/rocket.png";
+	public static final String SPIKETRAP_UI_IMG_RSC = "gravity/resource/spikeTrap.png";
+	public static final String ROCKET_UI_IMG_RSC = "gravity/resource/rocket.png";
+	public static final String SPIKETRAP_IMG_RSC = "gravity/resource/spikeTrap_real.png";
+	public static final String ROCKET_IMG_RSC = "gravity/resource/rocket_real.png";
 	public static final String ENERGY_IMG_RSC = "gravity/resource/energy.png";
 	public static final String ENERGY_CONTAINER_IMG_RSC = "gravity/resource/energy_container.png";
 	public static final String POWERUP_CONTAINER_IMG_RSC = "gravity/resource/powerup_container.png";
@@ -126,6 +129,8 @@ public class GravGame extends StateBasedGame {
 		ResourceManager.loadImage(LEVEL_1_BG_IMG_RSC);
 		ResourceManager.loadImage(POWERUP_IMG_RSC);
 		ResourceManager.loadImage(BOOST_IMG_RSC);
+		ResourceManager.loadImage(SPIKETRAP_UI_IMG_RSC);
+		ResourceManager.loadImage(ROCKET_UI_IMG_RSC);
 		ResourceManager.loadImage(SPIKETRAP_IMG_RSC);
 		ResourceManager.loadImage(ROCKET_IMG_RSC);
 	}
@@ -198,7 +203,9 @@ public class GravGame extends StateBasedGame {
 						((Powerup) gameObjects.get(entityData.id)).updateData(entityData);
 					} else {
 						Powerup powerup = new Powerup(entityData.xPosition, entityData.yPosition, entityData.id, 0);
-						powerup.addImage(ResourceManager.getImage(POWERUP_IMG_RSC));
+						powerup.addAnimation(new Animation(ResourceManager.getSpriteSheet(GravGame.POWERUP_IMG_RSC, 64, 64),
+								0, 0, 2, 0, true, 333, true));
+						powerup.removeShape(powerup.getShapes().get(0));
 						gameObjects.put(entityData.id, powerup);
 					}
 				} else if ("SpikeTrap".equals(entityData.entityType)) {
@@ -207,6 +214,7 @@ public class GravGame extends StateBasedGame {
 					} else {
 						SpikeTrap spikeTrap = new SpikeTrap(entityData.xPosition, entityData.yPosition, entityData.id);
 						spikeTrap.addImage(ResourceManager.getImage(SPIKETRAP_IMG_RSC));
+						spikeTrap.removeShape(spikeTrap.getShapes().get(0));
 						gameObjects.put(entityData.id, spikeTrap);
 					}
 				} else if ("Rocket".equals(entityData.entityType)) {
@@ -215,6 +223,7 @@ public class GravGame extends StateBasedGame {
 					} else {
 						Rocket rocket = new Rocket(entityData.xPosition, entityData.yPosition, entityData.id);
 						rocket.addImage(ResourceManager.getImage(ROCKET_IMG_RSC));
+						rocket.removeShape(rocket.getShapes().get(0));
 						gameObjects.put(entityData.id, rocket);
 					}
 				}
