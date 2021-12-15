@@ -38,10 +38,15 @@ public class Vehicle extends GameObject {
         this.height = data.height;
         this.setY((GravGame._SCREENHEIGHT/2.0f) - (height * 32));
         this.isKill = data.isKill;
-        this.sprite.setCurrentFrame(data.animationFrame);
         this.timer = data.timer;
         this.lap = data.lap;
         this.health = data.health;
         this.powerupTypeHeld = data.powerupType;
+        setRotationFrame((float)this.speedAngle);
+    }
+
+    private void setRotationFrame(float angle) {
+        int num = (int)(angle) + 105;
+        this.sprite.setCurrentFrame(Math.floorMod(((int)(num / 22.5) + 6), 16));
     }
 }

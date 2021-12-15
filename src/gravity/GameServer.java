@@ -117,7 +117,7 @@ public class GameServer {
                 while(true){
                     String command = dataIn.readUTF();
                     if ("W".equals(command) || "S".equals(command) || "A".equals(command) ||
-                            "D".equals(command) || "G".equals(command) || " ".equals(command)) {
+                            "D".equals(command) || "G".equals(command) || " ".equals(command) || "^".equals(command)) {
                         handleInputs(command);
                     }
                 }
@@ -136,6 +136,7 @@ public class GameServer {
             else if ("D".equals(input)) player.turn(1, delta);
             else if ("G".equals(input)) player.finishMovement(delta, currentMap);
             else if (" ".equals(input)) usePowerUp();
+            else if ("^".equals(input)) player.boost(delta);
 
             synchronized (gameObjects) {
                 updateRockets(delta);

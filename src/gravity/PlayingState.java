@@ -149,6 +149,11 @@ class PlayingState extends BasicGameState {
 					//case "R" -> removeGameObject();
 				//}
 			}
+      if (input.isKeyDown(Input.KEY_LSHIFT)) {
+				gg.out.writeUTF("^");
+				gg.out.writeInt(delta);
+				gg.out.flush();
+			}
 		} catch(IOException | ClassNotFoundException e) {
 			e. printStackTrace();
 		}
@@ -181,11 +186,12 @@ class PlayingState extends BasicGameState {
 					object.setY((GravGame._SCREENHEIGHT / 2.0f) +
 							(((object.worldX + object.worldY) - (player.worldX + player.worldY))) * GravGame._TILEHEIGHT / 2.0f);
 				}
-				if (object instanceof Vehicle && kill && ((Vehicle) gg.gameObjects.get(key)).isKill) {
-					object.render(g);
-				} else {
-					object.render(g);
-				}
+				if (kill) {
+				  if (object instanceof Vehicle && ((Vehicle) gg.gameObjects.get(key)).height < 0)
+					  object.render(g);
+			  } else {
+				  if (!(object instanceof Vehicle) || ((Vehicle) gg.gameObjects.get(key)).height >= 0)
+					  object.render(g);
 			}
 		}
 	}
@@ -211,13 +217,13 @@ class PlayingState extends BasicGameState {
 
 		g.drawImage(ResourceManager.getImage(GravGame.POWERUP_CONTAINER_IMG_RSC), (GravGame._SCREENWIDTH/2.0f) - 64, 10);
 		if(player.powerupTypeHeld == Powerup.BOOST){
-			g.drawImage(ResourceManager.getImage(GravGame.BOOST_IMG_RSC), (GravGame._SCREENWIDTH/2.0f) - 32, 42);
+			g.drawImage(ResourceManager.getImage(GravGame.BOOST_IMG_RSC), (GravGame._SCREENWIDTH/2.0f) - 48, 26);
 		}
 		else if(player.powerupTypeHeld == Powerup.SPIKE_TRAP){
-			g.drawImage(ResourceManager.getImage(GravGame.SPIKETRAP_IMG_RSC), (GravGame._SCREENWIDTH/2.0f) - 32, 42);
+			g.drawImage(ResourceManager.getImage(GravGame.SPIKETRAP_UI_IMG_RSC), (GravGame._SCREENWIDTH/2.0f) - 48, 26);
 		}
 		else if(player.powerupTypeHeld == Powerup.ROCKET) {
-			g.drawImage(ResourceManager.getImage(GravGame.ROCKET_IMG_RSC), (GravGame._SCREENWIDTH/2.0f) - 32, 42);
+			g.drawImage(ResourceManager.getImage(GravGame.ROCKET_UI_IMG_RSC), (GravGame._SCREENWIDTH/2.0f) - 48, 26);
 		}
 
 		g.drawImage(ResourceManager.getImage(GravGame.LAPTIME_IMG_RSC), GravGame._SCREENWIDTH - 300, 10);
