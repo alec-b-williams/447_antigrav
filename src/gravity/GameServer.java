@@ -1,5 +1,6 @@
 package gravity;
 
+import jig.Collision;
 import jig.Entity;
 import jig.Vector;
 import org.newdawn.slick.SlickException;
@@ -38,7 +39,7 @@ public class GameServer {
 
         System.out.println("Game Server spinning up!");
         numPlayers = 0;
-        maxPlayers = 1;
+        maxPlayers = 2;
         handlers = new ArrayList<>();
 
         entityId.set(maxPlayers + 1);
@@ -77,7 +78,7 @@ public class GameServer {
                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 
                 this.numPlayers++;
-                gameObjects.put(numPlayers, new ServerVehicle(5f, 5f));
+                gameObjects.put(numPlayers, new ServerVehicle(5f, 5f + numPlayers));
                 out.writeInt(numPlayers);
                 out.writeInt(maxPlayers);
                 System.out.println("Player #" + numPlayers + " has connected");
@@ -195,6 +196,7 @@ public class GameServer {
                 if(object instanceof Powerup) handlePowerup(key);
                 else if(object instanceof SpikeTrap) handleSpikeTrap(key);
                 else if(object instanceof Rocket) handleRocket(key);
+                else if(object instanceof ServerVehicle && key != playerId) handleVehicle(key);
             }
         }
 
@@ -211,6 +213,9 @@ public class GameServer {
         public void handleSpikeTrap(int id) {
             SpikeTrap spikeTrap = (SpikeTrap) gameObjects.get(id);
             if(spikeTrap.placedById != playerId) {
+                ServerVehicle player = ((ServerVehicle)gameObjects.get(playerId));
+                player.setHealth(player.getHealth() - 10);
+                player.slowCooldown = 1500;
                 gameObjects.remove(id);
             }
         }
@@ -218,7 +223,32 @@ public class GameServer {
         public void handleRocket(int id) {
             Rocket rocket = (Rocket) gameObjects.get(id);
             if(rocket.placedById != playerId) {
+                ServerVehicle player = ((ServerVehicle)gameObjects.get(playerId));
+                player.setHealth(player.getHealth() - 10);
+                player.slowCooldown = 1500;
                 gameObjects.remove(id);
+            }
+        }
+
+        public void handleVehicle(int id) {
+            ServerVehicle player = ((ServerVehicle)gameObjects.get(playerId));
+            ServerVehicle other = ((ServerVehicle)gameObjects.get(id));
+
+            Collision vehicleCollision = player.collides(other);
+            if (!other.recentCollisions.contains(playerId) && vehicleCollision != null && vehicleCollision.getMinPenetration() != null) {
+                System.out.println("Colliding player " + playerId + " with player " + id);
+                Vector playerSpeed = player.getSpeed();
+                Vector otherSpeed = other.getSpeed();
+
+                Vector bounce = vehicleCollision.getMinPenetration();
+                player.setSpeed(player.getSpeed().bounce((float)bounce.getRotation()+90));
+                other.setSpeed(other.getSpeed().bounce((float)bounce.getRotation()+90));
+
+                player.setSpeed(player.getSpeed().add(otherSpeed));
+                other.setSpeed(other.getSpeed().add(playerSpeed));
+
+                System.out.println("Player speed: " + player.getSpeed().length()+ ", other speed: " + other.getSpeed().length());
+
             }
         }
 
