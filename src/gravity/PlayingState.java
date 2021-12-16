@@ -39,7 +39,7 @@ class PlayingState extends BasicGameState {
 	public void enter(GameContainer container, StateBasedGame game) throws SlickException {
 		container.setSoundOn(true);
 
-		gg.map = new TiledMap("gravity/resource/track1.tmx", "gravity/resource");
+		gg.map = new TiledMap("gravity/resource/track-easy.tmx", "gravity/resource");
 
 		gg.cameraXPos = 0;
 		gg.cameraYPos = 0;

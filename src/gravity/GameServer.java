@@ -29,7 +29,7 @@ public class GameServer {
     public GameServer() throws SlickException {
 
         Entity.setCoarseGrainedCollisionBoundary(Entity.CIRCLE);
-        currentMap = new TiledMap("gravity/resource/track1.tmx", false);
+        currentMap = new TiledMap("gravity/resource/track-easy.tmx", false);
         int mapWidth = currentMap.getWidth();
         int mapHeight = currentMap.getHeight();
         dispensers = new ConcurrentHashMap<>();
@@ -38,7 +38,7 @@ public class GameServer {
 
         System.out.println("Game Server spinning up!");
         numPlayers = 0;
-        maxPlayers = 2;
+        maxPlayers = 1;
         handlers = new ArrayList<>();
 
         entityId.set(maxPlayers + 1);
@@ -77,7 +77,7 @@ public class GameServer {
                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 
                 this.numPlayers++;
-                gameObjects.put(numPlayers, new ServerVehicle(5f, 5f));
+                gameObjects.put(numPlayers, new ServerVehicle(88f, 5f));
                 out.writeInt(numPlayers);
                 out.writeInt(maxPlayers);
                 System.out.println("Player #" + numPlayers + " has connected");
