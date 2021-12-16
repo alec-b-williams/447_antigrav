@@ -4,6 +4,7 @@ import jig.*;
 import org.newdawn.slick.tiled.TiledMap;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,11 +27,13 @@ public class ServerVehicle extends GameObject {
     private double lastHeading;
     public float deathCooldown;
     public float boostCooldown;
+    public float slowCooldown;
     public int lap;
     public float timer;
     public boolean checkpoint; 
     private float health;
     public int powerupTypeHeld;
+    public HashSet<Integer> recentCollisions;
 
     private static final float degPerSecond = 180;
 
@@ -50,6 +53,7 @@ public class ServerVehicle extends GameObject {
         this.timer = 0;
         this.checkpoint = false;
         this.health = 100;
+        this.recentCollisions = new HashSet<>();
 
         Shape boundingCircle = new ConvexPolygon(12.0f/32.0f);
         this.addShape(boundingCircle);
@@ -69,6 +73,9 @@ public class ServerVehicle extends GameObject {
     }
 
     public void finishMovement(int delta, TiledMap map){
+        if (this.speed.length() > forwardSpeedLimit)
+            this.setSpeed(this.getSpeed().setLength(forwardSpeedLimit));
+
         if (height == 0) {
             this.setSpeed(this.speed.scale(slowdownScale));
             if(this.speed.length() < stopThreshold){
@@ -80,7 +87,6 @@ public class ServerVehicle extends GameObject {
     }
 
     public void move(int delta, TiledMap map) {
-        System.out.println(delta);
         this.setX(worldX + (this.speed.getX() * (delta/17.0f)));
         this.setY(worldY + (this.speed.getY() * (delta/17.0f)));
         int newX = (int)(this.getX() + .5);
@@ -90,7 +96,7 @@ public class ServerVehicle extends GameObject {
         calcHeight(newX, newY, map);
 
         int tileID = safeTileID(newX, newY, map);
-        boolean slow = isSlow(tileID);
+        boolean slow = (slowCooldown > 0 || isSlow(tileID));
         boolean boost = (boostCooldown > 0 || isBoost(tileID));
 
         if (tileID == GravGame.CHECKPOINT) {
@@ -114,6 +120,7 @@ public class ServerVehicle extends GameObject {
 
         boostCooldown -= delta;
         deathCooldown -= delta;
+        slowCooldown -= delta;
         timer += delta;
     }
 
@@ -183,7 +190,12 @@ public class ServerVehicle extends GameObject {
         Set<Integer> keys = gameObjects.keySet();
         ArrayList<Integer> collidedObjectKeys = new ArrayList<>();
         for(Integer key: keys) {
-            if(this.collides(gameObjects.get(key)) != null) collidedObjectKeys.add(key);
+            if(this.collides(gameObjects.get(key)) != null && !recentCollisions.contains(key)) {
+                collidedObjectKeys.add(key);
+                recentCollisions.add(key);
+            } else {
+                recentCollisions.remove(key);
+            }
         }
         return collidedObjectKeys;
     }
@@ -247,6 +259,7 @@ public class ServerVehicle extends GameObject {
         this.verticalMomentum = 0;
         isKill = false;
         this.boostCooldown = 0;
+        this.slowCooldown = 0;
         if (health <= 0) {
             this.deathCooldown = 5000;
             this.health = 100;
