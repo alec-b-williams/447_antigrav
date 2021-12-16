@@ -18,7 +18,8 @@ public class GameServer {
     private ServerSocket server;
     private int numPlayers;
     private final int maxPlayers;
-    private final ArrayList<ClientHandler> handlers;
+    private final ArrayList<ClientReader> readers;
+    private final ArrayList<ClientWriter> writers;
 
     private final TiledMap currentMap;
     private final ConcurrentHashMap<Integer, Dispenser> dispensers;
@@ -38,8 +39,9 @@ public class GameServer {
 
         System.out.println("Game Server spinning up!");
         numPlayers = 0;
-        maxPlayers = 4;
-        handlers = new ArrayList<>();
+        maxPlayers = 2;
+        readers = new ArrayList<>();
+        writers = new ArrayList<>();
 
         entityId.set(maxPlayers + 1);
 
@@ -65,6 +67,8 @@ public class GameServer {
             System.out.println("IOException in GS constructor");
             e.printStackTrace();
         }
+        acceptConnections();
+
     }
 
     private void acceptConnections(){
@@ -82,15 +86,20 @@ public class GameServer {
                 out.writeInt(maxPlayers);
                 System.out.println("Player #" + numPlayers + " has connected");
 
-                handlers.add(new ClientHandler(this.numPlayers, in, out));
+                readers.add(new ClientReader(this.numPlayers, in, out));
+                writers.add(new ClientWriter(this.numPlayers, in, out));
             }
             System.out.println("Max Players Reached");
-            for(ClientHandler handler: handlers) {
-                handler.sendStartMsg();
+            for(ClientReader writer: readers) {
+                writer.sendStartMsg();
             }
-            for(ClientHandler handler: handlers) {
-                Thread playerThread = new Thread(handler);
-                playerThread.start();
+            for(ClientReader reader: readers) {
+                Thread readerThread = new Thread(reader);
+                readerThread.start();
+            }
+            for(ClientWriter writer: writers) {
+                Thread writerThread = new Thread(writer);
+                writerThread.start();
             }
         } catch (IOException e){
             System.out.println("IOException in acceptConnections()");
@@ -98,92 +107,61 @@ public class GameServer {
         }
     }
 
-    private class ClientHandler implements Runnable {
+    private class ClientWriter implements Runnable {
         private final int playerId;
         private final ObjectInputStream dataIn;
         private final ObjectOutputStream dataOut;
         private final ServerVehicle player;
 
-        public ClientHandler(int playerId, ObjectInputStream in, ObjectOutputStream out){
+        public ClientWriter(int playerId, ObjectInputStream in, ObjectOutputStream out) {
             this.playerId = playerId;
             this.dataIn = in;
             this.dataOut = out;
             this.player = (ServerVehicle) gameObjects.get(playerId);
         }
 
-        @Override
         public void run() {
-            try{
-                while(true){
-                    String command = dataIn.readUTF();
-                    if ("W".equals(command) || "S".equals(command) || "A".equals(command) ||
-                            "D".equals(command) || "G".equals(command) || " ".equals(command) || "^".equals(command)) {
-                        handleInputs(command);
-                    }
+            try {
+                while(true) {
+                    updateGameObjects();
+                    Thread.sleep(1);
                 }
-            } catch(IOException e){
-                System.err.println("ClientHandler IOException: " + e);
+            }
+            catch (IOException | InterruptedException e) {
+                e.printStackTrace();
             }
         }
 
-        public void handleInputs(String input) throws IOException {
-          
-            int delta = dataIn.readInt();
-
-            if ("W".equals(input)) player.linearMovement(1, delta, currentMap);
-            else if ("S".equals(input)) player.linearMovement(-1, delta, currentMap);
-            else if ("A".equals(input)) player.turn(-1, delta);
-            else if ("D".equals(input)) player.turn(1, delta);
-            else if ("G".equals(input)) player.finishMovement(delta, currentMap);
-            else if (" ".equals(input)) usePowerUp();
-            else if ("^".equals(input)) player.boost(delta);
-
-            synchronized (gameObjects) {
-                updateRockets(delta);
-                updateGameObjects();
-            }
-            updateDispensers(delta);
-        }
-        
         public void updateGameObjects() throws IOException {
-            //dataOut.writeUTF("I");
-            //dataOut.flush();
-            // update player value in concurrent hashmap
-            //gameObjects.put(playerId, player);
-            handleGameObjectCollisions();
-            // write number of players to client
-            Set<Map.Entry<Integer, GameObject>> entries = gameObjects.entrySet();
-            dataOut.writeObject(entries.size());
-            dataOut.flush();
-            // write all player data to client
-            for(Map.Entry<Integer, GameObject> entry : entries) {
-                Integer key = entry.getKey();
-                GameObject object = entry.getValue();
-                EntityData data;
-                if (object instanceof ServerVehicle) {
-                    data = new EntityData((ServerVehicle) object, key);
-                } else if (object instanceof Powerup) {
-                    data = new EntityData((Powerup) object, key);
-                } else if (object instanceof SpikeTrap) {
-                    data = new EntityData((SpikeTrap) object, key);
-                } else if (object instanceof Rocket) {
-                    data = new EntityData((Rocket) object, key);
-                } else {
-                    System.out.println("Weird object: " + object);
-                    continue;
-                }
-                dataOut.writeObject(data);
+            synchronized (gameObjects) {
+                //dataOut.writeUTF("I");
+                //dataOut.flush();
+                // update player value in concurrent hashmap
+                //gameObjects.put(playerId, player);
+                handleGameObjectCollisions();
+                // write number of players to client
+                Set<Map.Entry<Integer, GameObject>> entries = gameObjects.entrySet();
+                dataOut.writeObject(entries.size());
                 dataOut.flush();
-            }
-        }
-
-        public void updateRockets(int delta) {
-            Set<Integer> keys = gameObjects.keySet();
-            for(Integer key: keys) {
-                GameObject object = gameObjects.get(key);
-                if(object instanceof Rocket) {
-                    ((Rocket) object).move(delta, currentMap);
-                    if(((Rocket) object).bounces <= 0) gameObjects.remove(key);
+                // write all player data to client
+                for (Map.Entry<Integer, GameObject> entry : entries) {
+                    Integer key = entry.getKey();
+                    GameObject object = entry.getValue();
+                    EntityData data;
+                    if (object instanceof ServerVehicle) {
+                        data = new EntityData((ServerVehicle) object, key);
+                    } else if (object instanceof Powerup) {
+                        data = new EntityData((Powerup) object, key);
+                    } else if (object instanceof SpikeTrap) {
+                        data = new EntityData((SpikeTrap) object, key);
+                    } else if (object instanceof Rocket) {
+                        data = new EntityData((Rocket) object, key);
+                    } else {
+                        System.out.println("Weird object: " + object);
+                        continue;
+                    }
+                    dataOut.writeObject(data);
+                    dataOut.flush();
                 }
             }
         }
@@ -219,6 +197,63 @@ public class GameServer {
             Rocket rocket = (Rocket) gameObjects.get(id);
             if(rocket.placedById != playerId) {
                 gameObjects.remove(id);
+            }
+        }
+    }
+
+    private class ClientReader implements Runnable {
+        private final int playerId;
+        private final ObjectInputStream dataIn;
+        private final ObjectOutputStream dataOut;
+        private final ServerVehicle player;
+
+        public ClientReader(int playerId, ObjectInputStream in, ObjectOutputStream out){
+            this.playerId = playerId;
+            this.dataIn = in;
+            this.dataOut = out;
+            this.player = (ServerVehicle) gameObjects.get(playerId);
+        }
+
+        @Override
+        public void run() {
+            try{
+                while(true){
+                    String command = dataIn.readUTF();
+                    if ("W".equals(command) || "S".equals(command) || "A".equals(command) ||
+                            "D".equals(command) || "G".equals(command) || " ".equals(command) || "^".equals(command)) {
+                        handleInputs(command);
+                    }
+                }
+            } catch(IOException e){
+                System.err.println("ClientHandler IOException: " + e);
+            }
+        }
+
+        public void handleInputs(String input) throws IOException {
+            int delta = dataIn.readInt();
+
+            if ("W".equals(input)) player.linearMovement(1, delta, currentMap);
+            else if ("S".equals(input)) player.linearMovement(-1, delta, currentMap);
+            else if ("A".equals(input)) player.turn(-1, delta);
+            else if ("D".equals(input)) player.turn(1, delta);
+            else if ("G".equals(input)) player.finishMovement(delta, currentMap);
+            else if (" ".equals(input)) usePowerUp();
+            else if ("^".equals(input)) player.boost(delta);
+
+            updateRockets(delta);
+            updateDispensers(delta);
+        }
+
+        public void updateRockets(int delta) {
+            synchronized (gameObjects) {
+                Set<Integer> keys = gameObjects.keySet();
+                for (Integer key : keys) {
+                    GameObject object = gameObjects.get(key);
+                    if (object instanceof Rocket) {
+                        ((Rocket) object).move(delta, currentMap);
+                        if (((Rocket) object).bounces <= 0) gameObjects.remove(key);
+                    }
+                }
             }
         }
 
@@ -273,7 +308,6 @@ public class GameServer {
     public static void main(String[] args) {
         try {
             GameServer gs = new GameServer();
-            gs.acceptConnections();
         } catch (SlickException e){
             e.printStackTrace();
         }

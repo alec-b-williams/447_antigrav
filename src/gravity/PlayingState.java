@@ -62,9 +62,9 @@ class PlayingState extends BasicGameState {
 			Graphics g) throws SlickException {
 
 		Vehicle player;
-		synchronized (gg.gameObjects) {
+		//synchronized (gg.gameObjects) {
 			player = (Vehicle) gg.gameObjects.get(gg.playerID);
-		}
+		//}
 
 		g.drawImage(ResourceManager.getImage(GravGame.levelBGs[0]),
 				(gg.BGoffsets[0].getX() * -1) - ((player.worldX - player.worldY) * 4),
@@ -95,7 +95,7 @@ class PlayingState extends BasicGameState {
 				gg.out.flush();
 				//String command = gg.in.readUTF();
 				//if ("I".equals(command)) {
-					gg.updateGameObjects();
+					//gg.updateGameObjects();
 					//case "R" -> removeGameObject();
 				//}
 			}
@@ -105,7 +105,7 @@ class PlayingState extends BasicGameState {
 				gg.out.flush();
 				//String command = gg.in.readUTF();
 				//if ("I".equals(command)) {
-					gg.updateGameObjects();
+					//gg.updateGameObjects();
 					//case "R" -> removeGameObject();
 				//}
 			}
@@ -115,7 +115,7 @@ class PlayingState extends BasicGameState {
 				gg.out.flush();
 				//String command = gg.in.readUTF();
 				//if ("I".equals(command)) {
-					gg.updateGameObjects();
+					//gg.updateGameObjects();
 					//case "R" -> removeGameObject();
 				//}
 			}
@@ -125,7 +125,7 @@ class PlayingState extends BasicGameState {
 				gg.out.flush();
 				//String command = gg.in.readUTF();
 				//if ("I".equals(command)) {
-					gg.updateGameObjects();
+					//gg.updateGameObjects();
 					//case "R" -> removeGameObject();
 				//}
 			}
@@ -135,7 +135,7 @@ class PlayingState extends BasicGameState {
 				gg.out.flush();
 				//String command = gg.in.readUTF();
 				//if ("I".equals(command)) {
-					gg.updateGameObjects();
+					//gg.updateGameObjects();
 					//case "R" -> removeGameObject();
 				//}
 			}
@@ -145,7 +145,7 @@ class PlayingState extends BasicGameState {
 				gg.out.flush();
 				//String command = gg.in.readUTF();
 				//if ("I".equals(command)) {
-					gg.updateGameObjects();
+					//gg.updateGameObjects();
 					//case "R" -> removeGameObject();
 				//}
 			}
@@ -154,7 +154,7 @@ class PlayingState extends BasicGameState {
 				gg.out.writeInt(delta);
 				gg.out.flush();
 			}
-		} catch(IOException | ClassNotFoundException e) {
+		} catch(IOException e) {
 			e. printStackTrace();
 		}
 		
@@ -174,7 +174,7 @@ class PlayingState extends BasicGameState {
 	}
 
 	public void renderEntities(Vehicle player, Graphics g, boolean kill) {
-		synchronized (gg.gameObjects) {
+		//synchronized (gg.gameObjects) {
 			Set<Integer> keys = gg.gameObjects.keySet();
 			for (Integer key : keys) {
 				GameObject object = gg.gameObjects.get(key);
@@ -194,7 +194,7 @@ class PlayingState extends BasicGameState {
 						object.render(g);
 				}
 			}
-		}
+		//}
 	}
 
 	private void drawUI(Vehicle player, Graphics g) {
