@@ -80,8 +80,9 @@ public class ServerVehicle extends GameObject {
     }
 
     public void move(int delta, TiledMap map) {
-        this.setX(worldX + this.speed.getX());
-        this.setY(worldY + this.speed.getY());
+        System.out.println(delta);
+        this.setX(worldX + (this.speed.getX() * (delta/17.0f)));
+        this.setY(worldY + (this.speed.getY() * (delta/17.0f)));
         int newX = (int)(this.getX() + .5);
         int newY = (int)(this.getY() + .5);
 
@@ -108,8 +109,8 @@ public class ServerVehicle extends GameObject {
             System.out.println("Completed lap " + (lap-1) + "! Time: " + timer);
         }
 
-        worldX += this.speed.getX() * (slow ? slowMult : 1) * (boost ? boostMult : 1) * (deathCooldown > 0 ? 0 : 1);
-        worldY += this.speed.getY() * (slow ? slowMult : 1) * (boost ? boostMult : 1) * (deathCooldown > 0 ? 0 : 1);
+        worldX += (this.speed.getX() * (delta/17.0f)) * (slow ? slowMult : 1) * (boost ? boostMult : 1) * (deathCooldown > 0 ? 0 : 1);
+        worldY += (this.speed.getY() * (delta/17.0f)) * (slow ? slowMult : 1) * (boost ? boostMult : 1) * (deathCooldown > 0 ? 0 : 1);
 
         boostCooldown -= delta;
         deathCooldown -= delta;
