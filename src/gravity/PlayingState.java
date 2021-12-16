@@ -33,6 +33,7 @@ class PlayingState extends BasicGameState {
 			throws SlickException {
 		gg = (GravGame) game;
 		input = container.getInput();
+
 	}
 
 	@Override

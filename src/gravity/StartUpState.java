@@ -1,9 +1,7 @@
 package gravity;
 
-import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Input;
-import org.newdawn.slick.SlickException;
+import jig.ResourceManager;
+import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
@@ -20,14 +18,19 @@ import org.newdawn.slick.state.StateBasedGame;
 class StartUpState extends BasicGameState {
 
 	GravGame gg;
+	Input input;
+	Button connectButton;
+	Button exitButton;
 	@Override
-	public void init(GameContainer container, StateBasedGame game)
-			throws SlickException {
+	public void init(GameContainer container, StateBasedGame game) throws SlickException {
+		connectButton = new Button(440, 480, ResourceManager.getImage(GravGame.CONNECT_BUTTON_IMG_RSC));
+		exitButton = new Button(440, 630, ResourceManager.getImage(GravGame.EXIT_BUTTON_IMG_RSC));
 	}
 	
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) {
 		gg = (GravGame) game;
+		input = container.getInput();
 		container.setSoundOn(false);
 	}
 
@@ -35,22 +38,31 @@ class StartUpState extends BasicGameState {
 	@Override
 	public void render(GameContainer container, StateBasedGame game,
 			Graphics g) throws SlickException {
-		
-		g.drawString("Press 1 to enter", 10, 30);
-		
+		g.drawImage(ResourceManager.getImage(GravGame.MAIN_MENU_BACKGROUND_IMG_RSC), 0, 0);
+		//g.drawString("Press 1 to enter", 10, 30);
+		connectButton.draw(g);
+		exitButton.draw(g);
 	}
 
 	@Override
 	public void update(GameContainer container, StateBasedGame game,
 			int delta) throws SlickException {
 
-		Input input = container.getInput();
-
-		if (input.isKeyDown(Input.KEY_1)) {
+		if(connectButton.isMousePressing(input)) {
 			gg.startServerHandler();
 			gg.gameObjects.put(gg.playerID, new Vehicle(5.5f, 5.5f, gg.playerID));
 			gg.enterState(GravGame.PLAYINGSTATE);
 		}
+
+		if(exitButton.isMousePressing(input)) {
+			System.exit(0);
+		}
+
+		//if (input.isKeyDown(Input.KEY_1)) {
+		//	gg.startServerHandler();
+		//	gg.gameObjects.put(gg.playerID, new Vehicle(5.5f, 5.5f, gg.playerID));
+		//	gg.enterState(GravGame.PLAYINGSTATE);
+		//}
 	}
 
 	@Override

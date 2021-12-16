@@ -62,15 +62,24 @@ public class GravGame extends StateBasedGame {
 	public static final String POWERUP_CONTAINER_IMG_RSC = "gravity/resource/powerup_container.png";
 	public static final String NUM_ANIM_RSC = "gravity/resource/numAnim.png";
 	public static final String LAPTIME_IMG_RSC = "gravity/resource/laptime.png";
+
 	public static final String PLAYER_1_VEHICLE_ANIM = "gravity/resource/p1Anim.png";
 	public static final String PLAYER_2_VEHICLE_ANIM = "gravity/resource/p2Anim.png";
 	public static final String PLAYER_3_VEHICLE_ANIM = "gravity/resource/p3Anim.png";
 	public static final String PLAYER_4_VEHICLE_ANIM = "gravity/resource/p4Anim.png";
-	public static final String[] vehicleImages = {PLAYER_1_VEHICLE_ANIM, PLAYER_2_VEHICLE_ANIM,
-												  PLAYER_3_VEHICLE_ANIM, PLAYER_4_VEHICLE_ANIM};
 	public static final String LEVEL_1_BG_IMG_RSC = "gravity/resource/level1_bg.jpg";
+
+	public static final String MAIN_MENU_BACKGROUND_IMG_RSC = "gravity/resource/main_menu_background.png";
+	public static final String CONNECT_BUTTON_IMG_RSC = "gravity/resource/connect_button.png";
+	public static final String EXIT_BUTTON_IMG_RSC = "gravity/resource/exit_button.png";
+
+	public static final String[] vehicleImages = {PLAYER_1_VEHICLE_ANIM, PLAYER_2_VEHICLE_ANIM,
+			PLAYER_3_VEHICLE_ANIM, PLAYER_4_VEHICLE_ANIM};
 	public static final String[] levelBGs = {LEVEL_1_BG_IMG_RSC};
 	public static final Vector[] BGoffsets = {new Vector(1250, 500)};
+
+	public static final String track1 = "gravity/resource/track1.tmx";
+	public static final String[] tileMaps = {track1};
 
 	public final int ScreenWidth;
 	public final int ScreenHeight;
@@ -133,6 +142,9 @@ public class GravGame extends StateBasedGame {
 		ResourceManager.loadImage(ROCKET_UI_IMG_RSC);
 		ResourceManager.loadImage(SPIKETRAP_IMG_RSC);
 		ResourceManager.loadImage(ROCKET_IMG_RSC);
+		ResourceManager.loadImage(MAIN_MENU_BACKGROUND_IMG_RSC);
+		ResourceManager.loadImage(CONNECT_BUTTON_IMG_RSC);
+		ResourceManager.loadImage(EXIT_BUTTON_IMG_RSC);
 	}
 
 	public void startServerHandler() {
@@ -145,6 +157,10 @@ public class GravGame extends StateBasedGame {
 			playerID = in.readInt();
 			maxPlayers = in.readInt();
 			System.out.println("You are player: " + playerID);
+
+			if(playerID == 1) {
+
+			}
 
 			String startMsg = in.readUTF();
 			System.out.println("Message from server: " + startMsg);
