@@ -39,7 +39,7 @@ public class GameServer {
 
         System.out.println("Game Server spinning up!");
         numPlayers = 0;
-        maxPlayers = 2;
+        maxPlayers = 1;
         handlers = new ArrayList<>();
 
         entityId.set(maxPlayers + 1);

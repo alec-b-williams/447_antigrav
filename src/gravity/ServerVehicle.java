@@ -204,7 +204,7 @@ public class ServerVehicle extends GameObject {
         float cross = this.speed.unit().cross(oldSpeed.unit());
         cross = Math.abs(cross - 1);
         System.out.println("collision cross: " + cross + ", len: " + this.speed.length());
-        setHealth(this.getHealth() - (this.speed.length() * cross * 20));
+        setHealth(this.getHealth() - (this.speed.length() * cross * 10));
     }
 
     private Entity newWall(int i, int j) {
@@ -269,7 +269,7 @@ public class ServerVehicle extends GameObject {
     }
 
     public void boost(int delta) {
-        if (speed.length() != 0 && boostCooldown < 0) {
+        if (speed.length() != 0 && boostCooldown < 0 && deathCooldown < 0) {
             setHealth(getHealth() - ((delta/1000.0f) * 33) );
             boostCooldown = delta;
         }
