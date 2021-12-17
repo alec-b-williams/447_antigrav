@@ -29,6 +29,8 @@ public class GravGame extends StateBasedGame {
 	public static final int STARTUPSTATE = 0;
 	public static final int PLAYINGSTATE = 1;
 	public static final int GAMEOVERSTATE = 2;
+	public static final int LEVELSELECT = 3;
+	public static final int WAITSCREEN = 4;
 
 	public static final int VOID = 0;
 	public static final int TRACK = 1;
@@ -72,6 +74,12 @@ public class GravGame extends StateBasedGame {
 	public static final String MAIN_MENU_BACKGROUND_IMG_RSC = "gravity/resource/main_menu_background.png";
 	public static final String CONNECT_BUTTON_IMG_RSC = "gravity/resource/connect_button.png";
 	public static final String EXIT_BUTTON_IMG_RSC = "gravity/resource/exit_button.png";
+	public static final String LEVEL_SELECT_BACKGROUND_IMG_RSC = "gravity/resource/level_select_background.png";
+	public static final String LEVEL1_BUTTON_IMG_RSC = "gravity/resource/level1_button.png";
+	public static final String LEVEL2_BUTTON_IMG_RSC = "gravity/resource/level2_button.png";
+	public static final String LEVEL3_BUTTON_IMG_RSC = "gravity/resource/level3_button.png";
+	public static final String WAITING_SCREEN_BACKGROUND_IMG_RSC = "gravity/resource/waiting_screen_background.png";
+
 
 	public static final String[] vehicleImages = {PLAYER_1_VEHICLE_ANIM, PLAYER_2_VEHICLE_ANIM,
 			PLAYER_3_VEHICLE_ANIM, PLAYER_4_VEHICLE_ANIM};
@@ -79,7 +87,8 @@ public class GravGame extends StateBasedGame {
 	public static final Vector[] BGoffsets = {new Vector(1250, 500)};
 
 	public static final String track1 = "gravity/resource/track1.tmx";
-	public static final String[] tileMaps = {track1};
+	public static final String track2 = "gravity/resource/track-easy.tmx";
+	public static final String[] tileMaps = {track1, track2};
 
 	public final int ScreenWidth;
 	public final int ScreenHeight;
@@ -95,6 +104,8 @@ public class GravGame extends StateBasedGame {
 	public int playerID;
 	public int maxPlayers;
 	public final ConcurrentHashMap<Integer, GameObject> gameObjects = new ConcurrentHashMap<>();
+
+	public int levelSelected;
 
 	/**
 	 * Create the BounceGame frame, saving the width and height for later use.
@@ -120,6 +131,8 @@ public class GravGame extends StateBasedGame {
 		addState(new StartUpState());
 		addState(new GameOverState());
 		addState(new PlayingState());
+		addState(new LevelSelect());
+		addState(new WaitScreen());
 		
 		//ResourceManager.loadSound(BANG_EXPLOSIONSND_RSC);
 
@@ -145,6 +158,11 @@ public class GravGame extends StateBasedGame {
 		ResourceManager.loadImage(MAIN_MENU_BACKGROUND_IMG_RSC);
 		ResourceManager.loadImage(CONNECT_BUTTON_IMG_RSC);
 		ResourceManager.loadImage(EXIT_BUTTON_IMG_RSC);
+		ResourceManager.loadImage(LEVEL_SELECT_BACKGROUND_IMG_RSC);
+		ResourceManager.loadImage(LEVEL1_BUTTON_IMG_RSC);
+		ResourceManager.loadImage(LEVEL2_BUTTON_IMG_RSC);
+		ResourceManager.loadImage(LEVEL3_BUTTON_IMG_RSC);
+		ResourceManager.loadImage(WAITING_SCREEN_BACKGROUND_IMG_RSC);
 	}
 
 	public void startServerHandler() {
@@ -158,18 +176,33 @@ public class GravGame extends StateBasedGame {
 			maxPlayers = in.readInt();
 			System.out.println("You are player: " + playerID);
 
-			if(playerID == 1) {
-
-			}
-
-			String startMsg = in.readUTF();
-			System.out.println("Message from server: " + startMsg);
-
 			//ServerHandler sh = new ServerHandler(socket, out, in);
 			//Thread shThread = new Thread(sh);
 			//shThread.start();
 		} catch (IOException e){
 			System.out.println("IOException from connectToServer()");
+			e.printStackTrace();
+		}
+	}
+
+	public void p1Start(int level) {
+		try {
+			out.writeInt(level);
+			out.flush();
+			levelSelected = in.readInt();
+			String startMsg = in.readUTF();
+			System.out.println("Message from server: " + startMsg);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void notp1Start() {
+		try {
+			levelSelected = in.readInt();
+			String startMsg = in.readUTF();
+			System.out.println("Message from server: " + startMsg);
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}

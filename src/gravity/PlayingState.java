@@ -29,18 +29,16 @@ class PlayingState extends BasicGameState {
 	private Animation milliOnes;
 
 	@Override
-	public void init(GameContainer container, StateBasedGame game)
-			throws SlickException {
+	public void init(GameContainer container, StateBasedGame game) throws SlickException {
 		gg = (GravGame) game;
 		input = container.getInput();
-
 	}
 
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) throws SlickException {
 		container.setSoundOn(true);
 
-		gg.map = new TiledMap("gravity/resource/track1.tmx", "gravity/resource");
+		gg.map = new TiledMap(GravGame.tileMaps[gg.levelSelected], "gravity/resource");
 
 		gg.cameraXPos = 0;
 		gg.cameraYPos = 0;
@@ -59,8 +57,7 @@ class PlayingState extends BasicGameState {
 	}
 
 	@Override
-	public void render(GameContainer container, StateBasedGame game,
-			Graphics g) throws SlickException {
+	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
 
 		Vehicle player;
 		synchronized (gg.gameObjects) {
