@@ -23,11 +23,16 @@ class LevelSelect extends BasicGameState {
     Button level2Button;
     Button level3Button;
 
+    Button buttonSelected = null;
+    int buttonSelectedIndex = 0;
+    Button buttons[];
+
     @Override
     public void init(GameContainer container, StateBasedGame game) throws SlickException {
         level1Button = new Button(100, 362, ResourceManager.getImage(GravGame.LEVEL1_BUTTON_IMG_RSC));
         level2Button = new Button(490, 362, ResourceManager.getImage(GravGame.LEVEL2_BUTTON_IMG_RSC));
         level3Button = new Button(880, 362, ResourceManager.getImage(GravGame.LEVEL3_BUTTON_IMG_RSC));
+        buttons = new Button[] {level1Button, level2Button, level3Button};
     }
 
     @Override
@@ -60,6 +65,35 @@ class LevelSelect extends BasicGameState {
         if(level3Button.isMousePressing(input)) {
             gg.p1Start(2);
             gg.enterState(GravGame.PLAYINGSTATE);
+        }
+
+        if(input.isKeyPressed(Input.KEY_DOWN) || input.isKeyPressed(Input.KEY_LEFT)) {
+            if(buttonSelected != null) buttonSelected.toggleSelected();
+            buttonSelectedIndex = Math.abs(buttonSelectedIndex - 1) % buttons.length;
+            buttonSelected = buttons[buttonSelectedIndex];
+            buttonSelected.toggleSelected();
+        }
+
+        if(input.isKeyPressed(Input.KEY_UP) || input.isKeyPressed(Input.KEY_RIGHT)) {
+            if(buttonSelected != null) buttonSelected.toggleSelected();
+            buttonSelectedIndex = (buttonSelectedIndex + 1) % buttons.length;
+            buttonSelected = buttons[buttonSelectedIndex];
+            buttonSelected.toggleSelected();
+        }
+
+        if(input.isKeyPressed(Input.KEY_ENTER) && buttonSelected != null) {
+            if(buttonSelected.equals(level1Button)) {
+                gg.p1Start(0);
+                gg.enterState(GravGame.PLAYINGSTATE);
+            }
+            if(buttonSelected.equals(level2Button)) {
+                gg.p1Start(1);
+                gg.enterState(GravGame.PLAYINGSTATE);
+            }
+            if(buttonSelected.equals(level3Button)) {
+                gg.p1Start(2);
+                gg.enterState(GravGame.PLAYINGSTATE);
+            }
         }
     }
 

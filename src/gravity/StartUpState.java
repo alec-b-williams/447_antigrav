@@ -21,10 +21,15 @@ class StartUpState extends BasicGameState {
 	Input input;
 	Button connectButton;
 	Button exitButton;
+
+	Button buttonSelected = null;
+	int buttonSelectedIndex = 0;
+	Button buttons[];
 	@Override
 	public void init(GameContainer container, StateBasedGame game) throws SlickException {
 		connectButton = new Button(440, 480, ResourceManager.getImage(GravGame.CONNECT_BUTTON_IMG_RSC));
 		exitButton = new Button(440, 630, ResourceManager.getImage(GravGame.EXIT_BUTTON_IMG_RSC));
+		buttons = new Button[] {connectButton, exitButton};
 	}
 	
 	@Override
@@ -61,6 +66,38 @@ class StartUpState extends BasicGameState {
 
 		if(exitButton.isMousePressing(input)) {
 			System.exit(0);
+		}
+
+		if(input.isKeyPressed(Input.KEY_DOWN) || input.isKeyPressed(Input.KEY_LEFT)) {
+			if(buttonSelected != null) buttonSelected.toggleSelected();
+			buttonSelectedIndex = Math.abs(buttonSelectedIndex - 1) % buttons.length;
+			buttonSelected = buttons[buttonSelectedIndex];
+			buttonSelected.toggleSelected();
+		}
+
+		if(input.isKeyPressed(Input.KEY_UP) || input.isKeyPressed(Input.KEY_RIGHT)) {
+			if(buttonSelected != null) buttonSelected.toggleSelected();
+			buttonSelectedIndex = (buttonSelectedIndex + 1) % buttons.length;
+			buttonSelected = buttons[buttonSelectedIndex];
+			buttonSelected.toggleSelected();
+		}
+
+		if(input.isKeyPressed(Input.KEY_ENTER) && buttonSelected != null) {
+			if(buttonSelected.equals(connectButton)) {
+				gg.startServerHandler();
+				gg.gameObjects.put(gg.playerID, new Vehicle(5.5f, 5.5f, gg.playerID));
+				if(gg.playerID == 1) {
+					System.out.println("player " + gg.playerID + " entering level select...");
+					gg.enterState(GravGame.LEVELSELECT);
+				}
+				else {
+					System.out.println("player " + gg.playerID + " entering wait screen...");
+					gg.enterState(GravGame.WAITSCREEN);
+				}
+			}
+			if(buttonSelected.equals(exitButton)) {
+				System.exit(0);
+			}
 		}
 	}
 

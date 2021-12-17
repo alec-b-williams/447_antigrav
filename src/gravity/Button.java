@@ -14,6 +14,8 @@ public class Button {
     public int maxY;
     public int width;
     public int height;
+    public boolean isSelected = false;
+    public boolean wasSelected = false;
 
     public Button(int x, int y, Image image) {
         buttonImage = image;
@@ -30,15 +32,29 @@ public class Button {
         int y = input.getMouseY();
 
         if((x >= minX && x <= maxX) && (y >= minY && y <= maxY)) {
-            buttonImage.setImageColor(255, 255, 255, 0.75f);
+            setSelected(true);
+            wasSelected = true;
             return true;
         }
-        buttonImage.setImageColor(255, 255, 255, 1f);
+        if(wasSelected) setSelected(false);
+        wasSelected = false;
         return false;
     }
 
     public boolean isMousePressing(Input input) {
         return isMouseTouching(input) && input.isMousePressed(Input.MOUSE_LEFT_BUTTON);
+    }
+
+    public void toggleSelected() {
+        isSelected = !isSelected;
+        if(isSelected) buttonImage.setImageColor(255, 255, 255, 0.75f);
+        else buttonImage.setImageColor(255, 255, 255, 1f);
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+        if(selected) buttonImage.setImageColor(255, 255, 255, 0.75f);
+        else buttonImage.setImageColor(255, 255, 255, 1f);
     }
 
     public void draw(Graphics g) {
