@@ -41,7 +41,7 @@ public class GameServer {
 
         System.out.println("Game Server spinning up!");
         numPlayers = 0;
-        maxPlayers = 3;
+        maxPlayers = 1;
         Entity.setCoarseGrainedCollisionBoundary(Entity.CIRCLE);
 
         acceptConnections();
