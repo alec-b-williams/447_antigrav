@@ -151,6 +151,7 @@ class PlayingState extends BasicGameState {
 				gg.out.writeUTF("^");
 				gg.out.writeInt(delta);
 				gg.out.flush();
+		  		gg.updateGameObjects();
 			}
 		} catch(IOException | ClassNotFoundException e) {
 			e. printStackTrace();
