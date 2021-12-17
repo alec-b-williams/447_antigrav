@@ -1,5 +1,6 @@
 package gravity;
 
+import jig.Collision;
 import jig.Entity;
 import jig.Vector;
 import org.newdawn.slick.SlickException;
@@ -18,53 +19,32 @@ public class GameServer {
     private ServerSocket server;
     private int numPlayers;
     private final int maxPlayers;
-    private final ArrayList<ClientHandler> handlers;
+    private final ArrayList<ClientHandler> handlers = new ArrayList<>();
 
-    private final TiledMap currentMap;
+    private TiledMap currentMap;
     private final ConcurrentHashMap<Integer, Dispenser> dispensers;
 
     private final ConcurrentHashMap<Integer, GameObject> gameObjects = new ConcurrentHashMap<>();
     private final AtomicInteger entityId = new AtomicInteger();
 
+    ArrayList<Vector> playerSpawnLocations;
+
     public GameServer() throws SlickException {
-
-        Entity.setCoarseGrainedCollisionBoundary(Entity.CIRCLE);
-        currentMap = new TiledMap("gravity/resource/track1.tmx", false);
-        int mapWidth = currentMap.getWidth();
-        int mapHeight = currentMap.getHeight();
         dispensers = new ConcurrentHashMap<>();
-        ArrayList<Vector> playerSpawnLocations = new ArrayList<>();
-
-
-        System.out.println("Game Server spinning up!");
-        numPlayers = 0;
-        maxPlayers = 4;
-        handlers = new ArrayList<>();
-
-        entityId.set(maxPlayers + 1);
-
-        int dispenserId = 0;
-        for(int x = 0; x < mapWidth; x++) {
-            for(int y = 0; y < mapHeight; y++) {
-                if(currentMap.getTileId(x, y, 0) == GravGame.DISPENSER) {
-                    Vector location = new Vector(x, y);
-                    gameObjects.put(entityId.get(), new Powerup(x, y, entityId.get(), dispenserId));
-                    dispensers.put(dispenserId, new Dispenser(location));
-                    entityId.incrementAndGet();
-                    dispenserId++;
-                }
-                else if(currentMap.getTileId(x, y, 0) == GravGame.PLAYER_SPAWN) {
-                    playerSpawnLocations.add(new Vector(x, y));
-                }
-            }
-        }
-
+        playerSpawnLocations = new ArrayList<>();
         try {
             this.server = new ServerSocket(9158);
         } catch (IOException e){
             System.out.println("IOException in GS constructor");
             e.printStackTrace();
         }
+
+        System.out.println("Game Server spinning up!");
+        numPlayers = 0;
+        maxPlayers = 1;
+        Entity.setCoarseGrainedCollisionBoundary(Entity.CIRCLE);
+
+        acceptConnections();
     }
 
     private void acceptConnections(){
@@ -77,22 +57,60 @@ public class GameServer {
                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 
                 this.numPlayers++;
-                gameObjects.put(numPlayers, new ServerVehicle(5f, 5f));
+
                 out.writeInt(numPlayers);
                 out.writeInt(maxPlayers);
+                out.flush();
                 System.out.println("Player #" + numPlayers + " has connected");
 
                 handlers.add(new ClientHandler(this.numPlayers, in, out));
             }
             System.out.println("Max Players Reached");
+            int levelSelected = 0;
             for(ClientHandler handler: handlers) {
+                if(handler.playerId == 1) {
+                    levelSelected = handler.dataIn.readInt();
+                }
+            }
+            currentMap = new TiledMap(GravGame.tileMaps[levelSelected], false);
+            for (ClientHandler handler: handlers) {
+                System.out.println("Writing level selected: " + levelSelected);
+                handler.dataOut.writeInt(levelSelected);
                 handler.sendStartMsg();
             }
+
+            int mapWidth = currentMap.getWidth();
+            int mapHeight = currentMap.getHeight();
+
+            entityId.set(maxPlayers + 1);
+
+            int dispenserId = 0;
+            for(int x = 0; x < mapWidth; x++) {
+                for(int y = 0; y < mapHeight; y++) {
+                    if(currentMap.getTileId(x, y, 0) == GravGame.DISPENSER) {
+                        Vector location = new Vector(x, y);
+                        gameObjects.put(entityId.get(), new Powerup(x, y, entityId.get(), dispenserId));
+                        dispensers.put(dispenserId, new Dispenser(location));
+                        entityId.incrementAndGet();
+                        dispenserId++;
+                    }
+                    else if(currentMap.getTileId(x, y, 0) == GravGame.PLAYER_SPAWN) {
+                        System.out.println("Added spawn location at " + x + ", " + y);
+                        playerSpawnLocations.add(new Vector(x, y));
+                    }
+                }
+            }
             for(ClientHandler handler: handlers) {
+                Vector spawnLocation = playerSpawnLocations.remove(0);
+                System.out.println("Spawn location for player " + handler.playerId + " created at " + spawnLocation.getX() + ", " + spawnLocation.getY());
+                gameObjects.put(handler.playerId, new ServerVehicle(spawnLocation.getX(), spawnLocation.getY()));
+                handler.player = (ServerVehicle) gameObjects.get(handler.playerId);
+                System.out.println("Player: " + handler.player);
                 Thread playerThread = new Thread(handler);
                 playerThread.start();
             }
-        } catch (IOException e){
+
+        } catch (IOException | SlickException e){
             System.out.println("IOException in acceptConnections()");
             e.printStackTrace();
         }
@@ -102,13 +120,12 @@ public class GameServer {
         private final int playerId;
         private final ObjectInputStream dataIn;
         private final ObjectOutputStream dataOut;
-        private final ServerVehicle player;
+        public ServerVehicle player;
 
         public ClientHandler(int playerId, ObjectInputStream in, ObjectOutputStream out){
             this.playerId = playerId;
             this.dataIn = in;
             this.dataOut = out;
-            this.player = (ServerVehicle) gameObjects.get(playerId);
         }
 
         @Override
@@ -195,6 +212,7 @@ public class GameServer {
                 if(object instanceof Powerup) handlePowerup(key);
                 else if(object instanceof SpikeTrap) handleSpikeTrap(key);
                 else if(object instanceof Rocket) handleRocket(key);
+                else if(object instanceof ServerVehicle && key != playerId) handleVehicle(key);
             }
         }
 
@@ -211,6 +229,9 @@ public class GameServer {
         public void handleSpikeTrap(int id) {
             SpikeTrap spikeTrap = (SpikeTrap) gameObjects.get(id);
             if(spikeTrap.placedById != playerId) {
+                ServerVehicle player = ((ServerVehicle)gameObjects.get(playerId));
+                player.setHealth(player.getHealth() - 10);
+                player.slowCooldown = 1500;
                 gameObjects.remove(id);
             }
         }
@@ -218,7 +239,32 @@ public class GameServer {
         public void handleRocket(int id) {
             Rocket rocket = (Rocket) gameObjects.get(id);
             if(rocket.placedById != playerId) {
+                ServerVehicle player = ((ServerVehicle)gameObjects.get(playerId));
+                player.setHealth(player.getHealth() - 10);
+                player.slowCooldown = 1500;
                 gameObjects.remove(id);
+            }
+        }
+
+        public void handleVehicle(int id) {
+            ServerVehicle player = ((ServerVehicle)gameObjects.get(playerId));
+            ServerVehicle other = ((ServerVehicle)gameObjects.get(id));
+
+            Collision vehicleCollision = player.collides(other);
+            if (!other.recentCollisions.contains(playerId) && vehicleCollision != null && vehicleCollision.getMinPenetration() != null) {
+                System.out.println("Colliding player " + playerId + " with player " + id);
+                Vector playerSpeed = player.getSpeed();
+                Vector otherSpeed = other.getSpeed();
+
+                Vector bounce = vehicleCollision.getMinPenetration();
+                player.setSpeed(player.getSpeed().bounce((float)bounce.getRotation()+90));
+                other.setSpeed(other.getSpeed().bounce((float)bounce.getRotation()+90));
+
+                player.setSpeed(player.getSpeed().add(otherSpeed));
+                other.setSpeed(other.getSpeed().add(playerSpeed));
+
+                System.out.println("Player speed: " + player.getSpeed().length()+ ", other speed: " + other.getSpeed().length());
+
             }
         }
 
@@ -273,7 +319,7 @@ public class GameServer {
     public static void main(String[] args) {
         try {
             GameServer gs = new GameServer();
-            gs.acceptConnections();
+            //gs.acceptConnections();
         } catch (SlickException e){
             e.printStackTrace();
         }
