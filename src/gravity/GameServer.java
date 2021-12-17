@@ -19,28 +19,33 @@ public class GameServer {
     private ServerSocket server;
     private int numPlayers;
     private final int maxPlayers;
-    private final ArrayList<ClientHandler> handlers;
+    private final ArrayList<ClientHandler> handlers = new ArrayList<>();
 
-    private final TiledMap currentMap;
+    private TiledMap currentMap;
     private final ConcurrentHashMap<Integer, Dispenser> dispensers;
 
     private final ConcurrentHashMap<Integer, GameObject> gameObjects = new ConcurrentHashMap<>();
     private final AtomicInteger entityId = new AtomicInteger();
 
     public GameServer() throws SlickException {
+        try {
+            this.server = new ServerSocket(9158);
+        } catch (IOException e){
+            System.out.println("IOException in GS constructor");
+            e.printStackTrace();
+        }
 
+        System.out.println("Game Server spinning up!");
+        numPlayers = 0;
+        maxPlayers = 2;
         Entity.setCoarseGrainedCollisionBoundary(Entity.CIRCLE);
-        currentMap = new TiledMap("gravity/resource/track1.tmx", false);
+
+        acceptConnections();
+
         int mapWidth = currentMap.getWidth();
         int mapHeight = currentMap.getHeight();
         dispensers = new ConcurrentHashMap<>();
         ArrayList<Vector> playerSpawnLocations = new ArrayList<>();
-
-
-        System.out.println("Game Server spinning up!");
-        numPlayers = 0;
-        maxPlayers = 1;
-        handlers = new ArrayList<>();
 
         entityId.set(maxPlayers + 1);
 
@@ -59,13 +64,6 @@ public class GameServer {
                 }
             }
         }
-
-        try {
-            this.server = new ServerSocket(9158);
-        } catch (IOException e){
-            System.out.println("IOException in GS constructor");
-            e.printStackTrace();
-        }
     }
 
     private void acceptConnections(){
@@ -81,19 +79,29 @@ public class GameServer {
                 gameObjects.put(numPlayers, new ServerVehicle(5f, 5f + numPlayers));
                 out.writeInt(numPlayers);
                 out.writeInt(maxPlayers);
+                out.flush();
                 System.out.println("Player #" + numPlayers + " has connected");
 
                 handlers.add(new ClientHandler(this.numPlayers, in, out));
             }
             System.out.println("Max Players Reached");
+            int levelSelected = 0;
             for(ClientHandler handler: handlers) {
+                if(handler.playerId == 1) {
+                    levelSelected = handler.dataIn.readInt();
+                }
+            }
+            currentMap = new TiledMap(GravGame.tileMaps[levelSelected], false);
+            for (ClientHandler handler: handlers) {
+                System.out.println("Writing level selected: " + levelSelected);
+                handler.dataOut.writeInt(levelSelected);
                 handler.sendStartMsg();
             }
             for(ClientHandler handler: handlers) {
                 Thread playerThread = new Thread(handler);
                 playerThread.start();
             }
-        } catch (IOException e){
+        } catch (IOException | SlickException e){
             System.out.println("IOException in acceptConnections()");
             e.printStackTrace();
         }
@@ -303,7 +311,7 @@ public class GameServer {
     public static void main(String[] args) {
         try {
             GameServer gs = new GameServer();
-            gs.acceptConnections();
+            //gs.acceptConnections();
         } catch (SlickException e){
             e.printStackTrace();
         }
