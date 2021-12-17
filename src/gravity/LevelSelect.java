@@ -69,7 +69,7 @@ class LevelSelect extends BasicGameState {
 
         if(input.isKeyPressed(Input.KEY_DOWN) || input.isKeyPressed(Input.KEY_LEFT)) {
             if(buttonSelected != null) buttonSelected.toggleSelected();
-            buttonSelectedIndex = Math.abs(buttonSelectedIndex - 1) % buttons.length;
+            buttonSelectedIndex = ((((buttonSelectedIndex - 1) % buttons.length) + buttons.length) % buttons.length);
             buttonSelected = buttons[buttonSelectedIndex];
             buttonSelected.toggleSelected();
         }
