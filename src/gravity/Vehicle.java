@@ -46,7 +46,7 @@ public class Vehicle extends GameObject {
     }
 
     private void setRotationFrame(float angle) {
-        int num = (int)(angle) + 105;
+        int num = (int)(angle) + 102;
         this.sprite.setCurrentFrame(Math.floorMod(((int)(num / 22.5) + 6), 16));
     }
 }

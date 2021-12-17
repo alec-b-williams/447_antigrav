@@ -37,13 +37,13 @@ public class ServerVehicle extends GameObject {
 
     private static final float degPerSecond = 180;
 
-    public ServerVehicle(float x, float y) {
+    public ServerVehicle(float x, float y, int levelSelected) {
         super(x, y);
 
         this.worldX = x;
         this.worldY = y;
         this.speed = new Vector(0, 0);
-        this.speedAngle = 0;
+        this.speedAngle = GravGame.levelStartDirs[levelSelected];
         this.height = 0;
         this.isKill = false;
         this.lastTile = new Vector(x, y);
@@ -121,7 +121,9 @@ public class ServerVehicle extends GameObject {
         boostCooldown -= delta;
         deathCooldown -= delta;
         slowCooldown -= delta;
-        timer += delta;
+
+        if (lap <= GravGame.lapLimit)
+            timer += delta;
     }
 
     private void calcCollision(int newX, int newY, TiledMap map) {
