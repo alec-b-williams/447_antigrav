@@ -200,8 +200,8 @@ class PlayingState extends BasicGameState {
 		DecimalFormat df = new DecimalFormat("####.##");
 
 		if (player.getDebug()){
-			g.drawString("Player Pos: " + df.format(player.worldX) + ", " + df.format(player.worldY), 10, 30);
-			g.drawString("Player Rotation: " + df.format((float)player.speedAngle), 10, 50);
+			//g.drawString("Player Pos: " + df.format(player.worldX) + ", " + df.format(player.worldY), 10, 30);
+			//g.drawString("Player Rotation: " + df.format((float)player.speedAngle), 10, 50);
 		}
 
 		g.drawImage(ResourceManager.getImage(GravGame.ENERGY_IMG_RSC),

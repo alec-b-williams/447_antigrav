@@ -41,7 +41,7 @@ public class GameServer {
 
         System.out.println("Game Server spinning up!");
         numPlayers = 0;
-        maxPlayers = 1;
+        maxPlayers = 3;
         Entity.setCoarseGrainedCollisionBoundary(Entity.CIRCLE);
 
         acceptConnections();
@@ -228,8 +228,8 @@ public class GameServer {
 
         public void handleSpikeTrap(int id) {
             SpikeTrap spikeTrap = (SpikeTrap) gameObjects.get(id);
-            if(spikeTrap.placedById != playerId) {
-                ServerVehicle player = ((ServerVehicle)gameObjects.get(playerId));
+            ServerVehicle player = ((ServerVehicle)gameObjects.get(playerId));
+            if(spikeTrap.placedById != playerId && player.height == 0) {
                 player.setHealth(player.getHealth() - 10);
                 player.slowCooldown = 1500;
                 gameObjects.remove(id);
@@ -238,8 +238,8 @@ public class GameServer {
 
         public void handleRocket(int id) {
             Rocket rocket = (Rocket) gameObjects.get(id);
-            if(rocket.placedById != playerId) {
-                ServerVehicle player = ((ServerVehicle)gameObjects.get(playerId));
+            ServerVehicle player = ((ServerVehicle)gameObjects.get(playerId));
+            if(rocket.placedById != playerId && player.height == 0) {
                 player.setHealth(player.getHealth() - 10);
                 player.slowCooldown = 1500;
                 gameObjects.remove(id);
@@ -264,7 +264,6 @@ public class GameServer {
                 other.setSpeed(other.getSpeed().add(playerSpeed));
 
                 System.out.println("Player speed: " + player.getSpeed().length()+ ", other speed: " + other.getSpeed().length());
-
             }
         }
 
