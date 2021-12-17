@@ -41,7 +41,7 @@ public class GameServer {
 
         System.out.println("Game Server spinning up!");
         numPlayers = 0;
-        maxPlayers = 4;
+        maxPlayers = 1;
         Entity.setCoarseGrainedCollisionBoundary(Entity.CIRCLE);
 
         acceptConnections();
@@ -103,7 +103,7 @@ public class GameServer {
             for(ClientHandler handler: handlers) {
                 Vector spawnLocation = playerSpawnLocations.remove(0);
                 System.out.println("Spawn location for player " + handler.playerId + " created at " + spawnLocation.getX() + ", " + spawnLocation.getY());
-                gameObjects.put(handler.playerId, new ServerVehicle(spawnLocation.getX(), spawnLocation.getY()));
+                gameObjects.put(handler.playerId, new ServerVehicle(spawnLocation.getX(), spawnLocation.getY(), levelSelected));
                 handler.player = (ServerVehicle) gameObjects.get(handler.playerId);
                 System.out.println("Player: " + handler.player);
                 Thread playerThread = new Thread(handler);

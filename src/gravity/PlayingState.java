@@ -64,9 +64,9 @@ class PlayingState extends BasicGameState {
 			player = (Vehicle) gg.gameObjects.get(gg.playerID);
 		}
 
-		g.drawImage(ResourceManager.getImage(GravGame.levelBGs[0]),
-				(gg.BGoffsets[0].getX() * -1) - ((player.worldX - player.worldY) * 4),
-				(gg.BGoffsets[0].getY() * -1) - ((player.worldX + player.worldY)) * 4);
+		g.drawImage(ResourceManager.getImage(GravGame.levelBGs[gg.levelSelected]),
+				(GravGame.BGoffset.getX() * -1) - ((player.worldX - player.worldY) * 4),
+				(GravGame.BGoffset.getY() * -1) - ((player.worldX + player.worldY)) * 4);
 
 		g.scale(gg.gameScale, gg.gameScale);
 
@@ -241,7 +241,7 @@ class PlayingState extends BasicGameState {
 		minuteOnes.setCurrentFrame(minutes % 10);
 		secondTens.setCurrentFrame((seconds/10) % 10);
 		secondOnes.setCurrentFrame(seconds % 10);
-		milliTens.setCurrentFrame(((int)time / 100) % 10);
+		milliTens.setCurrentFrame(((int)time/100) % 10);
 		milliOnes.setCurrentFrame(((int)time/10) % 10);
 
 		g.drawAnimation(minuteTens, GravGame._SCREENWIDTH - 230, 38);
@@ -250,6 +250,10 @@ class PlayingState extends BasicGameState {
 		g.drawAnimation(secondOnes, GravGame._SCREENWIDTH - 150, 38);
 		g.drawAnimation(milliTens, GravGame._SCREENWIDTH - 110, 38);
 		g.drawAnimation(milliOnes, GravGame._SCREENWIDTH - 90, 38);
+
+		if (player.lap > GravGame.lapLimit) {
+			g.drawImage(ResourceManager.getImage(GravGame.FINISH_IMG_RSC), 375, 400);
+		}
 	}
 
 	private Animation newNum() {
