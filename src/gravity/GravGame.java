@@ -197,14 +197,24 @@ public class GravGame extends StateBasedGame {
 		}
 	}
 
-	public void notp1Start() {
-		try {
-			levelSelected = in.readInt();
-			String startMsg = in.readUTF();
-			System.out.println("Message from server: " + startMsg);
-		} catch (IOException e) {
-			e.printStackTrace();
+	public class Waiter implements Runnable {
+
+		@Override
+		public void run() {
+			try {
+				levelSelected = in.readInt();
+				String startMsg = in.readUTF();
+				System.out.println("Message from server: " + startMsg);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
+	}
+
+	public Thread notp1Start() {
+		Thread waitThread = new Thread(new Waiter());
+		waitThread.start();
+		return waitThread;
 	}
 
 	public void updateGameObjects() throws IOException, ClassNotFoundException {

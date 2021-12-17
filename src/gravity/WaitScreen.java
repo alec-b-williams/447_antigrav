@@ -18,6 +18,7 @@ import org.newdawn.slick.state.StateBasedGame;
 class WaitScreen extends BasicGameState {
 
     GravGame gg;
+    Thread waitThread;
     @Override
     public void init(GameContainer container, StateBasedGame game) throws SlickException {
         gg = (GravGame) game;
@@ -25,7 +26,7 @@ class WaitScreen extends BasicGameState {
 
     @Override
     public void enter(GameContainer container, StateBasedGame game) {
-
+        waitThread = gg.notp1Start();
     }
 
 
@@ -36,8 +37,7 @@ class WaitScreen extends BasicGameState {
 
     @Override
     public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
-        gg.notp1Start();
-        gg.enterState(GravGame.PLAYINGSTATE);
+        if(!waitThread.isAlive()) gg.enterState(GravGame.PLAYINGSTATE);
     }
 
     @Override
