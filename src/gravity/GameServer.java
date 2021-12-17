@@ -45,8 +45,6 @@ public class GameServer {
         Entity.setCoarseGrainedCollisionBoundary(Entity.CIRCLE);
 
         acceptConnections();
-
-
     }
 
     private void acceptConnections(){
