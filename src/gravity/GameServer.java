@@ -45,8 +45,6 @@ public class GameServer {
         Entity.setCoarseGrainedCollisionBoundary(Entity.CIRCLE);
 
         acceptConnections();
-
-
     }
 
     private void acceptConnections(){
@@ -59,6 +57,7 @@ public class GameServer {
                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 
                 this.numPlayers++;
+
                 out.writeInt(numPlayers);
                 out.writeInt(maxPlayers);
                 out.flush();

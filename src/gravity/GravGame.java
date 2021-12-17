@@ -86,9 +86,10 @@ public class GravGame extends StateBasedGame {
 	public static final String[] levelBGs = {LEVEL_1_BG_IMG_RSC};
 	public static final Vector[] BGoffsets = {new Vector(1250, 500)};
 
-	public static final String track1 = "gravity/resource/track1.tmx";
-	public static final String track2 = "gravity/resource/track-easy.tmx";
-	public static final String[] tileMaps = {track1, track2};
+	public static final String track1 = "gravity/resource/track-easy.tmx";
+	public static final String track2 = "gravity/resource/track-med.tmx";
+	public static final String track3 = "gravity/resource/track-hard.tmx";
+	public static final String[] tileMaps = {track1, track2, track3};
 
 	public final int ScreenWidth;
 	public final int ScreenHeight;
