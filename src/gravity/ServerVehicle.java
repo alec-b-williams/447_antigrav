@@ -221,7 +221,7 @@ public class ServerVehicle extends GameObject {
     }
 
     private int safeTileID(int x, int y, TiledMap map) {
-        if (x < 0 || y < 0)
+        if (x < 0 || y < 0 || x > map.getWidth() || y > map.getHeight())
             return -1;
         else
             return map.getTileId(x, y, 0);
